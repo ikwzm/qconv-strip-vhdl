@@ -1,0 +1,27 @@
+
+- Global:
+    Print    :  true
+
+- Library:
+    Name     :  pipework
+    Format   :  "add_vhdl_file sources_1 #{library_name} #{file_name}"
+    PathList :  ["../../../PipeWork/src/"]
+    Use      :  ["SDPRAM(XILINX_ULTRASCALE_AUTO_SELECT)"]
+
+- Library:
+    Name     :  dummy_plug
+    Format   :  "add_vhdl_file sim_1     #{library_name} #{file_name}"
+    Exclude  :  ["../../../Dummy_Plug/src/main/vhdl/core/sync_alt.vhd"]
+    PathList :  ["../../../Dummy_Plug/src/main/vhdl/"]
+
+- Library:
+    Name     :  qconv
+    Format   :  "add_vhdl_file sources_1 #{library_name} #{file_name}"
+    PathList :  ["../../../src/main/vhdl/"]
+
+- Library:
+    Name     :  work
+    Format   :  "add_vhdl_file sim_1     #{library_name} #{file_name}"
+    PathList :
+        - "../../../src/test/vhdl"
+    Top      :  ["QCONV_STRIP_TH_DATA_AXI_READER_TEST_BENCH"]
