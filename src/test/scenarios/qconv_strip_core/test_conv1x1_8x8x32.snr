@@ -1,0 +1,634 @@
+---
+- MARCHAL : 
+  - SAY : QCONV_STRIP_CORE_TEST K=>1x1 USE_TH=0 IN_C=1 IN_W=8 IN_H=8 OUT_C=32
+- CSR :
+  - WRITE: {ADDR: 32'h00000030, DATA: 32'h00000008} # IN_W
+  - WRITE: {ADDR: 32'h00000038, DATA: 32'h00000008} # IN_H
+  - WRITE: {ADDR: 32'h00000040, DATA: 32'h00000001} # IN_C
+  - WRITE: {ADDR: 32'h00000048, DATA: 32'h00000008} # OUT_W
+  - WRITE: {ADDR: 32'h00000050, DATA: 32'h00000008} # OUT_H
+  - WRITE: {ADDR: 32'h00000058, DATA: 32'h00000020} # OUT_C
+  - WRITE: {ADDR: 32'h00000060, DATA: 32'h00000001} # K_W
+  - WRITE: {ADDR: 32'h00000068, DATA: 32'h00000001} # K_H
+  - WRITE: {ADDR: 32'h00000070, DATA: 32'h00000000} # PAD_SIZE
+  - WRITE: {ADDR: 32'h00000074, DATA: 32'h00000000} # USE_TH
+  - WRITE: {ADDR: 32'h0000000C, DATA: 32'h14000003} # CTRL[4]=1,CTRL[2]=1,STAT=8'h00,MODE[1:0]=2'b11
+  - WAIT : {GPI(0) : 1, TIMEOUT: 10000}             # WAIT for IRQ=1
+  - READ : {ADDR: 32'h0000000C, DATA: 32'h04010003} # CTRL[4]=0,CTRL[2]=1,STAT=8'h01,MODE[1:0]=2'b11
+  - WRITE: {ADDR: 32'h0000000C, DATA: 32'h00000003} # CTRL[4]=0,CTRL[2]=1,STAT=8'h00,MODE[1:0]=2'b11
+  - WAIT : {GPI(0) : 0, TIMEOUT: 10000}             # WAIT for IRQ=0
+- IN :
+  - XFER : {DATA : ["32'h1a0609b1", "32'h3d442ce8"]}
+  - XFER : {DATA : ["32'h93d86998", "32'h34cd905d"]}
+  - XFER : {DATA : ["32'h643c0618", "32'h7dc9e373"]}
+  - XFER : {DATA : ["32'h0f8a0dc8", "32'h1a86cb15"]}
+  - XFER : {DATA : ["32'h4a3f760c", "32'h27ede0ba"]}
+  - XFER : {DATA : ["32'h04103136", "32'hddf10eae"]}
+  - XFER : {DATA : ["32'h484fff7d", "32'hbac011c3"]}
+  - XFER : {DATA : ["32'h4e5f1384", "32'h618939ae"]}
+  - XFER : {DATA : ["32'hcd6b1aa9", "32'h9075bca6"]}
+  - XFER : {DATA : ["32'hd572ecb0", "32'hc4cc75d9"]}
+  - XFER : {DATA : ["32'h17b1f0d8", "32'h133a6acc"]}
+  - XFER : {DATA : ["32'h5aafe80c", "32'h377660b6"]}
+  - XFER : {DATA : ["32'h97d9d416", "32'hf9c75938"]}
+  - XFER : {DATA : ["32'hbe33556d", "32'h23de2459"]}
+  - XFER : {DATA : ["32'h3e2677ab", "32'hf6c615f1"]}
+  - XFER : {DATA : ["32'hf8d955d0", "32'h2ad6e92a"]}
+  - XFER : {DATA : ["32'hb19c871f", "32'h3cb7089c"]}
+  - XFER : {DATA : ["32'h89ac4dc3", "32'h9b27c442"]}
+  - XFER : {DATA : ["32'had02048d", "32'h13d2ad2d"]}
+  - XFER : {DATA : ["32'h50c9bf2f", "32'hc8e1b452"]}
+  - XFER : {DATA : ["32'h4b6d3f84", "32'hbc0249fc"]}
+  - XFER : {DATA : ["32'h69f8ce12", "32'hc35b90b1"]}
+  - XFER : {DATA : ["32'h441e72be", "32'he6f52c27"]}
+  - XFER : {DATA : ["32'h56854d91", "32'h19425e0a"]}
+  - XFER : {DATA : ["32'h6b9edf3e", "32'h34895aad"]}
+  - XFER : {DATA : ["32'h42e51ad8", "32'hfabe0850"]}
+  - XFER : {DATA : ["32'h33597ef6", "32'h0f5c36ff"]}
+  - XFER : {DATA : ["32'h691680f0", "32'hd8ffb2d4"]}
+  - XFER : {DATA : ["32'h545a3243", "32'hac556ef4"]}
+  - XFER : {DATA : ["32'h5c41903b", "32'h4649ea87"]}
+  - XFER : {DATA : ["32'hc560c24b", "32'h7efb3af5"]}
+  - XFER : {DATA : ["32'h84ddadfb", "32'h3c3c38d5"]}
+  - XFER : {DATA : ["32'h9bf1c3a1", "32'hf5b4924f"]}
+  - XFER : {DATA : ["32'h1a77cfe4", "32'h31d695b0"]}
+  - XFER : {DATA : ["32'ha0bca919", "32'h59812523"]}
+  - XFER : {DATA : ["32'h10184f61", "32'hf3ff3b27"]}
+  - XFER : {DATA : ["32'h9aff695c", "32'h23e2a794"]}
+  - XFER : {DATA : ["32'hbe68d432", "32'h19328fbf"]}
+  - XFER : {DATA : ["32'h7c22d44e", "32'h3e37451e"]}
+  - XFER : {DATA : ["32'h5c5dc5ec", "32'h23ceec85"]}
+  - XFER : {DATA : ["32'h344d3b8f", "32'hf8775df9"]}
+  - XFER : {DATA : ["32'h91165b56", "32'hd458220a"]}
+  - XFER : {DATA : ["32'hc1327ad7", "32'h56847d33"]}
+  - XFER : {DATA : ["32'hd48a6d0c", "32'hfeb4ff38"]}
+  - XFER : {DATA : ["32'ha8bc2bfa", "32'h5c914cb5"]}
+  - XFER : {DATA : ["32'hd2d502f0", "32'hce9fa23d"]}
+  - XFER : {DATA : ["32'he8f689d7", "32'hdff2a620"]}
+  - XFER : {DATA : ["32'ha00b4371", "32'hcea4f711"]}
+  - XFER : {DATA : ["32'h749f16d5", "32'h8d4fae96"]}
+  - XFER : {DATA : ["32'h9c08b79d", "32'h041ff54d"]}
+  - XFER : {DATA : ["32'h88c45153", "32'h64050ffa"]}
+  - XFER : {DATA : ["32'heff3b085", "32'hd601ece6"]}
+  - XFER : {DATA : ["32'h4f87f590", "32'hfc634722"]}
+  - XFER : {DATA : ["32'hcc65c17e", "32'hf515ca66"]}
+  - XFER : {DATA : ["32'hf76dc479", "32'hc25c89ea"]}
+  - XFER : {DATA : ["32'h9cf45dfb", "32'h24c88457"]}
+  - XFER : {DATA : ["32'he5d4cce1", "32'h91be0d06"]}
+  - XFER : {DATA : ["32'hd61fe0f2", "32'hb8066d82"]}
+  - XFER : {DATA : ["32'hf79e3d9e", "32'h1d29745d"]}
+  - XFER : {DATA : ["32'hbd9b9c18", "32'h1f67e7e1"]}
+  - XFER : {DATA : ["32'he761e537", "32'h6f4e559c"]}
+  - XFER : {DATA : ["32'h8b113280", "32'h40fe38c2"]}
+  - XFER : {DATA : ["32'hd2a4d8b4", "32'h1662eefb"]}
+  - XFER : {DATA : ["32'h850b3e51", "32'h3b0d82ab"]}
+- K  :
+  - XFER : {DATA : ["32'hcb251425"]}
+  - XFER : {DATA : ["32'h1f14c814"]}
+  - XFER : {DATA : ["32'h34ec0d21"]}
+  - XFER : {DATA : ["32'ha5d60579"]}
+  - XFER : {DATA : ["32'h6fe7bf9c"]}
+  - XFER : {DATA : ["32'hf074af89"]}
+  - XFER : {DATA : ["32'haaf8dd5b"]}
+  - XFER : {DATA : ["32'h4f609ecc"]}
+  - XFER : {DATA : ["32'h3b303e2c"]}
+  - XFER : {DATA : ["32'h83edb56f"]}
+  - XFER : {DATA : ["32'hf719a972"]}
+  - XFER : {DATA : ["32'h5eb2d9b1"]}
+  - XFER : {DATA : ["32'h7a0b56c2"]}
+  - XFER : {DATA : ["32'h4e664cf2"]}
+  - XFER : {DATA : ["32'ha06bb263"]}
+  - XFER : {DATA : ["32'he6d4199d"]}
+  - XFER : {DATA : ["32'h63d4d53d"]}
+  - XFER : {DATA : ["32'h26ee9e7c"]}
+  - XFER : {DATA : ["32'hdcf988ff"]}
+  - XFER : {DATA : ["32'h1e71f663"]}
+  - XFER : {DATA : ["32'h186a884d"]}
+  - XFER : {DATA : ["32'ha7def6fb"]}
+  - XFER : {DATA : ["32'hd0557068"]}
+  - XFER : {DATA : ["32'h8ffcca4f"]}
+  - XFER : {DATA : ["32'had6304fb"]}
+  - XFER : {DATA : ["32'had793fb1"]}
+  - XFER : {DATA : ["32'h8d47a6e5"]}
+  - XFER : {DATA : ["32'h9bcf8eb2"]}
+  - XFER : {DATA : ["32'h48ab1f01"]}
+  - XFER : {DATA : ["32'hcf503e5b"]}
+  - XFER : {DATA : ["32'hd6ec8a21"]}
+  - XFER : {DATA : ["32'h895df7de"]}
+- OUT :
+  - XFER : {DATA : ["16'hfff7", "16'hfffd", "16'h0005", "16'h0009"], LAST: 0}
+  - XFER : {DATA : ["16'h0015", "16'h0009", "16'h0001", "16'h0005"], LAST: 0}
+  - XFER : {DATA : ["16'h0007", "16'h0003", "16'h0005", "16'h0005"], LAST: 0}
+  - XFER : {DATA : ["16'hfffb", "16'h000d", "16'hfff3", "16'h0003"], LAST: 0}
+  - XFER : {DATA : ["16'h0001", "16'h0009", "16'h000b", "16'h0003"], LAST: 0}
+  - XFER : {DATA : ["16'hfffb", "16'h0013", "16'hfffb", "16'h0003"], LAST: 0}
+  - XFER : {DATA : ["16'h000d", "16'h000f", "16'h000d", "16'h000f"], LAST: 0}
+  - XFER : {DATA : ["16'hffef", "16'h0007", "16'hfffd", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'hffed", "16'hfff9", "16'hffff", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'h0013", "16'h0001", "16'h0011", "16'hfffb"], LAST: 0}
+  - XFER : {DATA : ["16'hfff5", "16'h0011", "16'h0007", "16'h0001"], LAST: 0}
+  - XFER : {DATA : ["16'hfff5", "16'hfff3", "16'hfffb", "16'h000f"], LAST: 0}
+  - XFER : {DATA : ["16'h000d", "16'h0011", "16'h0017", "16'hffff"], LAST: 0}
+  - XFER : {DATA : ["16'hfffd", "16'h001b", "16'hfffd", "16'h000f"], LAST: 0}
+  - XFER : {DATA : ["16'hffff", "16'h0007", "16'hfffd", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'hffef", "16'h0001", "16'h0001", "16'h0011"], LAST: 0}
+  - XFER : {DATA : ["16'hffed", "16'hfff1", "16'hfffd", "16'h0003"], LAST: 0}
+  - XFER : {DATA : ["16'h0013", "16'h0001", "16'h000b", "16'hfff9"], LAST: 0}
+  - XFER : {DATA : ["16'hfff5", "16'h0007", "16'h0011", "16'h0003"], LAST: 0}
+  - XFER : {DATA : ["16'hffff", "16'hfffd", "16'h0001", "16'hfffb"], LAST: 0}
+  - XFER : {DATA : ["16'h0007", "16'h0007", "16'h0013", "16'h000b"], LAST: 0}
+  - XFER : {DATA : ["16'hffef", "16'h001b", "16'hfff5", "16'h000b"], LAST: 0}
+  - XFER : {DATA : ["16'h0005", "16'h0011", "16'h0001", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'hfff7", "16'h0007", "16'h0001", "16'h000f"], LAST: 0}
+  - XFER : {DATA : ["16'hfff3", "16'h0005", "16'hfffb", "16'hffff"], LAST: 0}
+  - XFER : {DATA : ["16'h0019", "16'hfffd", "16'h000d", "16'h0001"], LAST: 0}
+  - XFER : {DATA : ["16'hfffb", "16'h0003", "16'hfffd", "16'h0013"], LAST: 0}
+  - XFER : {DATA : ["16'hfffd", "16'h0003", "16'hffed", "16'h0005"], LAST: 0}
+  - XFER : {DATA : ["16'h0007", "16'h000d", "16'h0007", "16'hfffd"], LAST: 0}
+  - XFER : {DATA : ["16'hffff", "16'h000f", "16'hffe7", "16'h0011"], LAST: 0}
+  - XFER : {DATA : ["16'hfff7", "16'hffff", "16'h0001", "16'h0011"], LAST: 0}
+  - XFER : {DATA : ["16'h0001", "16'hffff", "16'h0001", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'hfff6", "16'hfff4", "16'hfff4", "16'hfffa"], LAST: 0}
+  - XFER : {DATA : ["16'h001e", "16'hfffc", "16'h000a", "16'hfffe"], LAST: 0}
+  - XFER : {DATA : ["16'hfffc", "16'h0014", "16'h0004", "16'h0000"], LAST: 0}
+  - XFER : {DATA : ["16'hfffc", "16'h0004", "16'hfffe", "16'hfffe"], LAST: 0}
+  - XFER : {DATA : ["16'h000a", "16'h0010", "16'h000c", "16'h0008"], LAST: 0}
+  - XFER : {DATA : ["16'hffec", "16'h0022", "16'hfff8", "16'h0010"], LAST: 0}
+  - XFER : {DATA : ["16'h0004", "16'h000a", "16'h0000", "16'h000c"], LAST: 0}
+  - XFER : {DATA : ["16'hffee", "16'hfffe", "16'hfffc", "16'h0014"], LAST: 0}
+  - XFER : {DATA : ["16'hfffb", "16'hfff5", "16'hfff7", "16'hffff"], LAST: 0}
+  - XFER : {DATA : ["16'h0015", "16'h0003", "16'h0003", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'h0007", "16'h0009", "16'h0007", "16'h0005"], LAST: 0}
+  - XFER : {DATA : ["16'hfff5", "16'h0001", "16'hfff5", "16'h0005"], LAST: 0}
+  - XFER : {DATA : ["16'h0001", "16'h0003", "16'h001d", "16'h0009"], LAST: 0}
+  - XFER : {DATA : ["16'hffef", "16'h000f", "16'hfff9", "16'h000d"], LAST: 0}
+  - XFER : {DATA : ["16'h0009", "16'h0013", "16'h0005", "16'h000b"], LAST: 0}
+  - XFER : {DATA : ["16'hfff5", "16'h000d", "16'hfffd", "16'h000f"], LAST: 0}
+  - XFER : {DATA : ["16'hfff7", "16'hffeb", "16'hfff9", "16'h0001"], LAST: 0}
+  - XFER : {DATA : ["16'h0011", "16'h0003", "16'h0017", "16'hffff"], LAST: 0}
+  - XFER : {DATA : ["16'hfff7", "16'h0011", "16'h0001", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'h0005", "16'hffff", "16'h0003", "16'h0009"], LAST: 0}
+  - XFER : {DATA : ["16'h0007", "16'h0005", "16'h000f", "16'h0009"], LAST: 0}
+  - XFER : {DATA : ["16'hfff9", "16'h0017", "16'hfff9", "16'h0009"], LAST: 0}
+  - XFER : {DATA : ["16'h0005", "16'h000b", "16'h0003", "16'h0009"], LAST: 0}
+  - XFER : {DATA : ["16'hfffb", "16'h0009", "16'hfffb", "16'h0011"], LAST: 0}
+  - XFER : {DATA : ["16'hfff9", "16'hffeb", "16'hfff5", "16'hfff7"], LAST: 0}
+  - XFER : {DATA : ["16'h001d", "16'hfffd", "16'h0001", "16'h0001"], LAST: 0}
+  - XFER : {DATA : ["16'hffff", "16'h000f", "16'h0009", "16'h0001"], LAST: 0}
+  - XFER : {DATA : ["16'h0001", "16'hfff7", "16'hfffb", "16'h000b"], LAST: 0}
+  - XFER : {DATA : ["16'h0007", "16'h0005", "16'h000d", "16'hfff7"], LAST: 0}
+  - XFER : {DATA : ["16'hffed", "16'h000f", "16'hfff7", "16'h0001"], LAST: 0}
+  - XFER : {DATA : ["16'hfffb", "16'h000f", "16'hfffd", "16'h0005"], LAST: 0}
+  - XFER : {DATA : ["16'hffff", "16'hffff", "16'hfff5", "16'h0011"], LAST: 0}
+  - XFER : {DATA : ["16'h0001", "16'hffef", "16'hfff9", "16'hfff7"], LAST: 0}
+  - XFER : {DATA : ["16'h0015", "16'h000d", "16'h0005", "16'h0005"], LAST: 0}
+  - XFER : {DATA : ["16'h0003", "16'h0013", "16'h0003", "16'h0003"], LAST: 0}
+  - XFER : {DATA : ["16'hfff7", "16'h0001", "16'h0007", "16'h0001"], LAST: 0}
+  - XFER : {DATA : ["16'hfffd", "16'h0007", "16'h0019", "16'h000d"], LAST: 0}
+  - XFER : {DATA : ["16'hfff7", "16'h0013", "16'h0001", "16'h0009"], LAST: 0}
+  - XFER : {DATA : ["16'h0007", "16'h0017", "16'h000d", "16'h0011"], LAST: 0}
+  - XFER : {DATA : ["16'hfff7", "16'h0005", "16'h0003", "16'h0013"], LAST: 0}
+  - XFER : {DATA : ["16'hfff1", "16'hffed", "16'hfffb", "16'h000b"], LAST: 0}
+  - XFER : {DATA : ["16'h0015", "16'h000b", "16'h000f", "16'hffff"], LAST: 0}
+  - XFER : {DATA : ["16'hffed", "16'h000d", "16'h0003", "16'h0009"], LAST: 0}
+  - XFER : {DATA : ["16'hfff5", "16'h0007", "16'hfff7", "16'h000d"], LAST: 0}
+  - XFER : {DATA : ["16'h000b", "16'h0007", "16'h0011", "16'h0001"], LAST: 0}
+  - XFER : {DATA : ["16'hffed", "16'h0023", "16'h0001", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'h0005", "16'h0011", "16'h0005", "16'h0003"], LAST: 0}
+  - XFER : {DATA : ["16'hfff3", "16'h000d", "16'hffff", "16'h0015"], LAST: 0}
+  - XFER : {DATA : ["16'hffec", "16'hfffe", "16'hffea", "16'hfff4"], LAST: 0}
+  - XFER : {DATA : ["16'h0012", "16'h0000", "16'h0006", "16'h0008"], LAST: 0}
+  - XFER : {DATA : ["16'h000a", "16'h0006", "16'h0006", "16'h0008"], LAST: 0}
+  - XFER : {DATA : ["16'h0000", "16'hfffc", "16'hfff6", "16'hfffa"], LAST: 0}
+  - XFER : {DATA : ["16'hfffc", "16'h0008", "16'h000c", "16'h0008"], LAST: 0}
+  - XFER : {DATA : ["16'hfffc", "16'h0018", "16'hfffa", "16'h0012"], LAST: 0}
+  - XFER : {DATA : ["16'hfffa", "16'h0004", "16'hfffc", "16'h0002"], LAST: 0}
+  - XFER : {DATA : ["16'hffee", "16'h0004", "16'hfff6", "16'h0010"], LAST: 0}
+  - XFER : {DATA : ["16'hfff4", "16'h0002", "16'hfff6", "16'hfffa"], LAST: 0}
+  - XFER : {DATA : ["16'h0018", "16'hfffe", "16'h0000", "16'hfffa"], LAST: 0}
+  - XFER : {DATA : ["16'h0002", "16'h0006", "16'h0006", "16'h000a"], LAST: 0}
+  - XFER : {DATA : ["16'hfffa", "16'h000a", "16'hfff6", "16'h0000"], LAST: 0}
+  - XFER : {DATA : ["16'h0006", "16'h000a", "16'h000c", "16'h0006"], LAST: 0}
+  - XFER : {DATA : ["16'hfff4", "16'h0018", "16'hfff8", "16'h000c"], LAST: 0}
+  - XFER : {DATA : ["16'h0000", "16'h0002", "16'h0000", "16'h000a"], LAST: 0}
+  - XFER : {DATA : ["16'hffe6", "16'hfffa", "16'hfffc", "16'h0008"], LAST: 0}
+  - XFER : {DATA : ["16'hfff9", "16'hfff9", "16'hfff7", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'h0019", "16'hfffb", "16'h000f", "16'hfff7"], LAST: 0}
+  - XFER : {DATA : ["16'hfff9", "16'h000b", "16'h0009", "16'h0009"], LAST: 0}
+  - XFER : {DATA : ["16'hfffb", "16'hfffd", "16'hfff5", "16'h0009"], LAST: 0}
+  - XFER : {DATA : ["16'h0011", "16'h0007", "16'h000f", "16'hfffd"], LAST: 0}
+  - XFER : {DATA : ["16'hffed", "16'h0017", "16'h0001", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'h0003", "16'h000b", "16'hfffb", "16'h0013"], LAST: 0}
+  - XFER : {DATA : ["16'hfff5", "16'h0003", "16'hfffb", "16'h0011"], LAST: 0}
+  - XFER : {DATA : ["16'hfff7", "16'hfff1", "16'hfffb", "16'h0015"], LAST: 0}
+  - XFER : {DATA : ["16'h0013", "16'h0001", "16'h0015", "16'hfff9"], LAST: 0}
+  - XFER : {DATA : ["16'h0001", "16'h0013", "16'h0003", "16'hffff"], LAST: 0}
+  - XFER : {DATA : ["16'hfffb", "16'hfffd", "16'hfffd", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'h0011", "16'h0011", "16'h0007", "16'h0005"], LAST: 0}
+  - XFER : {DATA : ["16'hfff7", "16'h0025", "16'hfff9", "16'h000d"], LAST: 0}
+  - XFER : {DATA : ["16'h000b", "16'h000b", "16'h0003", "16'h0003"], LAST: 0}
+  - XFER : {DATA : ["16'hfff3", "16'h000b", "16'hfff5", "16'h000d"], LAST: 0}
+  - XFER : {DATA : ["16'hfff9", "16'hffe9", "16'h0003", "16'h000f"], LAST: 0}
+  - XFER : {DATA : ["16'h0019", "16'h0007", "16'h000b", "16'hfffb"], LAST: 0}
+  - XFER : {DATA : ["16'hfff7", "16'h000b", "16'h0001", "16'h0011"], LAST: 0}
+  - XFER : {DATA : ["16'h0003", "16'h000b", "16'hfffb", "16'h000f"], LAST: 0}
+  - XFER : {DATA : ["16'h000d", "16'h000f", "16'h0007", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'hffe9", "16'h0023", "16'hfff7", "16'hfffd"], LAST: 0}
+  - XFER : {DATA : ["16'h000b", "16'h000d", "16'h0005", "16'h0009"], LAST: 0}
+  - XFER : {DATA : ["16'hfff5", "16'h0005", "16'h0001", "16'h0003"], LAST: 0}
+  - XFER : {DATA : ["16'hffeb", "16'hfff5", "16'hfff9", "16'h0005"], LAST: 0}
+  - XFER : {DATA : ["16'h0015", "16'h0005", "16'h0019", "16'hfff5"], LAST: 0}
+  - XFER : {DATA : ["16'hfffb", "16'h0009", "16'h0007", "16'h000b"], LAST: 0}
+  - XFER : {DATA : ["16'hfffd", "16'h0003", "16'hfff9", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'h000f", "16'h0007", "16'h000b", "16'h0005"], LAST: 0}
+  - XFER : {DATA : ["16'hfff1", "16'h001b", "16'hfffd", "16'h000b"], LAST: 0}
+  - XFER : {DATA : ["16'hfffd", "16'h0007", "16'hfff9", "16'h000b"], LAST: 0}
+  - XFER : {DATA : ["16'hfff3", "16'h0001", "16'hfff7", "16'h0011"], LAST: 0}
+  - XFER : {DATA : ["16'hfff1", "16'hffff", "16'hfffd", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'h001b", "16'h0007", "16'h0009", "16'hfff9"], LAST: 0}
+  - XFER : {DATA : ["16'h0001", "16'h0001", "16'h0001", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'hfff5", "16'hfff9", "16'hffef", "16'h000d"], LAST: 0}
+  - XFER : {DATA : ["16'h0005", "16'h000d", "16'h0017", "16'hfff7"], LAST: 0}
+  - XFER : {DATA : ["16'hfff9", "16'h0011", "16'hffef", "16'h000d"], LAST: 0}
+  - XFER : {DATA : ["16'h0005", "16'h0009", "16'hfffd", "16'h000b"], LAST: 0}
+  - XFER : {DATA : ["16'hfff5", "16'hfffb", "16'hfff9", "16'h000b"], LAST: 0}
+  - XFER : {DATA : ["16'h0003", "16'hfffb", "16'hfff5", "16'hfffd"], LAST: 0}
+  - XFER : {DATA : ["16'h000b", "16'hfffd", "16'h0011", "16'hffff"], LAST: 0}
+  - XFER : {DATA : ["16'hfff7", "16'h0013", "16'h0003", "16'h0001"], LAST: 0}
+  - XFER : {DATA : ["16'h0007", "16'h000b", "16'hfffd", "16'hffef"], LAST: 0}
+  - XFER : {DATA : ["16'hfffb", "16'hffff", "16'h0009", "16'h000b"], LAST: 0}
+  - XFER : {DATA : ["16'hfff9", "16'h0013", "16'hfff5", "16'h0015"], LAST: 0}
+  - XFER : {DATA : ["16'h000b", "16'h0001", "16'h0009", "16'h0015"], LAST: 0}
+  - XFER : {DATA : ["16'hfff9", "16'h0001", "16'hfffb", "16'h0013"], LAST: 0}
+  - XFER : {DATA : ["16'hfff9", "16'hfff9", "16'hfffd", "16'h000d"], LAST: 0}
+  - XFER : {DATA : ["16'h0017", "16'h0009", "16'h0009", "16'h0003"], LAST: 0}
+  - XFER : {DATA : ["16'h0009", "16'h0011", "16'h0001", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'hffef", "16'hfff7", "16'hfff5", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'h0011", "16'h0009", "16'h000b", "16'h0001"], LAST: 0}
+  - XFER : {DATA : ["16'hffff", "16'h0017", "16'hfff1", "16'h000b"], LAST: 0}
+  - XFER : {DATA : ["16'h0005", "16'h0009", "16'h000b", "16'h0009"], LAST: 0}
+  - XFER : {DATA : ["16'hfff5", "16'h0007", "16'hfffb", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'hfffc", "16'hffe6", "16'hfff4", "16'hfff8"], LAST: 0}
+  - XFER : {DATA : ["16'h0018", "16'h0004", "16'h0014", "16'h0004"], LAST: 0}
+  - XFER : {DATA : ["16'hfff8", "16'h001a", "16'h0006", "16'h0000"], LAST: 0}
+  - XFER : {DATA : ["16'hfffe", "16'hfffe", "16'h000a", "16'hfffc"], LAST: 0}
+  - XFER : {DATA : ["16'h0004", "16'h0008", "16'h0018", "16'h0010"], LAST: 0}
+  - XFER : {DATA : ["16'hfff6", "16'h0012", "16'hfffe", "16'h0006"], LAST: 0}
+  - XFER : {DATA : ["16'h0004", "16'h000c", "16'h0004", "16'h000c"], LAST: 0}
+  - XFER : {DATA : ["16'h0002", "16'h000e", "16'hfffe", "16'h0016"], LAST: 0}
+  - XFER : {DATA : ["16'hfff5", "16'hfff9", "16'hfff7", "16'hffff"], LAST: 0}
+  - XFER : {DATA : ["16'h0019", "16'h0001", "16'h0007", "16'h0005"], LAST: 0}
+  - XFER : {DATA : ["16'h0001", "16'h0001", "16'h0005", "16'h0009"], LAST: 0}
+  - XFER : {DATA : ["16'hffff", "16'h0007", "16'hfff3", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'hffff", "16'h0009", "16'h000f", "16'hfffb"], LAST: 0}
+  - XFER : {DATA : ["16'hfff9", "16'h000d", "16'hfff5", "16'h0005"], LAST: 0}
+  - XFER : {DATA : ["16'h0007", "16'h000f", "16'h0005", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'hfff5", "16'h0001", "16'hfff5", "16'h000f"], LAST: 0}
+  - XFER : {DATA : ["16'hfffc", "16'hfff4", "16'hfff0", "16'h0000"], LAST: 0}
+  - XFER : {DATA : ["16'h0012", "16'h0000", "16'h0010", "16'h0000"], LAST: 0}
+  - XFER : {DATA : ["16'hfff6", "16'h000a", "16'h000c", "16'h000c"], LAST: 0}
+  - XFER : {DATA : ["16'hfffe", "16'h0000", "16'h0004", "16'h0004"], LAST: 0}
+  - XFER : {DATA : ["16'h000e", "16'h0006", "16'h0014", "16'h0004"], LAST: 0}
+  - XFER : {DATA : ["16'hfff2", "16'h001e", "16'hfff6", "16'h000a"], LAST: 0}
+  - XFER : {DATA : ["16'h0006", "16'h0014", "16'h0002", "16'h0014"], LAST: 0}
+  - XFER : {DATA : ["16'hfffa", "16'h000a", "16'h0002", "16'h0010"], LAST: 0}
+  - XFER : {DATA : ["16'hfffe", "16'hfff0", "16'hfffc", "16'h0002"], LAST: 0}
+  - XFER : {DATA : ["16'h0016", "16'h0006", "16'h0006", "16'hfffa"], LAST: 0}
+  - XFER : {DATA : ["16'hfffe", "16'h0010", "16'h0008", "16'h0002"], LAST: 0}
+  - XFER : {DATA : ["16'hfff4", "16'h0006", "16'hfffe", "16'h000e"], LAST: 0}
+  - XFER : {DATA : ["16'h000a", "16'h000c", "16'h0014", "16'h0008"], LAST: 0}
+  - XFER : {DATA : ["16'hffe8", "16'h001c", "16'hfffc", "16'h000e"], LAST: 0}
+  - XFER : {DATA : ["16'h0002", "16'h000e", "16'h0004", "16'h0004"], LAST: 0}
+  - XFER : {DATA : ["16'hfff2", "16'h000a", "16'h0004", "16'h0008"], LAST: 0}
+  - XFER : {DATA : ["16'hfff6", "16'hfffc", "16'hfffa", "16'hfffc"], LAST: 0}
+  - XFER : {DATA : ["16'h0014", "16'h0002", "16'h000a", "16'h0006"], LAST: 0}
+  - XFER : {DATA : ["16'h0002", "16'h0000", "16'hfffa", "16'h0008"], LAST: 0}
+  - XFER : {DATA : ["16'h0008", "16'h0008", "16'hfff2", "16'hfffe"], LAST: 0}
+  - XFER : {DATA : ["16'h0004", "16'h0004", "16'h0004", "16'h0008"], LAST: 0}
+  - XFER : {DATA : ["16'hfff8", "16'h0010", "16'hfff8", "16'h0008"], LAST: 0}
+  - XFER : {DATA : ["16'h0002", "16'h0006", "16'hfffe", "16'h0010"], LAST: 0}
+  - XFER : {DATA : ["16'h0000", "16'h000c", "16'hfffa", "16'h000c"], LAST: 0}
+  - XFER : {DATA : ["16'hfff2", "16'hfff4", "16'hfffc", "16'hfffa"], LAST: 0}
+  - XFER : {DATA : ["16'h0016", "16'hfffc", "16'h000a", "16'hfffe"], LAST: 0}
+  - XFER : {DATA : ["16'h0004", "16'h0006", "16'h0000", "16'h000a"], LAST: 0}
+  - XFER : {DATA : ["16'h0002", "16'hfff6", "16'hfff8", "16'h0008"], LAST: 0}
+  - XFER : {DATA : ["16'h000c", "16'h0012", "16'h0010", "16'h0000"], LAST: 0}
+  - XFER : {DATA : ["16'hfff2", "16'h001a", "16'hfff2", "16'h000c"], LAST: 0}
+  - XFER : {DATA : ["16'hfffa", "16'h000c", "16'hfffa", "16'h0008"], LAST: 0}
+  - XFER : {DATA : ["16'hfffc", "16'hfffc", "16'hfffe", "16'h000a"], LAST: 0}
+  - XFER : {DATA : ["16'hfff8", "16'hfff8", "16'hfffa", "16'h0000"], LAST: 0}
+  - XFER : {DATA : ["16'h0016", "16'h0004", "16'h0012", "16'h0000"], LAST: 0}
+  - XFER : {DATA : ["16'hfffc", "16'h0002", "16'h0008", "16'h000c"], LAST: 0}
+  - XFER : {DATA : ["16'h0002", "16'h000a", "16'hfff8", "16'h000c"], LAST: 0}
+  - XFER : {DATA : ["16'h0000", "16'h0012", "16'h0014", "16'hfffa"], LAST: 0}
+  - XFER : {DATA : ["16'hfffa", "16'h0010", "16'hfffa", "16'h000e"], LAST: 0}
+  - XFER : {DATA : ["16'hfffe", "16'h0004", "16'hfff4", "16'h000e"], LAST: 0}
+  - XFER : {DATA : ["16'hfffe", "16'h0006", "16'h0008", "16'h0002"], LAST: 0}
+  - XFER : {DATA : ["16'hfff6", "16'hfff4", "16'hffee", "16'h0000"], LAST: 0}
+  - XFER : {DATA : ["16'h0016", "16'hfffa", "16'h000c", "16'h0008"], LAST: 0}
+  - XFER : {DATA : ["16'h0008", "16'h0014", "16'h0006", "16'hfffa"], LAST: 0}
+  - XFER : {DATA : ["16'h0000", "16'h0004", "16'hfffc", "16'h0002"], LAST: 0}
+  - XFER : {DATA : ["16'h000a", "16'h0010", "16'h0010", "16'h0012"], LAST: 0}
+  - XFER : {DATA : ["16'hffec", "16'h002c", "16'hfff6", "16'h0012"], LAST: 0}
+  - XFER : {DATA : ["16'h0008", "16'h0018", "16'h000c", "16'h000e"], LAST: 0}
+  - XFER : {DATA : ["16'hffe8", "16'h0018", "16'hfff2", "16'h0022"], LAST: 0}
+  - XFER : {DATA : ["16'hfff6", "16'hfff4", "16'hffea", "16'hfffc"], LAST: 0}
+  - XFER : {DATA : ["16'h001a", "16'h0004", "16'h0004", "16'h0000"], LAST: 0}
+  - XFER : {DATA : ["16'hfff6", "16'h0006", "16'h0004", "16'h0008"], LAST: 0}
+  - XFER : {DATA : ["16'h0000", "16'h0000", "16'h0002", "16'h0000"], LAST: 0}
+  - XFER : {DATA : ["16'h0000", "16'h000a", "16'h0018", "16'h0002"], LAST: 0}
+  - XFER : {DATA : ["16'hfff8", "16'h0018", "16'hfffe", "16'h0008"], LAST: 0}
+  - XFER : {DATA : ["16'h0000", "16'h000a", "16'h000c", "16'h0010"], LAST: 0}
+  - XFER : {DATA : ["16'hfff6", "16'h0000", "16'hfffc", "16'h0018"], LAST: 0}
+  - XFER : {DATA : ["16'hfff1", "16'hfff5", "16'hfff5", "16'h0003"], LAST: 0}
+  - XFER : {DATA : ["16'h0011", "16'h0005", "16'h0005", "16'hffff"], LAST: 0}
+  - XFER : {DATA : ["16'hfffd", "16'h0001", "16'h0007", "16'hfffd"], LAST: 0}
+  - XFER : {DATA : ["16'hffff", "16'h0007", "16'h0001", "16'h0003"], LAST: 0}
+  - XFER : {DATA : ["16'hfffd", "16'h0009", "16'h0011", "16'h000f"], LAST: 0}
+  - XFER : {DATA : ["16'hffef", "16'h001d", "16'h0001", "16'h000b"], LAST: 0}
+  - XFER : {DATA : ["16'h0007", "16'h0017", "16'h0011", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'hffef", "16'h000f", "16'hfff9", "16'h0017"], LAST: 0}
+  - XFER : {DATA : ["16'hfff5", "16'hfff7", "16'hfff3", "16'hffed"], LAST: 0}
+  - XFER : {DATA : ["16'h0013", "16'h0001", "16'h0005", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'hfff3", "16'h0009", "16'h0009", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'h0001", "16'h0003", "16'h0003", "16'h0003"], LAST: 0}
+  - XFER : {DATA : ["16'h0001", "16'h0003", "16'h0019", "16'h0011"], LAST: 0}
+  - XFER : {DATA : ["16'hfff9", "16'h0013", "16'hfff7", "16'h000f"], LAST: 0}
+  - XFER : {DATA : ["16'hffff", "16'h0009", "16'h0007", "16'h0009"], LAST: 0}
+  - XFER : {DATA : ["16'hfff7", "16'h000b", "16'h0007", "16'h000d"], LAST: 0}
+  - XFER : {DATA : ["16'hfff3", "16'hffed", "16'hfff5", "16'hfffb"], LAST: 0}
+  - XFER : {DATA : ["16'h0019", "16'h0001", "16'h000b", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'hfffd", "16'h0007", "16'h0007", "16'h000d"], LAST: 0}
+  - XFER : {DATA : ["16'hffff", "16'h0003", "16'h0005", "16'h0005"], LAST: 0}
+  - XFER : {DATA : ["16'hffff", "16'h000f", "16'h001d", "16'h000f"], LAST: 0}
+  - XFER : {DATA : ["16'hfff9", "16'h001b", "16'hfff5", "16'h0011"], LAST: 0}
+  - XFER : {DATA : ["16'h0007", "16'h0013", "16'h0005", "16'h0005"], LAST: 0}
+  - XFER : {DATA : ["16'hfff9", "16'h000d", "16'h0005", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'hfff0", "16'hfff8", "16'h0000", "16'h0002"], LAST: 0}
+  - XFER : {DATA : ["16'h0012", "16'h0008", "16'h0010", "16'hfffc"], LAST: 0}
+  - XFER : {DATA : ["16'hfffc", "16'h000a", "16'h000a", "16'h0008"], LAST: 0}
+  - XFER : {DATA : ["16'hfff4", "16'h0000", "16'hfffc", "16'h000c"], LAST: 0}
+  - XFER : {DATA : ["16'hfffe", "16'h000c", "16'h001c", "16'h0006"], LAST: 0}
+  - XFER : {DATA : ["16'hfffa", "16'h001a", "16'hfff6", "16'h000e"], LAST: 0}
+  - XFER : {DATA : ["16'h0004", "16'h0018", "16'h0004", "16'h0002"], LAST: 0}
+  - XFER : {DATA : ["16'hfff2", "16'h0008", "16'hfffc", "16'h0012"], LAST: 0}
+  - XFER : {DATA : ["16'hfffb", "16'hfff5", "16'hfff5", "16'h0003"], LAST: 0}
+  - XFER : {DATA : ["16'h0011", "16'h000b", "16'h000d", "16'h0003"], LAST: 0}
+  - XFER : {DATA : ["16'hffff", "16'h0011", "16'h0005", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'hfff5", "16'hfff1", "16'hffff", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'h000b", "16'h0005", "16'h0017", "16'h000b"], LAST: 0}
+  - XFER : {DATA : ["16'hfff3", "16'h001b", "16'hfff9", "16'h001b"], LAST: 0}
+  - XFER : {DATA : ["16'h0001", "16'h0007", "16'h0003", "16'h0003"], LAST: 0}
+  - XFER : {DATA : ["16'hfff1", "16'h0007", "16'h0007", "16'h000d"], LAST: 0}
+  - XFER : {DATA : ["16'hfff3", "16'hfff9", "16'hffff", "16'h000b"], LAST: 0}
+  - XFER : {DATA : ["16'h001b", "16'h0009", "16'h0009", "16'hfffd"], LAST: 0}
+  - XFER : {DATA : ["16'hffff", "16'h0009", "16'h0001", "16'h000f"], LAST: 0}
+  - XFER : {DATA : ["16'hfffb", "16'h0003", "16'hfff7", "16'h0003"], LAST: 0}
+  - XFER : {DATA : ["16'h0013", "16'h000f", "16'h0007", "16'h0005"], LAST: 0}
+  - XFER : {DATA : ["16'hfff1", "16'h001b", "16'hfff7", "16'hffff"], LAST: 0}
+  - XFER : {DATA : ["16'h0001", "16'h000d", "16'h0007", "16'h0015"], LAST: 0}
+  - XFER : {DATA : ["16'hfff3", "16'hfff7", "16'hfff9", "16'h0011"], LAST: 0}
+  - XFER : {DATA : ["16'hfffe", "16'hfff0", "16'h0002", "16'h0004"], LAST: 0}
+  - XFER : {DATA : ["16'h000e", "16'h0008", "16'h000a", "16'hfff2"], LAST: 0}
+  - XFER : {DATA : ["16'hfffe", "16'h0012", "16'h000c", "16'h0006"], LAST: 0}
+  - XFER : {DATA : ["16'hfff6", "16'hfff6", "16'hfffc", "16'hfffe"], LAST: 0}
+  - XFER : {DATA : ["16'h0008", "16'hfff8", "16'h000e", "16'h0004"], LAST: 0}
+  - XFER : {DATA : ["16'hfff2", "16'h000c", "16'hfff8", "16'h0002"], LAST: 0}
+  - XFER : {DATA : ["16'h0002", "16'h000e", "16'h0000", "16'h0008"], LAST: 0}
+  - XFER : {DATA : ["16'h0002", "16'h0004", "16'hfffe", "16'h0008"], LAST: 0}
+  - XFER : {DATA : ["16'hfff9", "16'hffeb", "16'h0001", "16'hffff"], LAST: 0}
+  - XFER : {DATA : ["16'h000f", "16'h0009", "16'h000b", "16'hfff3"], LAST: 0}
+  - XFER : {DATA : ["16'h0003", "16'h0013", "16'h000d", "16'h0005"], LAST: 0}
+  - XFER : {DATA : ["16'hfffb", "16'hfff5", "16'h0005", "16'h0003"], LAST: 0}
+  - XFER : {DATA : ["16'h0007", "16'h0007", "16'h000d", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'hfff1", "16'h0017", "16'hfff9", "16'h000d"], LAST: 0}
+  - XFER : {DATA : ["16'hfff7", "16'h0013", "16'hfffd", "16'h000b"], LAST: 0}
+  - XFER : {DATA : ["16'hffff", "16'h0003", "16'h0007", "16'h0009"], LAST: 0}
+  - XFER : {DATA : ["16'hfff0", "16'hfff4", "16'hfff6", "16'h0002"], LAST: 0}
+  - XFER : {DATA : ["16'h0026", "16'h0006", "16'h000e", "16'h0002"], LAST: 0}
+  - XFER : {DATA : ["16'h0000", "16'h0010", "16'h0000", "16'h0004"], LAST: 0}
+  - XFER : {DATA : ["16'hfff6", "16'hfffe", "16'hfffa", "16'h0004"], LAST: 0}
+  - XFER : {DATA : ["16'h000a", "16'h0012", "16'h0006", "16'hfffe"], LAST: 0}
+  - XFER : {DATA : ["16'hfff6", "16'h0018", "16'hffea", "16'h000a"], LAST: 0}
+  - XFER : {DATA : ["16'h0000", "16'h000c", "16'h0004", "16'h000e"], LAST: 0}
+  - XFER : {DATA : ["16'hfff6", "16'hfffe", "16'hfff8", "16'h0012"], LAST: 0}
+  - XFER : {DATA : ["16'hfff6", "16'hfffa", "16'hfff8", "16'hfffe"], LAST: 0}
+  - XFER : {DATA : ["16'h0014", "16'h0006", "16'h0012", "16'h0004"], LAST: 0}
+  - XFER : {DATA : ["16'h0008", "16'h0008", "16'h0004", "16'h0010"], LAST: 0}
+  - XFER : {DATA : ["16'hfffa", "16'h0004", "16'hfffa", "16'hfffa"], LAST: 0}
+  - XFER : {DATA : ["16'h0006", "16'h000a", "16'h0016", "16'h000c"], LAST: 0}
+  - XFER : {DATA : ["16'hfffc", "16'h0016", "16'hffe8", "16'h000c"], LAST: 0}
+  - XFER : {DATA : ["16'h000c", "16'h0012", "16'h0002", "16'h0012"], LAST: 0}
+  - XFER : {DATA : ["16'hfff6", "16'h0006", "16'hfffa", "16'h0010"], LAST: 0}
+  - XFER : {DATA : ["16'hfff7", "16'hffff", "16'hfff5", "16'hffff"], LAST: 0}
+  - XFER : {DATA : ["16'h0019", "16'hfffd", "16'h000f", "16'hffff"], LAST: 0}
+  - XFER : {DATA : ["16'h0003", "16'h0003", "16'h0001", "16'h0009"], LAST: 0}
+  - XFER : {DATA : ["16'h0007", "16'h0009", "16'hfff1", "16'hffff"], LAST: 0}
+  - XFER : {DATA : ["16'h0007", "16'h000b", "16'h000b", "16'h000b"], LAST: 0}
+  - XFER : {DATA : ["16'hfff7", "16'h000f", "16'hfff3", "16'h0009"], LAST: 0}
+  - XFER : {DATA : ["16'h0009", "16'hffff", "16'hfff9", "16'hffff"], LAST: 0}
+  - XFER : {DATA : ["16'hfff3", "16'hffff", "16'hffed", "16'h000d"], LAST: 0}
+  - XFER : {DATA : ["16'hfff4", "16'hfffa", "16'hfffe", "16'h0000"], LAST: 0}
+  - XFER : {DATA : ["16'h001a", "16'h0006", "16'h000a", "16'h0002"], LAST: 0}
+  - XFER : {DATA : ["16'hfff8", "16'h0010", "16'hfffe", "16'h0002"], LAST: 0}
+  - XFER : {DATA : ["16'hfffc", "16'h0002", "16'hfff6", "16'h0004"], LAST: 0}
+  - XFER : {DATA : ["16'h0010", "16'h000e", "16'h000a", "16'h0000"], LAST: 0}
+  - XFER : {DATA : ["16'hfffa", "16'h001e", "16'hfff2", "16'h0010"], LAST: 0}
+  - XFER : {DATA : ["16'hfffc", "16'h0006", "16'h000c", "16'h000e"], LAST: 0}
+  - XFER : {DATA : ["16'hfff2", "16'hfffa", "16'hfffe", "16'h0012"], LAST: 0}
+  - XFER : {DATA : ["16'hfff5", "16'hffe9", "16'hfffd", "16'h0005"], LAST: 0}
+  - XFER : {DATA : ["16'h0019", "16'h0011", "16'h0011", "16'hfffb"], LAST: 0}
+  - XFER : {DATA : ["16'hfffb", "16'h0009", "16'h0001", "16'h0009"], LAST: 0}
+  - XFER : {DATA : ["16'hffff", "16'h0003", "16'hfffd", "16'h000d"], LAST: 0}
+  - XFER : {DATA : ["16'h0007", "16'h0007", "16'h0015", "16'h0005"], LAST: 0}
+  - XFER : {DATA : ["16'hfff5", "16'h0017", "16'h0001", "16'h0003"], LAST: 0}
+  - XFER : {DATA : ["16'h000b", "16'h0017", "16'h0001", "16'h0005"], LAST: 0}
+  - XFER : {DATA : ["16'hfff9", "16'h0005", "16'hfff7", "16'h0013"], LAST: 0}
+  - XFER : {DATA : ["16'hffed", "16'hfff7", "16'hfff3", "16'hffff"], LAST: 0}
+  - XFER : {DATA : ["16'h0005", "16'h0009", "16'h0005", "16'hfffb"], LAST: 0}
+  - XFER : {DATA : ["16'hfffd", "16'h0003", "16'h000d", "16'hfffb"], LAST: 0}
+  - XFER : {DATA : ["16'hfffd", "16'hfff9", "16'hffff", "16'h0003"], LAST: 0}
+  - XFER : {DATA : ["16'hfffb", "16'hffff", "16'h000f", "16'h0005"], LAST: 0}
+  - XFER : {DATA : ["16'hfff5", "16'h0015", "16'h0005", "16'h000f"], LAST: 0}
+  - XFER : {DATA : ["16'hfffb", "16'h0007", "16'hfffd", "16'h0005"], LAST: 0}
+  - XFER : {DATA : ["16'hfff1", "16'h0011", "16'h0001", "16'h0013"], LAST: 0}
+  - XFER : {DATA : ["16'hfff9", "16'hfff7", "16'hfff9", "16'hfffd"], LAST: 0}
+  - XFER : {DATA : ["16'h0011", "16'h0001", "16'h000b", "16'hfff9"], LAST: 0}
+  - XFER : {DATA : ["16'hfffb", "16'h0009", "16'h0009", "16'h0013"], LAST: 0}
+  - XFER : {DATA : ["16'hfffb", "16'h0009", "16'hfff5", "16'h0009"], LAST: 0}
+  - XFER : {DATA : ["16'h000b", "16'h0003", "16'h0009", "16'h0009"], LAST: 0}
+  - XFER : {DATA : ["16'hffe7", "16'h0019", "16'hfff9", "16'h0005"], LAST: 0}
+  - XFER : {DATA : ["16'hfff9", "16'h0009", "16'hfff9", "16'h0003"], LAST: 0}
+  - XFER : {DATA : ["16'hfff9", "16'h000f", "16'hffff", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'hfff2", "16'hfff8", "16'hfffc", "16'h0000"], LAST: 0}
+  - XFER : {DATA : ["16'h001e", "16'h000e", "16'h0012", "16'hfffe"], LAST: 0}
+  - XFER : {DATA : ["16'h0006", "16'h0006", "16'h000a", "16'h0012"], LAST: 0}
+  - XFER : {DATA : ["16'hfff6", "16'hfffe", "16'hffee", "16'h000a"], LAST: 0}
+  - XFER : {DATA : ["16'h000c", "16'h000e", "16'h000c", "16'h0004"], LAST: 0}
+  - XFER : {DATA : ["16'hffea", "16'h0018", "16'hfffa", "16'h000a"], LAST: 0}
+  - XFER : {DATA : ["16'hfff4", "16'h000c", "16'hfff6", "16'h0004"], LAST: 0}
+  - XFER : {DATA : ["16'hfff8", "16'h0008", "16'h0004", "16'h000a"], LAST: 0}
+  - XFER : {DATA : ["16'hfff6", "16'hfffa", "16'hfffc", "16'h0000"], LAST: 0}
+  - XFER : {DATA : ["16'h0010", "16'h0002", "16'h000a", "16'hfffa"], LAST: 0}
+  - XFER : {DATA : ["16'hfffe", "16'hfffe", "16'h0006", "16'h0012"], LAST: 0}
+  - XFER : {DATA : ["16'hfffa", "16'h0006", "16'hffee", "16'h0008"], LAST: 0}
+  - XFER : {DATA : ["16'h0004", "16'h0002", "16'h001e", "16'h0004"], LAST: 0}
+  - XFER : {DATA : ["16'hfff0", "16'h0010", "16'hfff6", "16'h0008"], LAST: 0}
+  - XFER : {DATA : ["16'h0004", "16'h0012", "16'h0000", "16'h000a"], LAST: 0}
+  - XFER : {DATA : ["16'hfffa", "16'h0004", "16'hfffc", "16'h000a"], LAST: 0}
+  - XFER : {DATA : ["16'hfffc", "16'hfff6", "16'hffee", "16'h0004"], LAST: 0}
+  - XFER : {DATA : ["16'h0016", "16'h0000", "16'h0002", "16'hfff8"], LAST: 0}
+  - XFER : {DATA : ["16'hfff6", "16'h000c", "16'h000a", "16'h0008"], LAST: 0}
+  - XFER : {DATA : ["16'hfff6", "16'hfffc", "16'hfffc", "16'h000a"], LAST: 0}
+  - XFER : {DATA : ["16'h0008", "16'h000c", "16'h001a", "16'h0004"], LAST: 0}
+  - XFER : {DATA : ["16'hffee", "16'h001e", "16'hfffe", "16'h0010"], LAST: 0}
+  - XFER : {DATA : ["16'hfffe", "16'h0008", "16'h000c", "16'h0012"], LAST: 0}
+  - XFER : {DATA : ["16'hfff4", "16'h0008", "16'h000a", "16'h000e"], LAST: 0}
+  - XFER : {DATA : ["16'hfff9", "16'hfff5", "16'hfff7", "16'h0005"], LAST: 0}
+  - XFER : {DATA : ["16'h001b", "16'h000b", "16'h000b", "16'h0005"], LAST: 0}
+  - XFER : {DATA : ["16'hffff", "16'h0009", "16'h0007", "16'h000f"], LAST: 0}
+  - XFER : {DATA : ["16'hfff5", "16'h0005", "16'hfffd", "16'h0001"], LAST: 0}
+  - XFER : {DATA : ["16'h0005", "16'h0009", "16'h0015", "16'h000b"], LAST: 0}
+  - XFER : {DATA : ["16'hfff5", "16'h0019", "16'hfff3", "16'h0011"], LAST: 0}
+  - XFER : {DATA : ["16'h0005", "16'h000d", "16'h000b", "16'h0011"], LAST: 0}
+  - XFER : {DATA : ["16'hfff7", "16'h000b", "16'h0009", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'hfffe", "16'hfff2", "16'hfff8", "16'h0002"], LAST: 0}
+  - XFER : {DATA : ["16'h0016", "16'h0004", "16'h0012", "16'hfffa"], LAST: 0}
+  - XFER : {DATA : ["16'hfff4", "16'h000c", "16'h0002", "16'h000e"], LAST: 0}
+  - XFER : {DATA : ["16'hfffc", "16'h0000", "16'h0000", "16'h0004"], LAST: 0}
+  - XFER : {DATA : ["16'h000a", "16'h0008", "16'h0004", "16'h000a"], LAST: 0}
+  - XFER : {DATA : ["16'hffea", "16'h001a", "16'hfff4", "16'h000a"], LAST: 0}
+  - XFER : {DATA : ["16'hfffe", "16'h0010", "16'h0004", "16'h0004"], LAST: 0}
+  - XFER : {DATA : ["16'h0002", "16'h0008", "16'h0004", "16'h000e"], LAST: 0}
+  - XFER : {DATA : ["16'hfff4", "16'hfff6", "16'hfff2", "16'hfffe"], LAST: 0}
+  - XFER : {DATA : ["16'h0020", "16'h0000", "16'h0000", "16'h0002"], LAST: 0}
+  - XFER : {DATA : ["16'hfff4", "16'h0008", "16'h0004", "16'hfffa"], LAST: 0}
+  - XFER : {DATA : ["16'h0000", "16'h0002", "16'hfffe", "16'h0000"], LAST: 0}
+  - XFER : {DATA : ["16'hfffa", "16'h000e", "16'h0012", "16'h0000"], LAST: 0}
+  - XFER : {DATA : ["16'hfff2", "16'h001e", "16'hffec", "16'h000c"], LAST: 0}
+  - XFER : {DATA : ["16'h0008", "16'h0014", "16'h0016", "16'h001a"], LAST: 0}
+  - XFER : {DATA : ["16'hfff8", "16'h0008", "16'hfffa", "16'h001c"], LAST: 0}
+  - XFER : {DATA : ["16'hfff4", "16'hfff4", "16'hfff4", "16'h0002"], LAST: 0}
+  - XFER : {DATA : ["16'h0014", "16'h0004", "16'h000c", "16'hfffe"], LAST: 0}
+  - XFER : {DATA : ["16'hfff8", "16'h0014", "16'h0000", "16'h0002"], LAST: 0}
+  - XFER : {DATA : ["16'hfffa", "16'hfff2", "16'hfffe", "16'h0002"], LAST: 0}
+  - XFER : {DATA : ["16'h0008", "16'h000a", "16'h000a", "16'h000a"], LAST: 0}
+  - XFER : {DATA : ["16'hfffa", "16'h001c", "16'hfffa", "16'h000a"], LAST: 0}
+  - XFER : {DATA : ["16'hfffc", "16'h000c", "16'h000c", "16'hfffa"], LAST: 0}
+  - XFER : {DATA : ["16'hfffa", "16'h0004", "16'hfff2", "16'h001e"], LAST: 0}
+  - XFER : {DATA : ["16'hfff4", "16'hffee", "16'hfffc", "16'h000a"], LAST: 0}
+  - XFER : {DATA : ["16'h0014", "16'h0004", "16'h000c", "16'hfffe"], LAST: 0}
+  - XFER : {DATA : ["16'hfff2", "16'h0008", "16'h0008", "16'h0000"], LAST: 0}
+  - XFER : {DATA : ["16'h0000", "16'h000c", "16'hfffa", "16'h000a"], LAST: 0}
+  - XFER : {DATA : ["16'h0006", "16'h000a", "16'h000e", "16'h0000"], LAST: 0}
+  - XFER : {DATA : ["16'hffea", "16'h0016", "16'hfffa", "16'h0004"], LAST: 0}
+  - XFER : {DATA : ["16'h000c", "16'h000c", "16'h0002", "16'h0008"], LAST: 0}
+  - XFER : {DATA : ["16'hfff8", "16'h000a", "16'hfff8", "16'h0012"], LAST: 0}
+  - XFER : {DATA : ["16'hfffd", "16'hfff7", "16'hffed", "16'hfff3"], LAST: 0}
+  - XFER : {DATA : ["16'h0015", "16'h0001", "16'h0003", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'hfffb", "16'h000d", "16'h0011", "16'h0009"], LAST: 0}
+  - XFER : {DATA : ["16'h0001", "16'h0005", "16'hfffd", "16'h0001"], LAST: 0}
+  - XFER : {DATA : ["16'hffff", "16'h0001", "16'h0017", "16'h000f"], LAST: 0}
+  - XFER : {DATA : ["16'hffef", "16'h0015", "16'hfffb", "16'h0009"], LAST: 0}
+  - XFER : {DATA : ["16'h0003", "16'h0007", "16'h000d", "16'h0009"], LAST: 0}
+  - XFER : {DATA : ["16'hffed", "16'h0007", "16'hffff", "16'h000b"], LAST: 0}
+  - XFER : {DATA : ["16'hfffb", "16'hffef", "16'hfff9", "16'hffff"], LAST: 0}
+  - XFER : {DATA : ["16'h001b", "16'h0001", "16'h0005", "16'hfffd"], LAST: 0}
+  - XFER : {DATA : ["16'hfff7", "16'h0003", "16'h0005", "16'h000b"], LAST: 0}
+  - XFER : {DATA : ["16'h0009", "16'h000b", "16'hfffd", "16'hfff9"], LAST: 0}
+  - XFER : {DATA : ["16'h0001", "16'h0001", "16'h0007", "16'h000d"], LAST: 0}
+  - XFER : {DATA : ["16'hffe9", "16'h0011", "16'hfff7", "16'hffff"], LAST: 0}
+  - XFER : {DATA : ["16'h000b", "16'h000f", "16'h0007", "16'h000d"], LAST: 0}
+  - XFER : {DATA : ["16'hffff", "16'h0001", "16'hfffb", "16'h000b"], LAST: 0}
+  - XFER : {DATA : ["16'hfff9", "16'hffff", "16'hfff1", "16'hffff"], LAST: 0}
+  - XFER : {DATA : ["16'h000d", "16'h0001", "16'h0003", "16'hffff"], LAST: 0}
+  - XFER : {DATA : ["16'hfff7", "16'h0009", "16'h0015", "16'hffff"], LAST: 0}
+  - XFER : {DATA : ["16'hfff9", "16'h0003", "16'hfffd", "16'hffff"], LAST: 0}
+  - XFER : {DATA : ["16'h0005", "16'h0005", "16'h0019", "16'h0009"], LAST: 0}
+  - XFER : {DATA : ["16'hffef", "16'h0013", "16'h0003", "16'h0015"], LAST: 0}
+  - XFER : {DATA : ["16'h0003", "16'h0003", "16'h0009", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'hffe7", "16'h0003", "16'h0001", "16'h0013"], LAST: 0}
+  - XFER : {DATA : ["16'hfff6", "16'hfff2", "16'hfffa", "16'h0006"], LAST: 0}
+  - XFER : {DATA : ["16'h000c", "16'h000c", "16'h0014", "16'h0002"], LAST: 0}
+  - XFER : {DATA : ["16'hfff2", "16'h0016", "16'h0014", "16'h0002"], LAST: 0}
+  - XFER : {DATA : ["16'hfff8", "16'h0008", "16'hfffe", "16'h000a"], LAST: 0}
+  - XFER : {DATA : ["16'h000c", "16'h000c", "16'h001a", "16'h0002"], LAST: 0}
+  - XFER : {DATA : ["16'hfff6", "16'h001e", "16'h0002", "16'h0014"], LAST: 0}
+  - XFER : {DATA : ["16'h0004", "16'h0006", "16'h0000", "16'h000e"], LAST: 0}
+  - XFER : {DATA : ["16'hffea", "16'h0008", "16'h000a", "16'h0012"], LAST: 0}
+  - XFER : {DATA : ["16'hffef", "16'hfff3", "16'h0005", "16'h000d"], LAST: 0}
+  - XFER : {DATA : ["16'h000d", "16'hffff", "16'h001b", "16'hffff"], LAST: 0}
+  - XFER : {DATA : ["16'hfff1", "16'h0011", "16'h0003", "16'h0003"], LAST: 0}
+  - XFER : {DATA : ["16'hfff7", "16'h0005", "16'hffff", "16'h0009"], LAST: 0}
+  - XFER : {DATA : ["16'h000b", "16'h0013", "16'h001b", "16'h0009"], LAST: 0}
+  - XFER : {DATA : ["16'hfffb", "16'h001f", "16'hffef", "16'h0013"], LAST: 0}
+  - XFER : {DATA : ["16'h000d", "16'h000b", "16'h0003", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'hfff3", "16'h0009", "16'hffff", "16'h000f"], LAST: 0}
+  - XFER : {DATA : ["16'hfff9", "16'hfff9", "16'h0005", "16'h000b"], LAST: 0}
+  - XFER : {DATA : ["16'h000d", "16'h0009", "16'h000d", "16'hfff9"], LAST: 0}
+  - XFER : {DATA : ["16'hfffb", "16'h000f", "16'h0007", "16'h0003"], LAST: 0}
+  - XFER : {DATA : ["16'hfff3", "16'hffff", "16'hfff5", "16'h0005"], LAST: 0}
+  - XFER : {DATA : ["16'h0007", "16'h0007", "16'h000f", "16'hfff9"], LAST: 0}
+  - XFER : {DATA : ["16'hfff5", "16'h0015", "16'hfff3", "16'h0013"], LAST: 0}
+  - XFER : {DATA : ["16'hffff", "16'h0009", "16'h0001", "16'h000f"], LAST: 0}
+  - XFER : {DATA : ["16'hfff9", "16'hffff", "16'h0003", "16'h000b"], LAST: 0}
+  - XFER : {DATA : ["16'hfff0", "16'hfff8", "16'hfff6", "16'hfffc"], LAST: 0}
+  - XFER : {DATA : ["16'h000c", "16'h0008", "16'h0006", "16'hfff0"], LAST: 0}
+  - XFER : {DATA : ["16'hfff6", "16'h0000", "16'h000c", "16'h0006"], LAST: 0}
+  - XFER : {DATA : ["16'h0008", "16'h000a", "16'hfffa", "16'hfffc"], LAST: 0}
+  - XFER : {DATA : ["16'hfff8", "16'hfffa", "16'h0006", "16'h0002"], LAST: 0}
+  - XFER : {DATA : ["16'hffee", "16'h0016", "16'hfffc", "16'h0000"], LAST: 0}
+  - XFER : {DATA : ["16'h0002", "16'h0006", "16'h0004", "16'h0010"], LAST: 0}
+  - XFER : {DATA : ["16'hfff0", "16'hfffe", "16'hfff6", "16'h0010"], LAST: 0}
+  - XFER : {DATA : ["16'hfffa", "16'hfff8", "16'hfff4", "16'hfffe"], LAST: 0}
+  - XFER : {DATA : ["16'h0018", "16'hfffa", "16'h000c", "16'h0002"], LAST: 0}
+  - XFER : {DATA : ["16'h0004", "16'h0010", "16'h0006", "16'h0002"], LAST: 0}
+  - XFER : {DATA : ["16'hfffe", "16'hfffa", "16'hfff4", "16'h0000"], LAST: 0}
+  - XFER : {DATA : ["16'h0004", "16'h0008", "16'h0010", "16'h0006"], LAST: 0}
+  - XFER : {DATA : ["16'hfff6", "16'h0018", "16'hfff6", "16'h000a"], LAST: 0}
+  - XFER : {DATA : ["16'h0006", "16'h0010", "16'h0000", "16'h0000"], LAST: 0}
+  - XFER : {DATA : ["16'hfff6", "16'h000c", "16'hfff0", "16'h0016"], LAST: 0}
+  - XFER : {DATA : ["16'hfff7", "16'hfff7", "16'hfff9", "16'h0003"], LAST: 0}
+  - XFER : {DATA : ["16'h001d", "16'h0003", "16'h0007", "16'h0003"], LAST: 0}
+  - XFER : {DATA : ["16'hfffd", "16'h000d", "16'h0005", "16'h000b"], LAST: 0}
+  - XFER : {DATA : ["16'hffff", "16'h0003", "16'hfffd", "16'hfff5"], LAST: 0}
+  - XFER : {DATA : ["16'h0001", "16'h0009", "16'h000b", "16'h0013"], LAST: 0}
+  - XFER : {DATA : ["16'hfff5", "16'h001d", "16'hfff3", "16'h000b"], LAST: 0}
+  - XFER : {DATA : ["16'h000b", "16'h0013", "16'h0013", "16'h0013"], LAST: 0}
+  - XFER : {DATA : ["16'hfff7", "16'h0003", "16'hfffd", "16'h0011"], LAST: 0}
+  - XFER : {DATA : ["16'hfffd", "16'hfff7", "16'hfff5", "16'h0005"], LAST: 0}
+  - XFER : {DATA : ["16'h0025", "16'hfffd", "16'h000d", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'hfff9", "16'h000d", "16'h0003", "16'h0005"], LAST: 0}
+  - XFER : {DATA : ["16'hffff", "16'h0009", "16'hfff1", "16'h000d"], LAST: 0}
+  - XFER : {DATA : ["16'h0017", "16'h000d", "16'h0005", "16'hfffd"], LAST: 0}
+  - XFER : {DATA : ["16'hffeb", "16'h001d", "16'hffef", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'h0009", "16'h000f", "16'h0003", "16'h0005"], LAST: 0}
+  - XFER : {DATA : ["16'hfff1", "16'h0007", "16'hfff3", "16'h0015"], LAST: 0}
+  - XFER : {DATA : ["16'hfff6", "16'hffee", "16'hfff2", "16'hfff8"], LAST: 0}
+  - XFER : {DATA : ["16'h0012", "16'h0004", "16'h0008", "16'h0002"], LAST: 0}
+  - XFER : {DATA : ["16'hfffc", "16'h000a", "16'h0002", "16'h0004"], LAST: 0}
+  - XFER : {DATA : ["16'h0002", "16'h0004", "16'h0004", "16'h0004"], LAST: 0}
+  - XFER : {DATA : ["16'hfffa", "16'h0004", "16'h000c", "16'h0004"], LAST: 0}
+  - XFER : {DATA : ["16'hfff4", "16'h0016", "16'h0000", "16'h000a"], LAST: 0}
+  - XFER : {DATA : ["16'hfffc", "16'h000c", "16'h0000", "16'h0008"], LAST: 0}
+  - XFER : {DATA : ["16'hfffe", "16'h000a", "16'hfffc", "16'h0010"], LAST: 0}
+  - XFER : {DATA : ["16'hffef", "16'hfff7", "16'hfff7", "16'hfff9"], LAST: 0}
+  - XFER : {DATA : ["16'h0015", "16'h0007", "16'h000d", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'hfffd", "16'h0009", "16'h0003", "16'h0013"], LAST: 0}
+  - XFER : {DATA : ["16'hfffb", "16'h0011", "16'hfffd", "16'hffff"], LAST: 0}
+  - XFER : {DATA : ["16'h0003", "16'h0013", "16'h0015", "16'h0011"], LAST: 0}
+  - XFER : {DATA : ["16'hfff9", "16'h001f", "16'hfff5", "16'h000d"], LAST: 0}
+  - XFER : {DATA : ["16'h0005", "16'h0005", "16'h0003", "16'h000f"], LAST: 0}
+  - XFER : {DATA : ["16'hffed", "16'h0007", "16'h0007", "16'h0007"], LAST: 0}
+  - XFER : {DATA : ["16'hfffc", "16'hfff4", "16'hfff6", "16'hfffc"], LAST: 0}
+  - XFER : {DATA : ["16'h0010", "16'h0000", "16'h0004", "16'hfffe"], LAST: 0}
+  - XFER : {DATA : ["16'h0000", "16'h000e", "16'h000a", "16'hfffc"], LAST: 0}
+  - XFER : {DATA : ["16'h0006", "16'hfff8", "16'h0006", "16'hfff8"], LAST: 0}
+  - XFER : {DATA : ["16'hfffe", "16'h0006", "16'h000c", "16'h0008"], LAST: 0}
+  - XFER : {DATA : ["16'hfff6", "16'h001c", "16'hfff2", "16'h000c"], LAST: 0}
+  - XFER : {DATA : ["16'h000a", "16'h0010", "16'h000c", "16'h0016"], LAST: 0}
+  - XFER : {DATA : ["16'hfff8", "16'h0006", "16'h0000", "16'h0010"], LAST: 1}
+---
+- MARCHAL : 
+  - SAY : QCONV_STRIP_CORE_TEST DONE
+---

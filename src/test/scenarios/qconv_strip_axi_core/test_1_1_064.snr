@@ -1,0 +1,62 @@
+---
+- MARCHAL : 
+  - SAY : QCONV_STRIP_AXI CORE_TEST 1 IN_C_UNROLL=1 OUT_C_UNROLL=1 BUF_SIZE=64
+---
+- MARCHAL : 
+  - SAY : QCONV_STRIP_AXI_CORE_TEST 1.00 IN_C=1 IN_W=1 IN_H=1 OUT_C=2
+- CSR :
+  - READ : {ADDR: "32'h00000000", DATA: "32'h4E4F4351"} # ID[31:00]
+  - READ : {ADDR: "32'h00000004", DATA: "32'h31532D56"} # ID[63:32]
+  - WRITE: {ADDR: "32'h00000010", DATA: "32'h81000000"} # In  Data Address[31:00]
+  - WRITE: {ADDR: "32'h00000014", DATA: "32'h00000000"} # In  Data Address[63:32]
+  - WRITE: {ADDR: "32'h00000018", DATA: "32'h82000000"} # Out Data Address[31:00]
+  - WRITE: {ADDR: "32'h0000001C", DATA: "32'h00000000"} # Out Data Address[63:32]
+  - WRITE: {ADDR: "32'h00000020", DATA: "32'h83000000"} # K   Data Address[31:00]
+  - WRITE: {ADDR: "32'h00000024", DATA: "32'h00000000"} # K   Data Address[63:32]
+  - WRITE: {ADDR: "32'h00000028", DATA: "32'h84000000"} # Th  Data Address[31:00]
+  - WRITE: {ADDR: "32'h0000002C", DATA: "32'h00000000"} # Th  Data Address[63:32]
+  - WRITE: {ADDR: "32'h00000030", DATA: "32'h00000001"} # IN_W
+  - WRITE: {ADDR: "32'h00000038", DATA: "32'h00000001"} # IN_H
+  - WRITE: {ADDR: "32'h00000040", DATA: "32'h00000001"} # IN_C_BY_WORD
+  - WRITE: {ADDR: "32'h00000048", DATA: "32'h00000001"} # OUT_W
+  - WRITE: {ADDR: "32'h00000050", DATA: "32'h00000001"} # OUT_H
+  - WRITE: {ADDR: "32'h00000058", DATA: "32'h00000020"} # OUT_C
+  - WRITE: {ADDR: "32'h00000060", DATA: "32'h00000001"} # K_W
+  - WRITE: {ADDR: "32'h00000068", DATA: "32'h00000001"} # K_H
+  - WRITE: {ADDR: "32'h00000070", DATA: "32'h00000000"} # PAD_SIZE
+  - WRITE: {ADDR: "32'h00000078", DATA: "32'h00000000"} # USE_TH
+  - WRITE: {ADDR: "32'h0000000C", DATA: "32'h14000003"} # CTRL[4]=1,CTRL[2]=1,STAT=8'h00,MODE[1:0]=2'b11
+  - WAIT : {GPI(0) : 1, TIMEOUT: 10000}             # WAIT for IRQ=1
+  - READ : {ADDR: "32'h0000000C", DATA: "32'h04010003"} # CTRL[4]=0,CTRL[2]=1,STAT=8'h01,MODE[1:0]=2'b11
+  - WRITE: {ADDR: "32'h0000000C", DATA: "32'h00000003"} # CTRL[4]=0,CTRL[2]=1,STAT=8'h00,MODE[1:0]=2'b11
+  - WAIT : {GPI(0) : 0, TIMEOUT: 10000}             # WAIT for IRQ=0
+
+- K :
+  - READ : {ADDR: "32'h83000000",
+            DATA: ["32'hFFFFFFFF", "32'hFFFFFFFE", "32'hFFFFFFEE", "32'hFFFFFEEE",
+	           "32'hFFFFEEEE", "32'hFFFEEEEE", "32'hFFEEEEEE", "32'hFEEEEEEE",
+	           "32'hEEEEEEEE", "32'hEEEEEEEC", "32'hEEEEEECC", "32'hEEEEECCC",
+	           "32'hEEEECCCC", "32'hEEECCCCC", "32'hEECCCCCC", "32'hECCCCCCC",
+	           "32'hCCCCCCCC", "32'hFFFFFFFF", "32'hFFFFFFFF", "32'hFFFFFFFF",
+	           "32'hFFFFFFFF", "32'hFFFFFFFF", "32'hFFFFFFFF", "32'hFFFFFFFF",
+	           "32'hFFFFFFFF", "32'hFFFFFFFF", "32'hFFFFFFFF", "32'hFFFFFFFF",
+	           "32'hFFFFFFFF", "32'hFFFFFFFF", "32'hFFFFFFFF", "32'hFFFFFFFF"],
+            RESP: OKAY }
+- I :
+  - READ : {ADDR: "32'h81000000", DATA: ["64'h00000000FFFFFFFF"], RESP: OKAY}
+
+- O :
+  - WRITE: {ADDR: "32'h82000000",
+            DATA: ["16'h0020", "16'h001E", "16'h001C", "16'h001A",
+                   "16'h0018", "16'h0016", "16'h0014", "16'h0012", 
+                   "16'h0010", "16'h000E", "16'h000C", "16'h000A", 
+                   "16'h0008", "16'h0006", "16'h0004", "16'h0002", 
+                   "16'h0000", "16'h0020", "16'h0020", "16'h0020", 
+                   "16'h0020", "16'h0020", "16'h0020", "16'h0020", 
+                   "16'h0020", "16'h0020", "16'h0020", "16'h0020", 
+                   "16'h0020", "16'h0020", "16'h0020", "16'h0020"],
+            RESP: OKAY}
+
+- MARCHAL : 
+  - SAY : QCONV_STRIP_CORE_TEST 1 DONE
+---
