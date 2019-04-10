@@ -1,0 +1,9 @@
+[submodule "PipeWork"]
+	path = PipeWork
+	url = https://github.com/ikwzm/PipeWork.git
+[submodule "PipeWorkTest"]
+	path = PipeWorkTest
+	url = https://github.com/ikwzm/PipeWorkTest.git
+[submodule "Dummy_Plug"]
+	path = Dummy_Plug
+	url = https://github.com/ikwzm/Dummy_Plug.git
