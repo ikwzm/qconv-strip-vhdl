@@ -375,14 +375,14 @@ begin
                                          (to_integer(to_01(unsigned(K_H))) = 3));
                         when PREP_STATE =>
                             if (conv_3x3) then
-                                rndup_in_c_by_word   := ROUND_UP_IN_C_BY_WORD(in_data_c_by_word, IN_C_UNROLL  );
-                                out_data_slice_c_max <= 1 * DEVIDE_BY_LOG2( K_BUF_DEPTH, rndup_in_c_by_word); 
-                                out_data_slice_x_max <= 1 * DEVIDE_BY_LOG2(IN_BUF_DEPTH, rndup_in_c_by_word);
+                                rndup_in_c_by_word   := ROUND_UP_IN_C_BY_WORD(in_data_c_by_word, IN_C_UNROLL    );
+                                out_data_slice_c_max <= DEVIDE_BY_LOG2(     K_BUF_DEPTH, rndup_in_c_by_word); 
+                                out_data_slice_x_max <= DEVIDE_BY_LOG2(    IN_BUF_DEPTH, rndup_in_c_by_word) - 2;
                                 kernel_half_size     <= 1;
                             else
-                                rndup_in_c_by_word   := ROUND_UP_IN_C_BY_WORD(in_data_c_by_word, IN_C_UNROLL*8);
-                                out_data_slice_c_max <= 8 * DEVIDE_BY_LOG2( K_BUF_DEPTH, rndup_in_c_by_word); 
-                                out_data_slice_x_max <= 2 * DEVIDE_BY_LOG2(IN_BUF_DEPTH, rndup_in_c_by_word);
+                                rndup_in_c_by_word   := ROUND_UP_IN_C_BY_WORD(in_data_c_by_word, IN_C_UNROLL * 8);
+                                out_data_slice_c_max <= DEVIDE_BY_LOG2(8 *  K_BUF_DEPTH, rndup_in_c_by_word); 
+                                out_data_slice_x_max <= DEVIDE_BY_LOG2(2 * IN_BUF_DEPTH, rndup_in_c_by_word);
                                 kernel_half_size     <= 0;
                             end if;
                             out_data_slice_c_pos   <= 0;
