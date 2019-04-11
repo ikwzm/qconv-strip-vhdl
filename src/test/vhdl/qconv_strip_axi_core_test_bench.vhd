@@ -164,7 +164,7 @@ architecture MODEL of QCONV_STRIP_AXI_CORE_TEST_BENCH is
     constant  I_AXI_REGION      :  integer := 1;
     constant  I_AXI_CACHE       :  integer := 15;
     constant  I_AXI_REQ_QUEUE   :  integer := 2;
-    constant  I_AXI_XFER_SIZE   :  integer := 12;
+    constant  I_AXI_XFER_SIZE   :  integer := 10;
     constant  I_WIDTH           :  AXI4_SIGNAL_WIDTH_TYPE := (
                                      ID          => 4,
                                      AWADDR      => AXI_ADDR_WIDTH,
@@ -232,7 +232,7 @@ architecture MODEL of QCONV_STRIP_AXI_CORE_TEST_BENCH is
     constant  O_AXI_REGION      :  integer := 1;
     constant  O_AXI_CACHE       :  integer := 15;
     constant  O_AXI_REQ_QUEUE   :  integer := 2;
-    constant  O_AXI_XFER_SIZE   :  integer := 12;
+    constant  O_AXI_XFER_SIZE   :  integer := 10;
     constant  O_WIDTH           :  AXI4_SIGNAL_WIDTH_TYPE := (
                                      ID          => 4,
                                      AWADDR      => AXI_ADDR_WIDTH,
@@ -300,7 +300,7 @@ architecture MODEL of QCONV_STRIP_AXI_CORE_TEST_BENCH is
     constant  K_AXI_REGION      :  integer := 1;
     constant  K_AXI_CACHE       :  integer := 15;
     constant  K_AXI_REQ_QUEUE   :  integer := 2;
-    constant  K_AXI_XFER_SIZE   :  integer := 12;
+    constant  K_AXI_XFER_SIZE   :  integer := 10;
     constant  K_WIDTH           :  AXI4_SIGNAL_WIDTH_TYPE := (
                                      ID          => 4,
                                      AWADDR      => AXI_ADDR_WIDTH,
@@ -368,7 +368,7 @@ architecture MODEL of QCONV_STRIP_AXI_CORE_TEST_BENCH is
     constant  T_AXI_REGION      :  integer := 1;
     constant  T_AXI_CACHE       :  integer := 15;
     constant  T_AXI_REQ_QUEUE   :  integer := 2;
-    constant  T_AXI_XFER_SIZE   :  integer := 12;
+    constant  T_AXI_XFER_SIZE   :  integer := 10;
     constant  T_WIDTH           :  AXI4_SIGNAL_WIDTH_TYPE := (
                                      ID          => 4,
                                      AWADDR      => AXI_ADDR_WIDTH,
@@ -1330,4 +1330,29 @@ begin
         FINISH_ABORT    => FINISH_ABORT    
     );
 end MODEL;
-
+-----------------------------------------------------------------------------------
+-- IN_C_UNROLL=1 OUT_C_UNROLL=2 BUF_SIZE=16
+-----------------------------------------------------------------------------------
+library ieee;
+use     ieee.std_logic_1164.all;
+entity  QCONV_STRIP_AXI_CORE_TEST_BENCH_1_2_016 is
+    generic (
+        NAME            : STRING  := "test";
+        SCENARIO_FILE   : STRING  := "test_1_2_016.snr";
+        IN_C_UNROLL     : integer := 1;
+        OUT_C_UNROLL    : integer := 2;
+        BUF_SIZE        : integer := 16;
+        FINISH_ABORT    : boolean := FALSE
+    );
+end     QCONV_STRIP_AXI_CORE_TEST_BENCH_1_2_016;
+architecture MODEL of QCONV_STRIP_AXI_CORE_TEST_BENCH_1_2_016 is
+begin
+    TB: entity WORK.QCONV_STRIP_AXI_CORE_TEST_BENCH generic map (
+        NAME            => NAME            , 
+        SCENARIO_FILE   => SCENARIO_FILE   , 
+        IN_C_UNROLL     => IN_C_UNROLL     , 
+        OUT_C_UNROLL    => OUT_C_UNROLL    , 
+        BUF_SIZE        => BUF_SIZE        , 
+        FINISH_ABORT    => FINISH_ABORT    
+    );
+end MODEL;
