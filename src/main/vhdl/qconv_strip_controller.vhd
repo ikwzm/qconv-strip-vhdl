@@ -2,7 +2,7 @@
 --!     @file    qconv_strip_controller.vhd
 --!     @brief   Quantized Convolution (strip) Controller Module
 --!     @version 0.1.0
---!     @date    2019/4/4
+--!     @date    2019/4/11
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>
 -----------------------------------------------------------------------------------
 --
@@ -111,6 +111,7 @@ entity  QCONV_STRIP_CONTROLLER is
         CORE_T_PAD_SIZE : out std_logic_vector(QCONV_PARAM.PAD_SIZE_BITS    -1 downto 0);
         CORE_B_PAD_SIZE : out std_logic_vector(QCONV_PARAM.PAD_SIZE_BITS    -1 downto 0);
         CORE_USE_TH     : out std_logic;
+        CORE_PARAM_IN   : out std_logic;
         CORE_REQ_VALID  : out std_logic;
         CORE_REQ_READY  : in  std_logic;
         CORE_RES_VALID  : in  std_logic;
@@ -233,6 +234,7 @@ architecture RTL of QCONV_STRIP_CONTROLLER is
     signal    out_data_slice_x_max  :  integer range 0 to QCONV_PARAM.MAX_OUT_W;
     signal    out_data_slice_x_pos  :  integer range 0 to QCONV_PARAM.MAX_OUT_W;
     signal    out_data_slice_x_size :  integer range 0 to QCONV_PARAM.MAX_OUT_W;
+    signal    out_data_slice_x_first:  boolean;
     signal    out_data_slice_x_last :  boolean;
     signal    left_pad_size         :  integer range 0 to QCONV_PARAM.MAX_PAD_SIZE;
     signal    right_pad_size        :  integer range 0 to QCONV_PARAM.MAX_PAD_SIZE;
@@ -480,6 +482,7 @@ begin
                     remain_out_x_size     <= 0;
                     out_data_slice_x_pos  <= 0;
                     out_data_slice_x_size <= 0;
+                    out_data_slice_x_first<= TRUE;
                     out_data_slice_x_last <= FALSE;
                     start_x_pos           <= 0;
                     start_y_pos           <= 0;
@@ -489,6 +492,7 @@ begin
                     remain_out_x_size     <= 0;
                     out_data_slice_x_pos  <= 0;
                     out_data_slice_x_size <= 0;
+                    out_data_slice_x_first<= TRUE;
                     out_data_slice_x_last <= FALSE;
                     start_x_pos           <= 0;
                     start_y_pos           <= 0;
@@ -502,6 +506,7 @@ begin
                             end if;
                             remain_out_x_size     <= out_data_x_size;
                             out_data_slice_x_pos  <= 0;
+                            out_data_slice_x_first<= TRUE;
                             out_data_slice_x_last <= FALSE;
                             start_x_pos           <= -(in_data_pad_size - kernel_half_size);
                             start_y_pos           <= -(in_data_pad_size - kernel_half_size);
@@ -533,9 +538,10 @@ begin
                                 state <= CORE_WAIT_STATE;
                             end if;
                         when LOOP_NEXT_STATE =>
-                            start_x_pos          <= next_x_pos;
-                            out_data_slice_x_pos <= out_data_slice_x_pos + out_data_slice_x_size;
-                            remain_out_x_size    <= remain_out_x_size    - out_data_slice_x_size;
+                            start_x_pos            <= next_x_pos;
+                            out_data_slice_x_first <= FALSE;
+                            out_data_slice_x_pos   <= out_data_slice_x_pos + out_data_slice_x_size;
+                            remain_out_x_size      <= remain_out_x_size    - out_data_slice_x_size;
                             if (out_data_slice_x_last = TRUE) then
                                 state <= IDLE_STATE;
                             else
@@ -675,6 +681,7 @@ begin
         CORE_K_W        <= K_W;
         CORE_K_H        <= K_H;
         CORE_USE_TH     <= USE_TH;
+        CORE_PARAM_IN   <= '1' when (out_data_slice_x_first = TRUE) else '0';
         CORE_L_PAD_SIZE <= std_logic_vector(to_unsigned(left_pad_size        , QCONV_PARAM.PAD_SIZE_BITS));
         CORE_R_PAD_SIZE <= std_logic_vector(to_unsigned(right_pad_size       , QCONV_PARAM.PAD_SIZE_BITS));
         CORE_T_PAD_SIZE <= std_logic_vector(to_unsigned(top_pad_size         , QCONV_PARAM.PAD_SIZE_BITS));

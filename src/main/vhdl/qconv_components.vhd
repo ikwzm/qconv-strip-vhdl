@@ -2,7 +2,7 @@
 --!     @file    qconv_components.vhd                                            --
 --!     @brief   Quantized Convolution Component Library                         --
 --!     @version 0.1.0                                                           --
---!     @date    2019/04/10                                                      --
+--!     @date    2019/04/11                                                      --
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>                     --
 -----------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------
@@ -486,6 +486,8 @@ component QCONV_STRIP_CORE
                           in  std_logic_vector(QCONV_PARAM.PAD_SIZE_BITS    -1 downto 0);
         USE_TH          : --! @brief USE THRESHOLD REGISTER :
                           in  std_logic;
+        PARAM_IN        : --! @brief K DATA / TH DATA INPUT FLAG :
+                          in  std_logic;
         REQ_VALID       : --! @brief REQUEST VALID :
                           in  std_logic;
         REQ_READY       : --! @brief REQUEST READY :
@@ -620,6 +622,7 @@ component QCONV_STRIP_CONTROLLER
         CORE_T_PAD_SIZE : out std_logic_vector(QCONV_PARAM.PAD_SIZE_BITS    -1 downto 0);
         CORE_B_PAD_SIZE : out std_logic_vector(QCONV_PARAM.PAD_SIZE_BITS    -1 downto 0);
         CORE_USE_TH     : out std_logic;
+        CORE_PARAM_IN   : out std_logic;
         CORE_REQ_VALID  : out std_logic;
         CORE_REQ_READY  : in  std_logic;
         CORE_RES_VALID  : in  std_logic;
@@ -970,6 +973,10 @@ component QCONV_STRIP_TH_DATA_BUFFER
                           in  integer range 0 to O_SHAPE.X.MAX_SIZE := O_SHAPE.X.SIZE;
         OUT_H           : --! @brief OUTPUT IMAGE HEIGHT :
                           in  integer range 0 to O_SHAPE.Y.MAX_SIZE := O_SHAPE.Y.SIZE;
+        REQ_WRITE       : --! @brief REQUEST BUFFER WRITE :
+                          in  std_logic := '1';
+        REQ_READ        : --! @brief REQUEST BUFFER READ :
+                          in  std_logic := '1';
         REQ_VALID       : --! @brief REQUEST VALID :
                           in  std_logic;
         REQ_READY       : --! @brief REQUEST READY :
@@ -1077,6 +1084,10 @@ component QCONV_STRIP_K_DATA_BUFFER
                           --! * Kernel が 3x3 の場合は'1'.
                           --! * Kernel が 1x1 の場合は'0'.
                           in  std_logic;
+        REQ_WRITE       : --! @brief REQUEST BUFFER WRITE :
+                          in  std_logic := '1';
+        REQ_READ        : --! @brief REQUEST BUFFER READ :
+                          in  std_logic := '1';
         REQ_VALID       : --! @brief REQUEST VALID :
                           in  std_logic;
         REQ_READY       : --! @brief REQUEST READY :

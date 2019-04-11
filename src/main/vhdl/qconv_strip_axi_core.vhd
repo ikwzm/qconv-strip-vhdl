@@ -2,7 +2,7 @@
 --!     @file    qconv_strip_core.vhd
 --!     @brief   Quantized Convolution (strip) AXI I/F Core Module
 --!     @version 0.1.0
---!     @date    2019/4/7
+--!     @date    2019/4/11
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>
 -----------------------------------------------------------------------------------
 --
@@ -470,6 +470,7 @@ architecture RTL of QCONV_STRIP_AXI_CORE is
     signal    core_t_pad_size       :  std_logic_vector(QCONV_PARAM.PAD_SIZE_BITS    -1 downto 0);
     signal    core_b_pad_size       :  std_logic_vector(QCONV_PARAM.PAD_SIZE_BITS    -1 downto 0);
     signal    core_use_th           :  std_logic;
+    signal    core_param_in         :  std_logic;
     signal    core_req_valid        :  std_logic;
     signal    core_req_ready        :  std_logic;
     signal    core_res_valid        :  std_logic;
@@ -1092,6 +1093,7 @@ begin
             CORE_T_PAD_SIZE => core_t_pad_size     , -- Out :
             CORE_B_PAD_SIZE => core_b_pad_size     , -- Out :
             CORE_USE_TH     => core_use_th         , -- Out :
+            CORE_PARAM_IN   => core_param_in       , -- Out :
             CORE_REQ_VALID  => core_req_valid      , -- Out :
             CORE_REQ_READY  => core_req_ready      , -- In  :
             CORE_RES_VALID  => core_res_valid      , -- In  :
@@ -1191,6 +1193,7 @@ begin
             TOP_PAD_SIZE    => core_t_pad_size     , -- In  :
             BOTTOM_PAD_SIZE => core_b_pad_size     , -- In  :
             USE_TH          => core_use_th         , -- In  :
+            PARAM_IN        => core_param_in       , -- In  :
             REQ_VALID       => core_req_valid      , -- In  :
             REQ_READY       => core_req_ready      , -- Out :
             RES_VALID       => core_res_valid      , -- Out :

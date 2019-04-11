@@ -2,7 +2,7 @@
 --!     @file    qconv_strip_k_data_buffer.vhd
 --!     @brief   Quantized Convolution (strip) Kernel Weight Data Buffer Module
 --!     @version 0.1.0
---!     @date    2019/4/5
+--!     @date    2019/4/11
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>
 -----------------------------------------------------------------------------------
 --
@@ -113,6 +113,10 @@ entity  QCONV_STRIP_K_DATA_BUFFER is
                           --! * Kernel が 3x3 の場合は'1'.
                           --! * Kernel が 1x1 の場合は'0'.
                           in  std_logic;
+        REQ_WRITE       : --! @brief REQUEST BUFFER WRITE :
+                          in  std_logic := '1';
+        REQ_READ        : --! @brief REQUEST BUFFER READ :
+                          in  std_logic := '1';
         REQ_VALID       : --! @brief REQUEST VALID :
                           in  std_logic;
         REQ_READY       : --! @brief REQUEST READY :
@@ -256,18 +260,30 @@ architecture RTL of QCONV_STRIP_K_DATA_BUFFER is
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
-    type      STATE_TYPE            is (IDLE_STATE,        RES_STATE        ,
-                                        CONV3x3_REQ_STATE, CONV3x3_RUN_STATE,
-                                        CONV1x1_REQ_STATE, CONV1x1_RUN_STATE);
+    type      STATE_TYPE            is (IDLE_STATE,RES_STATE,
+                                        CONV3x3_WR_REQ_STATE,
+                                        CONV3x3_WR_RES_STATE,
+                                        CONV3x3_RD_REQ_STATE,
+                                        CONV3x3_RD_RES_STATE,
+                                        CONV1x1_WR_REQ_STATE,
+                                        CONV1x1_WR_RES_STATE,
+                                        CONV1x1_RD_REQ_STATE,
+                                        CONV1x1_RD_RES_STATE);
     signal    state                 :  STATE_TYPE;
+    signal    wr_rd                 :  std_logic;
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
-    signal    conv3x3_req_valid     :  std_logic;
-    signal    conv3x3_req_ready     :  std_logic;
-    signal    conv3x3_res_valid     :  std_logic;
-    signal    conv3x3_res_ready     :  std_logic;
-    signal    conv3x3_busy          :  std_logic;
+    signal    conv3x3_wr_req_valid  :  std_logic;
+    signal    conv3x3_wr_req_ready  :  std_logic;
+    signal    conv3x3_wr_res_valid  :  std_logic;
+    signal    conv3x3_wr_res_ready  :  std_logic;
+    signal    conv3x3_wr_busy       :  std_logic;
+    signal    conv3x3_rd_req_valid  :  std_logic;
+    signal    conv3x3_rd_req_ready  :  std_logic;
+    signal    conv3x3_rd_res_valid  :  std_logic;
+    signal    conv3x3_rd_res_ready  :  std_logic;
+    signal    conv3x3_rd_busy       :  std_logic;
     signal    conv3x3_i_data        :  std_logic_vector(WORD_BITS-1 downto 0);
     signal    conv3x3_i_valid       :  std_logic;
     signal    conv3x3_i_ready       :  std_logic;
@@ -277,11 +293,16 @@ architecture RTL of QCONV_STRIP_K_DATA_BUFFER is
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
-    signal    conv1x1_req_valid     :  std_logic;
-    signal    conv1x1_req_ready     :  std_logic;
-    signal    conv1x1_res_valid     :  std_logic;
-    signal    conv1x1_res_ready     :  std_logic;
-    signal    conv1x1_busy          :  std_logic;
+    signal    conv1x1_wr_req_valid  :  std_logic;
+    signal    conv1x1_wr_req_ready  :  std_logic;
+    signal    conv1x1_wr_res_valid  :  std_logic;
+    signal    conv1x1_wr_res_ready  :  std_logic;
+    signal    conv1x1_wr_busy       :  std_logic;
+    signal    conv1x1_rd_req_valid  :  std_logic;
+    signal    conv1x1_rd_req_ready  :  std_logic;
+    signal    conv1x1_rd_res_valid  :  std_logic;
+    signal    conv1x1_rd_res_ready  :  std_logic;
+    signal    conv1x1_rd_busy       :  std_logic;
     signal    conv1x1_i_data        :  std_logic_vector(WORD_BITS-1 downto 0);
     signal    conv1x1_i_valid       :  std_logic;
     signal    conv1x1_i_ready       :  std_logic;
@@ -301,42 +322,83 @@ begin
     process (CLK, RST) begin
         if (RST = '1') then
                 state <= IDLE_STATE;
+                wr_rd <= '0';
         elsif (CLK'event and CLK = '1') then
             if (CLR = '1') then
                 state <= IDLE_STATE;
+                wr_rd <= '0';
             else
                 case state is
                     when IDLE_STATE =>
-                        if    (REQ_VALID = '1' and K3x3  = '1') then
-                            state <= CONV3x3_REQ_STATE;
-                        elsif (REQ_VALID = '1' and K3x3 /= '1') then
-                            state <= CONV1x1_REQ_STATE;
+                        if    (REQ_VALID = '1' and K3x3  = '1' and REQ_WRITE = '1') then
+                            state <= CONV3x3_WR_REQ_STATE;
+                            wr_rd <= REQ_READ;
+                        elsif (REQ_VALID = '1' and K3x3  = '1' and REQ_READ  = '1') then
+                            state <= CONV3x3_RD_REQ_STATE;
+                            wr_rd <= '0';
+                        elsif (REQ_VALID = '1' and K3x3 /= '1' and REQ_WRITE = '1') then
+                            state <= CONV1x1_WR_REQ_STATE;
+                            wr_rd <= REQ_READ;
+                        elsif (REQ_VALID = '1' and K3x3 /= '1' and REQ_READ  = '1') then
+                            state <= CONV1x1_RD_REQ_STATE;
+                            wr_rd <= '0';
+                        elsif (REQ_VALID = '1') then
+                            state <= RES_STATE;
+                            wr_rd <= '0';
                         else
                             state <= IDLE_STATE;
                         end if;
-                    when CONV3x3_REQ_STATE =>
-                        if (conv3x3_req_ready = '1') then
-                            state <= CONV3x3_RUN_STATE;
+                    when CONV3x3_WR_REQ_STATE =>
+                        if (conv3x3_wr_req_ready = '1') then
+                            state <= CONV3x3_WR_RES_STATE;
                         else
-                            state <= CONV3x3_REQ_STATE;
+                            state <= CONV3x3_WR_REQ_STATE;
                         end if;
-                    when CONV3x3_RUN_STATE =>
-                        if (conv3x3_res_valid = '1') then
+                    when CONV3x3_WR_RES_STATE =>
+                        if    (conv3x3_wr_res_valid = '1' and wr_rd = '1') then
+                            state <= CONV3x3_RD_REQ_STATE;
+                        elsif (conv3x3_wr_res_valid = '1' and wr_rd = '0') then
                             state <= RES_STATE;
                         else
-                            state <= CONV3x3_RUN_STATE;
+                            state <= CONV3x3_WR_RES_STATE;
                         end if;
-                    when CONV1x1_REQ_STATE =>
-                        if (conv1x1_req_ready = '1') then
-                            state <= CONV1x1_RUN_STATE;
+                    when CONV3x3_RD_REQ_STATE =>
+                        if (conv3x3_rd_req_ready = '1') then
+                            state <= CONV3x3_RD_RES_STATE;
                         else
-                            state <= CONV1x1_REQ_STATE;
+                            state <= CONV3x3_RD_REQ_STATE;
                         end if;
-                    when CONV1x1_RUN_STATE =>
-                        if (conv1x1_res_valid = '1') then
+                    when CONV3x3_RD_RES_STATE =>
+                        if    (conv3x3_rd_res_valid = '1') then
                             state <= RES_STATE;
                         else
-                            state <= CONV1x1_RUN_STATE;
+                            state <= CONV3x3_RD_RES_STATE;
+                        end if;
+                    when CONV1x1_WR_REQ_STATE =>
+                        if (conv1x1_wr_req_ready = '1') then
+                            state <= CONV1x1_WR_RES_STATE;
+                        else
+                            state <= CONV1x1_WR_REQ_STATE;
+                        end if;
+                    when CONV1x1_WR_RES_STATE =>
+                        if    (conv1x1_wr_res_valid = '1' and wr_rd = '1') then
+                            state <= CONV1x1_RD_REQ_STATE;
+                        elsif (conv1x1_wr_res_valid = '1' and wr_rd = '0') then
+                            state <= RES_STATE;
+                        else
+                            state <= CONV1x1_WR_RES_STATE;
+                        end if;
+                    when CONV1x1_RD_REQ_STATE =>
+                        if (conv1x1_rd_req_ready = '1') then
+                            state <= CONV1x1_RD_RES_STATE;
+                        else
+                            state <= CONV1x1_RD_REQ_STATE;
+                        end if;
+                    when CONV1x1_RD_RES_STATE =>
+                        if    (conv1x1_rd_res_valid = '1') then
+                            state <= RES_STATE;
+                        else
+                            state <= CONV1x1_RD_RES_STATE;
                         end if;
                     when RES_STATE =>
                         if (RES_READY = '1') then
@@ -350,21 +412,28 @@ begin
             end if;
         end if;
     end process;
-    REQ_READY         <= '1' when (state = IDLE_STATE       ) else '0';
-    RES_VALID         <= '1' when (state = RES_STATE        ) else '0';
-    conv3x3_req_valid <= '1' when (state = CONV3x3_REQ_STATE) else '0';
-    conv3x3_res_ready <= '1' when (state = CONV3x3_RUN_STATE) else '0';
-    conv1x1_req_valid <= '1' when (state = CONV1x1_REQ_STATE) else '0';
-    conv1x1_res_ready <= '1' when (state = CONV1x1_RUN_STATE) else '0';
+    REQ_READY <= '1' when (state = IDLE_STATE) else '0';
+    RES_VALID <= '1' when (state = RES_STATE ) else '0';
+    -------------------------------------------------------------------------------
+    --
+    -------------------------------------------------------------------------------
+    conv3x3_wr_req_valid <= '1' when (state = CONV3x3_WR_REQ_STATE) else '0';
+    conv3x3_wr_res_ready <= '1' when (state = CONV3x3_WR_RES_STATE) else '0';
+    conv3x3_rd_req_valid <= '1' when (state = CONV3x3_RD_REQ_STATE) else '0';
+    conv3x3_rd_res_ready <= '1' when (state = CONV3x3_RD_RES_STATE) else '0';
+    conv1x1_wr_req_valid <= '1' when (state = CONV1x1_WR_REQ_STATE) else '0';
+    conv1x1_wr_res_ready <= '1' when (state = CONV1x1_WR_RES_STATE) else '0';
+    conv1x1_rd_req_valid <= '1' when (state = CONV1x1_RD_REQ_STATE) else '0';
+    conv1x1_rd_res_ready <= '1' when (state = CONV1x1_RD_RES_STATE) else '0';
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
     conv3x3_i_data  <= I_DATA;
     conv1x1_i_data  <= I_DATA;
-    conv3x3_i_valid <= '1' when (I_VALID = '1' and state = CONV3x3_RUN_STATE) else '0';
-    conv1x1_i_valid <= '1' when (I_VALID = '1' and state = CONV1x1_RUN_STATE) else '0';
-    I_READY <= '1' when (conv3x3_i_ready = '1' and state = CONV3x3_RUN_STATE) or
-                        (conv1x1_i_ready = '1' and state = CONV1x1_RUN_STATE) else '0';
+    conv3x3_i_valid <= '1' when (I_VALID = '1' and state = CONV3x3_WR_RES_STATE) else '0';
+    conv1x1_i_valid <= '1' when (I_VALID = '1' and state = CONV1x1_WR_RES_STATE) else '0';
+    I_READY <= '1' when (conv3x3_i_ready = '1' and state = CONV3x3_WR_RES_STATE) or
+                        (conv1x1_i_ready = '1' and state = CONV1x1_WR_RES_STATE) else '0';
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
@@ -378,18 +447,11 @@ begin
                                        Y         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(KERNEL_SIZE.Y.LO,KERNEL_SIZE.Y.HI)
                                    );
         constant  buf_wready    :  std_logic := '1';
-        signal    wr_res_valid  :  std_logic;
-        signal    wr_res_ready  :  std_logic;
+        signal    rd_req_addr   :  std_logic_vector(BUF_ADDR_BITS-1 downto 0);
         signal    wr_res_addr   :  std_logic_vector(BUF_ADDR_BITS-1 downto 0);
         signal    wr_res_size   :  std_logic_vector(BUF_SIZE_BITS-1 downto 0);
-        signal    wr_busy       :  std_logic;
-        signal    rd_busy       :  std_logic;
         signal    buf_out_data  :  std_logic_vector(BUF_PARAM.DATA.SIZE-1 downto 0);
     begin
-        ---------------------------------------------------------------------------
-        --
-        ---------------------------------------------------------------------------
-        conv3x3_busy <= '1' when (wr_busy = '1' or rd_busy = '1') else '0';
         ---------------------------------------------------------------------------
         -- WRITER
         ---------------------------------------------------------------------------
@@ -411,15 +473,15 @@ begin
             -----------------------------------------------------------------------
             -- 制御 I/F
             -----------------------------------------------------------------------
-                REQ_VALID       => conv3x3_req_valid   , -- In  :
-                REQ_READY       => conv3x3_req_ready   , -- out :
+                REQ_VALID       => conv3x3_wr_req_valid, -- In  :
+                REQ_READY       => conv3x3_wr_req_ready, -- out :
                 C_SIZE          => IN_C_BY_WORD        , -- In  :
                 D_SIZE          => OUT_C               , -- In  :
-                RES_VALID       => wr_res_valid        , -- Out :
-                RES_READY       => wr_res_ready        , -- In  :
+                RES_VALID       => conv3x3_wr_res_valid, -- Out :
+                RES_READY       => conv3x3_wr_res_ready, -- In  :
                 RES_ADDR        => wr_res_addr         , -- Out :
                 RES_SIZE        => wr_res_size         , -- Out :
-                BUSY            => wr_busy             , -- Out :
+                BUSY            => conv3x3_wr_busy     , -- Out :
             -----------------------------------------------------------------------
             -- 入力 I/F
             -----------------------------------------------------------------------
@@ -435,6 +497,20 @@ begin
                 BUF_PUSH        => open                , -- Out :
                 BUF_READY       => buf_wready            -- In  :
             );                                           --  
+        ---------------------------------------------------------------------------
+        --
+        ---------------------------------------------------------------------------
+        process (CLK, RST) begin
+            if (RST = '1') then
+                    rd_req_addr <= (others => '0');
+            elsif (CLK'event and CLK = '1') then
+                if (CLR = '1') then
+                    rd_req_addr <= (others => '0');
+                elsif (conv3x3_wr_res_valid = '1' and conv3x3_wr_res_ready = '1') then
+                    rd_req_addr <= wr_res_addr;
+                end if;
+            end if;
+        end process;
         ---------------------------------------------------------------------------
         -- READER
         ---------------------------------------------------------------------------
@@ -456,16 +532,17 @@ begin
             -----------------------------------------------------------------------
             -- 制御 I/F
             -----------------------------------------------------------------------
-                REQ_VALID       => wr_res_valid        , -- In  :
-                REQ_READY       => wr_res_ready        , -- out :
-                REQ_ADDR        => wr_res_addr         , -- In  :
+                REQ_VALID       => conv3x3_rd_req_valid, -- In  :
+                REQ_READY       => conv3x3_rd_req_ready, -- out :
+                REQ_ADDR        => rd_req_addr         , -- In  :
+                REQ_ADDR_LOAD   => wr_rd               , -- In  :
                 C_SIZE          => IN_C_BY_WORD        , -- In  :
                 D_SIZE          => OUT_C               , -- In  :
                 X_SIZE          => OUT_W               , -- In  :
                 Y_SIZE          => OUT_H               , -- In  :
-                RES_VALID       => conv3x3_res_valid   , -- Out :
-                RES_READY       => conv3x3_res_ready   , -- In  :
-                BUSY            => rd_busy             , -- Out :
+                RES_VALID       => conv3x3_rd_res_valid, -- Out :
+                RES_READY       => conv3x3_rd_res_ready, -- In  :
+                BUSY            => conv3x3_rd_busy     , -- Out :
             -----------------------------------------------------------------------
             -- 出力側 I/F
             -----------------------------------------------------------------------
@@ -503,12 +580,9 @@ begin
         signal    buf_rdata     :  std_logic_vector(BANK_SIZE*BUF_DATA_BITS-1 downto 0);
         signal    buf_raddr     :  std_logic_vector(BANK_SIZE*BUF_ADDR_BITS-1 downto 0);
         constant  buf_wready    :  std_logic := '1';
-        signal    wr_res_valid  :  std_logic;
-        signal    wr_res_ready  :  std_logic;
-        signal    wr_res_addr   :  std_logic_vector(BUF_ADDR_BITS  -1 downto 0);
+        signal    rd_req_addr   :  std_logic_vector(BUF_ADDR_BITS-1 downto 0);
+        signal    wr_res_addr   :  std_logic_vector(BUF_ADDR_BITS-1 downto 0);
         signal    wr_res_size   :  std_logic_vector(BUF_SIZE_BITS  -1 downto 0);
-        signal    wr_busy       :  std_logic;
-        signal    rd_busy       :  std_logic;
         signal    buf_out_data  :  std_logic_vector(BUF_PARAM.DATA.SIZE-1 downto 0);
         ---------------------------------------------------------------------------
         --
@@ -559,10 +633,6 @@ begin
         end function;
     begin
         ---------------------------------------------------------------------------
-        --
-        ---------------------------------------------------------------------------
-        conv1x1_busy <= '1' when (wr_busy = '1' or rd_busy = '1') else '0';
-        ---------------------------------------------------------------------------
         -- WRITER
         ---------------------------------------------------------------------------
         WR: CONVOLUTION_PARAMETER_BUFFER_WRITER          -- 
@@ -583,15 +653,15 @@ begin
             -----------------------------------------------------------------------
             -- 制御 I/F
             -----------------------------------------------------------------------
-                REQ_VALID       => conv1x1_req_valid   , -- In  :
-                REQ_READY       => conv1x1_req_ready   , -- out :
+                REQ_VALID       => conv1x1_wr_req_valid, -- In  :
+                REQ_READY       => conv1x1_wr_req_ready, -- out :
                 C_SIZE          => IN_C_BY_WORD        , -- In  :
                 D_SIZE          => OUT_C               , -- In  :
-                RES_VALID       => wr_res_valid        , -- Out :
-                RES_READY       => wr_res_ready        , -- In  :
+                RES_VALID       => conv1x1_wr_res_valid, -- Out :
+                RES_READY       => conv1x1_wr_res_ready, -- In  :
                 RES_ADDR        => wr_res_addr         , -- Out :
                 RES_SIZE        => wr_res_size         , -- Out :
-                BUSY            => wr_busy             , -- Out :
+                BUSY            => conv1x1_wr_busy     , -- Out :
             -----------------------------------------------------------------------
             -- 入力 I/F
             -----------------------------------------------------------------------
@@ -607,6 +677,20 @@ begin
                 BUF_PUSH        => open                , -- Out :
                 BUF_READY       => buf_wready            -- In  :
             );                                           --  
+        ---------------------------------------------------------------------------
+        --
+        ---------------------------------------------------------------------------
+        process (CLK, RST) begin
+            if (RST = '1') then
+                    rd_req_addr <= (others => '0');
+            elsif (CLK'event and CLK = '1') then
+                if (CLR = '1') then
+                    rd_req_addr <= (others => '0');
+                elsif (conv1x1_wr_res_valid = '1' and conv1x1_wr_res_ready = '1') then
+                    rd_req_addr <= wr_res_addr;
+                end if;
+            end if;
+        end process;
         ---------------------------------------------------------------------------
         -- READER
         ---------------------------------------------------------------------------
@@ -628,16 +712,17 @@ begin
             -----------------------------------------------------------------------
             -- 制御 I/F
             -----------------------------------------------------------------------
-                REQ_VALID       => wr_res_valid        , -- In  :
-                REQ_READY       => wr_res_ready        , -- out :
-                REQ_ADDR        => wr_res_addr         , -- In  :
+                REQ_VALID       => conv1x1_rd_req_valid, -- In  :
+                REQ_READY       => conv1x1_rd_req_ready, -- Out :
+                REQ_ADDR        => rd_req_addr         , -- In  :
+                REQ_ADDR_LOAD   => wr_rd               , -- In  :
                 C_SIZE          => IN_C_BY_WORD        , -- In  :
                 D_SIZE          => OUT_C               , -- In  :
                 X_SIZE          => OUT_W               , -- In  :
                 Y_SIZE          => OUT_H               , -- In  :
-                RES_VALID       => conv1x1_res_valid   , -- Out :
-                RES_READY       => conv1x1_res_ready   , -- In  :
-                BUSY            => rd_busy             , -- Out :
+                RES_VALID       => conv1x1_rd_res_valid, -- Out :
+                RES_READY       => conv1x1_rd_res_ready, -- In  :
+                BUSY            => conv1x1_rd_busy     , -- Out :
             -----------------------------------------------------------------------
             -- 出力側 I/F
             -----------------------------------------------------------------------
@@ -666,11 +751,11 @@ begin
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
-    output_data     <= conv3x3_o_data when (state = CONV3x3_RUN_STATE) else conv1x1_o_data;
-    output_valid    <= '1' when (conv3x3_o_valid = '1' and state = CONV3x3_RUN_STATE) or
-                                (conv1x1_o_valid = '1' and state = CONV1x1_RUN_STATE) else '0';
-    conv3x3_o_ready <= '1' when (output_ready    = '1' and state = CONV3x3_RUN_STATE) else '0';
-    conv1x1_o_ready <= '1' when (output_ready    = '1' and state = CONV1x1_RUN_STATE) else '0';
+    output_data     <= conv3x3_o_data when (state = CONV3x3_RD_RES_STATE) else conv1x1_o_data;
+    output_valid    <= '1' when (conv3x3_o_valid = '1' and state = CONV3x3_RD_RES_STATE) or
+                                (conv1x1_o_valid = '1' and state = CONV1x1_RD_RES_STATE) else '0';
+    conv3x3_o_ready <= '1' when (output_ready    = '1' and state = CONV3x3_RD_RES_STATE) else '0';
+    conv1x1_o_ready <= '1' when (output_ready    = '1' and state = CONV1x1_RD_RES_STATE) else '0';
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------

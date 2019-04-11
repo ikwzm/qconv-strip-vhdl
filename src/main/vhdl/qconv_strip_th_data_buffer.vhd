@@ -2,7 +2,7 @@
 --!     @file    qconv_strip_th_data_buffer.vhd
 --!     @brief   Quantized Convolution (strip) Thresholds Data Buffer Module
 --!     @version 0.1.0
---!     @date    2019/4/5
+--!     @date    2019/4/11
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>
 -----------------------------------------------------------------------------------
 --
@@ -96,6 +96,10 @@ entity  QCONV_STRIP_TH_DATA_BUFFER is
                           in  integer range 0 to O_SHAPE.X.MAX_SIZE := O_SHAPE.X.SIZE;
         OUT_H           : --! @brief OUTPUT IMAGE HEIGHT :
                           in  integer range 0 to O_SHAPE.Y.MAX_SIZE := O_SHAPE.Y.SIZE;
+        REQ_WRITE       : --! @brief REQUEST BUFFER WRITE :
+                          in  std_logic := '1';
+        REQ_READ        : --! @brief REQUEST BUFFER READ :
+                          in  std_logic := '1';
         REQ_VALID       : --! @brief REQUEST VALID :
                           in  std_logic;
         REQ_READY       : --! @brief REQUEST READY :
@@ -183,6 +187,8 @@ begin
         ---------------------------------------------------------------------------
             REQ_VALID       => REQ_VALID       , --   
             REQ_READY       => REQ_READY       , --   
+            REQ_WRITE       => REQ_WRITE       , --   
+            REQ_READ        => REQ_READ        , --   
             C_SIZE          => OUT_C           , --   
             X_SIZE          => OUT_W           , --   
             Y_SIZE          => OUT_H           , --   

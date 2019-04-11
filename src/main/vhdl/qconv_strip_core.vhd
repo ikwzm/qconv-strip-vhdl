@@ -121,6 +121,8 @@ entity  QCONV_STRIP_CORE is
                           in  std_logic_vector(QCONV_PARAM.PAD_SIZE_BITS    -1 downto 0);
         USE_TH          : --! @brief USE THRESHOLD REGISTER :
                           in  std_logic;
+        PARAM_IN        : --! @brief K DATA / TH DATA INPUT FLAG :
+                          in  std_logic;
         REQ_VALID       : --! @brief REQUEST VALID :
                           in  std_logic;
         REQ_READY       : --! @brief REQUEST READY :
@@ -218,6 +220,7 @@ architecture RTL of QCONV_STRIP_CORE is
               bottom_pad_size       :  integer range 0 to QCONV_PARAM.MAX_PAD_SIZE;
               k3x3                  :  std_logic;
               use_th                :  std_logic;
+              param_in              :  std_logic;
     end record;
     constant  REQ_ARGS_NULL         :  REQ_ARGS_TYPE := (
               in_c_by_word          =>  0 ,
@@ -231,7 +234,8 @@ architecture RTL of QCONV_STRIP_CORE is
               top_pad_size          =>  0 ,
               bottom_pad_size       =>  0 ,
               k3x3                  => '0',
-              use_th                => '0'
+              use_th                => '0',
+              param_in              => '0'
     );
     signal    req_args              :  REQ_ARGS_TYPE;
     -------------------------------------------------------------------------------
@@ -621,6 +625,7 @@ begin
                 req_args.top_pad_size    <= to_integer(unsigned(TOP_PAD_SIZE  ));
                 req_args.bottom_pad_size <= to_integer(unsigned(BOTTOM_PAD_SIZE));
                 req_args.use_th          <= USE_TH;
+                req_args.param_in        <= PARAM_IN;
                 if (to_integer(unsigned(K_W)) = 3) and
                    (to_integer(unsigned(K_H)) = 3) then
                     req_args.k3x3     <= '1';
@@ -713,6 +718,8 @@ begin
             OUT_W           => req_args.out_w          , -- In  :
             OUT_H           => req_args.out_h          , -- In  :
             K3x3            => req_args.k3x3           , -- In  :
+            REQ_WRITE       => req_args.param_in       , -- In  :
+            REQ_READ        => '1'                     , -- In  :
             REQ_VALID       => k_req_valid             , -- In  :
             REQ_READY       => k_req_ready             , -- Out :
             RES_VALID       => k_res_valid             , -- In  :
@@ -758,6 +765,8 @@ begin
             OUT_C           => req_args.out_c          , -- In  :
             OUT_W           => req_args.out_w          , -- In  :
             OUT_H           => req_args.out_h          , -- In  :
+            REQ_WRITE       => req_args.param_in       , -- In  :
+            REQ_READ        => '1'                     , -- In  :
             REQ_VALID       => t_req_valid             , -- In  :
             REQ_READY       => t_req_ready             , -- Out :
             RES_VALID       => t_res_valid             , -- In  :
