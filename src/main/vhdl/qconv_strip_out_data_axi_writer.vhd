@@ -2,7 +2,7 @@
 --!     @file    qconv_strip_out_data_axi_writer.vhd
 --!     @brief   Quantized Convolution (strip) Out Data AXI Writer Module
 --!     @version 0.1.0
---!     @date    2019/4/5
+--!     @date    2019/4/15
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>
 -----------------------------------------------------------------------------------
 --
@@ -227,8 +227,6 @@ architecture RTL of QCONV_STRIP_OUT_DATA_AXI_WRITER is
     constant  O_FIXED_POOL_OPEN     :  integer := 1;
     constant  O_REQ_ADDR_VALID      :  integer := 1;
     constant  O_REQ_SIZE_VALID      :  integer := 1;
-    constant  O_FLOW_READY_LEVEL    :  std_logic_vector(BUF_DEPTH downto 0)
-                                    := std_logic_vector(to_unsigned(2**AXI_XFER_SIZE, BUF_DEPTH+1));
     constant  O_BUF_READY_LEVEL     :  std_logic_vector(BUF_DEPTH downto 0)
                                     := std_logic_vector(to_unsigned(AXI_DATA_WIDTH/8, BUF_DEPTH+1));
     constant  O_MAX_REQ_SIZE        :  integer := IMAGE_SHAPE.X.MAX_SIZE * IMAGE_SHAPE.C.MAX_SIZE * IMAGE_SHAPE.ELEM_BITS / 8;
@@ -293,6 +291,7 @@ architecture RTL of QCONV_STRIP_OUT_DATA_AXI_WRITER is
     signal    o_flow_stop           :  std_logic;
     signal    o_flow_last           :  std_logic;
     signal    o_flow_size           :  std_logic_vector(BUF_DEPTH         downto 0);
+    signal    o_flow_ready_level    :  std_logic_vector(BUF_DEPTH         downto 0);
     signal    o_pull_fin_valid      :  std_logic;
     signal    o_pull_fin_last       :  std_logic;
     signal    o_pull_fin_error      :  std_logic;
@@ -430,6 +429,24 @@ begin
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
+    process (CLK, RST) begin
+        if (RST = '1') then
+                o_flow_ready_level <= (others => '0');
+        elsif (CLK'event and CLK = '1') then
+            if (CLR = '1') then
+                o_flow_ready_level <= (others => '0');
+            elsif (o_tran_start = '1') then
+                if (unsigned(o_tran_size) > 2**AXI_XFER_SIZE) then
+                    o_flow_ready_level <= std_logic_vector(to_unsigned(2**AXI_XFER_SIZE, o_flow_ready_level'length));
+                else
+                    o_flow_ready_level <= std_logic_vector(resize(unsigned(o_tran_size), o_flow_ready_level'length));
+                end if;
+            end if;
+        end if;
+    end process;
+    -------------------------------------------------------------------------------
+    --
+    -------------------------------------------------------------------------------
     PUMP_CTRL: PUMP_STREAM_OUTLET_CONTROLLER             -- 
         generic map (                                    -- 
             O_CLK_RATE          => 1                   , --
@@ -490,7 +507,7 @@ begin
         -- Outlet Configuration Signals.
         ---------------------------------------------------------------------------
             O_BUF_READY_LEVEL   => O_BUF_READY_LEVEL   , --  In  :
-            O_FLOW_READY_LEVEL  => O_FLOW_READY_LEVEL  , --  In  :
+            O_FLOW_READY_LEVEL  => o_flow_ready_level  , --  In  :
         ---------------------------------------------------------------------------
         -- Outlet Transaction Command Request Signals.
         ---------------------------------------------------------------------------
