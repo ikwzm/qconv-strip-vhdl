@@ -13,8 +13,10 @@ SCENARIO_PATH         := $(SRC_PATH)/test/scenarios/qconv_strip_axi_core
 GHDL                  := ghdl
 GHDLFLAGS             := --mb-comments -P$(DUMMY_PLUG_WORK_PATH) -P$(PIPEWORK_WORK_PATH) -P$(QCONV_WORK_PATH)
 
-TEST_BENCH            := qconv_strip_axi_core_test_bench_1_1_064 \
-                         qconv_strip_axi_core_test_bench_1_2_016 \
+TEST_BENCH            := qconv_strip_axi_core_test_bench_slv_1_1_064 \
+                         qconv_strip_axi_core_test_bench_slv_1_2_016 \
+                         qconv_strip_axi_core_test_bench_slv_1_8_512 \
+                         qconv_strip_axi_core_test_bench_mem_1_8_512 \
                          $(END_LIST)
 
 DUMMY_PLUG            := $(DUMMY_PLUG_WORK_PATH)/dummy_plug-obj93.cf
@@ -27,13 +29,28 @@ qconv_strip_axi_core_test_bench : qconv_strip_axi_core_test_bench.o test.snr
 	$(GHDL) -e $(GHDLFLAGS) --work=WORK $@
 	$(GHDL) -r $(GHDLFLAGS) --work=WORK $@
 
-qconv_strip_axi_core_test_bench_1_1_064 : qconv_strip_axi_core_test_bench.o test_1_1_064.snr
+qconv_strip_axi_core_test_bench_slv_1_1_064 : qconv_strip_axi_core_test_bench.o $(SCENARIO_PATH)/test_slv_1_1_064.snr
+	cp      $(SCENARIO_PATH)/test_slv_1_1_064.snr test_slv_1_1_064.snr 
 	$(GHDL) -e $(GHDLFLAGS) --work=WORK $@
 	$(GHDL) -r $(GHDLFLAGS) --work=WORK $@
 
-qconv_strip_axi_core_test_bench_1_2_016 : qconv_strip_axi_core_test_bench.o test_1_2_016.snr
+qconv_strip_axi_core_test_bench_slv_1_2_016 : qconv_strip_axi_core_test_bench.o $(SCENARIO_PATH)/test_slv_1_2_016.snr
+	cp      $(SCENARIO_PATH)/test_slv_1_2_016.snr test_slv_1_2_016.snr 
 	$(GHDL) -e $(GHDLFLAGS) --work=WORK $@
 	$(GHDL) -r $(GHDLFLAGS) --work=WORK $@
+
+qconv_strip_axi_core_test_bench_slv_1_8_512 : qconv_strip_axi_core_test_bench.o $(SCENARIO_PATH)/test_slv_1_8_512.snr
+	cp      $(SCENARIO_PATH)/test_slv_1_8_512.snr test_slv_1_8_512.snr 
+	$(GHDL) -e $(GHDLFLAGS) --work=WORK $@
+	$(GHDL) -r $(GHDLFLAGS) --work=WORK $@
+
+qconv_strip_axi_core_test_bench_mem_1_8_512 : qconv_strip_axi_core_test_bench.o $(SCENARIO_PATH)/test_mem_1_8_512.snr
+	cp      $(SCENARIO_PATH)/test_mem_1_8_512.snr test_mem_1_8_512.snr 
+	$(GHDL) -e $(GHDLFLAGS) --work=WORK $@
+	$(GHDL) -r $(GHDLFLAGS) --work=WORK $@
+
+qconv_strip_axi_core_test_bench.o : ../../../src/test/vhdl/qconv_strip_axi_core_test_bench.vhd $(PIPEWORK) $(DUMMY_PLUG) $(QCONV) 
+	$(GHDL) -a $(GHDLFLAGS) --work=$(WORK) $<
 
 $(QCONV) : $(PIPEWORK) 
 	@if [ ! -d $(QCONV_WORK_PATH) ]; \
@@ -71,16 +88,4 @@ clean:
 	rm -rf ./dummy_plug/ ./pipework/ ./qconv/
 
 analyze: $(PIPEWORK) $(DUMMY_PLUG) qconv_strip_axi_core_test_bench.o
-
-qconv_strip_axi_core_test_bench.o : ../../../src/test/vhdl/qconv_strip_axi_core_test_bench.vhd $(PIPEWORK) $(DUMMY_PLUG) $(QCONV) 
-	$(GHDL) -a $(GHDLFLAGS) --work=$(WORK) $<
-
-test.snr         : $(SCENARIO_PATH)/test.snr
-	cp $< $@
-
-test_1_1_064.snr : $(SCENARIO_PATH)/test_1_1_064.snr
-	cp $< $@
-
-test_1_2_016.snr : $(SCENARIO_PATH)/test_1_2_016.snr
-	cp $< $@
 

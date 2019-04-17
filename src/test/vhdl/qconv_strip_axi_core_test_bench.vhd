@@ -2,7 +2,7 @@
 --!     @file    qconv_strip_axi_core_test_bench.vhd
 --!     @brief   Test Bench for Quantized Convolution (strip) AXI Core Module
 --!     @version 0.1.0
---!     @date    2019/4/15
+--!     @date    2019/4/16
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>
 -----------------------------------------------------------------------------------
 --
@@ -40,6 +40,7 @@ entity  QCONV_STRIP_AXI_CORE_TEST_BENCH is
     generic (
         NAME            : STRING  := "test";
         SCENARIO_FILE   : STRING  := "test_1_8_512.snr";
+        AXI_MEMORY      : boolean := FALSE;
         IN_C_UNROLL     : integer := 1;
         OUT_C_UNROLL    : integer := 8;
         BUF_SIZE        : integer := 512;
@@ -63,6 +64,7 @@ use     DUMMY_PLUG.CORE.REPORT_STATUS_VECTOR;
 use     DUMMY_PLUG.CORE.MARGE_REPORT_STATUS;
 use     DUMMY_PLUG.AXI4_MODELS.AXI4_MASTER_PLAYER;
 use     DUMMY_PLUG.AXI4_MODELS.AXI4_SLAVE_PLAYER;
+use     DUMMY_PLUG.AXI4_MODELS.AXI4_MEMORY_PLAYER;
 library PIPEWORK;
 use     PIPEWORK.IMAGE_TYPES.all;
 library QCONV;
@@ -86,6 +88,10 @@ architecture MODEL of QCONV_STRIP_AXI_CORE_TEST_BENCH is
     constant  IN_BUF_SIZE       :  integer := BUF_SIZE*4*IN_C_UNROLL             ;
     constant  K_BUF_SIZE        :  integer := BUF_SIZE*9*IN_C_UNROLL*OUT_C_UNROLL;
     constant  TH_BUF_SIZE       :  integer := BUF_SIZE              *OUT_C_UNROLL;
+    constant  IN_MEM_SIZE       :  integer := 8*1024;
+    constant  K_MEM_SIZE        :  integer := 4*2048;
+    constant  TH_MEM_SIZE       :  integer := 8*256;
+    constant  OUT_MEM_SIZE      :  integer := 8*1024;
     -------------------------------------------------------------------------------
     -- グローバルシグナル.
     -------------------------------------------------------------------------------
@@ -800,7 +806,110 @@ begin
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
-    I: AXI4_SLAVE_PLAYER
+    I_MEM: if (AXI_MEMORY = TRUE) generate           -- 
+    PLAYER: AXI4_MEMORY_PLAYER                       -- 
+        generic map (                                -- 
+            SCENARIO_FILE       => SCENARIO_FILE   , -- 
+            NAME                => "I"             , -- 
+            READ_ENABLE         => TRUE            , -- 
+            WRITE_ENABLE        => FALSE           , -- 
+            OUTPUT_DELAY        => DELAY           , -- 
+            WIDTH               => I_WIDTH         , -- 
+            SYNC_PLUG_NUM       => 3               , -- 
+            SYNC_WIDTH          => SYNC_WIDTH      , -- 
+            GPI_WIDTH           => GPI_WIDTH       , -- 
+            GPO_WIDTH           => GPO_WIDTH       , --
+            MEMORY_SIZE         => IN_MEM_SIZE     , --
+            FINISH_ABORT        => FALSE             -- 
+        )                                            -- 
+        port map(                                    -- 
+        ---------------------------------------------------------------------------
+        -- グローバルシグナル.
+        ---------------------------------------------------------------------------
+            ACLK                => CLK             , -- In  :
+            ARESETn             => ARESETn         , -- In  :
+        ---------------------------------------------------------------------------
+        -- リードアドレスチャネルシグナル.
+        ---------------------------------------------------------------------------
+            ARADDR              => I_ARADDR        , -- In  :    
+            ARLEN               => I_ARLEN         , -- In  :    
+            ARSIZE              => I_ARSIZE        , -- In  :    
+            ARBURST             => I_ARBURST       , -- In  :    
+            ARLOCK              => I_ARLOCK        , -- In  :    
+            ARCACHE             => I_ARCACHE       , -- In  :    
+            ARPROT              => I_ARPROT        , -- In  :    
+            ARQOS               => I_ARQOS         , -- In  :    
+            ARREGION            => I_ARREGION      , -- In  :    
+            ARUSER              => I_ARUSER        , -- In  :    
+            ARID                => I_ARID          , -- In  :    
+            ARVALID             => I_ARVALID       , -- In  :    
+            ARREADY             => I_ARREADY       , -- I/O : 
+        ---------------------------------------------------------------------------
+        -- リードデータチャネルシグナル.
+        ---------------------------------------------------------------------------
+            RLAST               => I_RLAST         , -- I/O : 
+            RDATA               => I_RDATA         , -- I/O : 
+            RRESP               => I_RRESP         , -- I/O : 
+            RUSER               => I_RUSER         , -- I/O : 
+            RID                 => I_RID           , -- I/O : 
+            RVALID              => I_RVALID        , -- I/O : 
+            RREADY              => I_RREADY        , -- In  :    
+        ---------------------------------------------------------------------------
+        -- ライトアドレスチャネルシグナル.
+        ---------------------------------------------------------------------------
+            AWADDR              => I_AWADDR        , -- In  :    
+            AWLEN               => I_AWLEN         , -- In  :    
+            AWSIZE              => I_AWSIZE        , -- In  :    
+            AWBURST             => I_AWBURST       , -- In  :    
+            AWLOCK              => I_AWLOCK        , -- In  :    
+            AWCACHE             => I_AWCACHE       , -- In  :    
+            AWPROT              => I_AWPROT        , -- In  :    
+            AWQOS               => I_AWQOS         , -- In  :    
+            AWREGION            => I_AWREGION      , -- In  :    
+            AWUSER              => I_AWUSER        , -- In  :    
+            AWID                => I_AWID          , -- In  :    
+            AWVALID             => I_AWVALID       , -- In  :    
+            AWREADY             => I_AWREADY       , -- I/O : 
+        ---------------------------------------------------------------------------
+        -- ライトデータチャネルシグナル.
+        ---------------------------------------------------------------------------
+            WLAST               => I_WLAST         , -- In  :    
+            WDATA               => I_WDATA         , -- In  :    
+            WSTRB               => I_WSTRB         , -- In  :    
+            WUSER               => I_WUSER         , -- In  :    
+            WID                 => I_WID           , -- In  :    
+            WVALID              => I_WVALID        , -- In  :    
+            WREADY              => I_WREADY        , -- I/O : 
+        --------------------------------------------------------------------------
+        -- ライト応答チャネルシグナル.
+        --------------------------------------------------------------------------
+            BRESP               => I_BRESP         , -- I/O : 
+            BUSER               => I_BUSER         , -- I/O : 
+            BID                 => I_BID           , -- I/O : 
+            BVALID              => I_BVALID        , -- I/O : 
+            BREADY              => I_BREADY        , -- In  :    
+        ---------------------------------------------------------------------------
+        -- シンクロ用信号
+        ---------------------------------------------------------------------------
+            SYNC(0)             => SYNC(0)         , -- I/O :
+            SYNC(1)             => SYNC(1)         , -- I/O :
+        --------------------------------------------------------------------------
+        -- GPIO
+        --------------------------------------------------------------------------
+            GPI                 => I_GPI           , -- In  :
+            GPO                 => I_GPO           , -- Out :
+        --------------------------------------------------------------------------
+        -- 各種状態出力.
+        --------------------------------------------------------------------------
+            REPORT_STATUS       => I_REPORT        , -- Out :
+            FINISH              => I_FINISH          -- Out :
+       );                                            --
+    end generate;
+    -------------------------------------------------------------------------------
+    --
+    -------------------------------------------------------------------------------
+    I_SLV: if (AXI_MEMORY = FALSE) generate
+    PLAYER: AXI4_SLAVE_PLAYER
         generic map (
             SCENARIO_FILE       => SCENARIO_FILE   , -- 
             NAME                => "I"             , -- 
@@ -895,7 +1004,11 @@ begin
         --------------------------------------------------------------------------
             REPORT_STATUS       => I_REPORT        , -- Out :
             FINISH              => I_FINISH          -- Out :
-       );                                            -- 
+       );                                            --
+    end generate;
+    -------------------------------------------------------------------------------
+    --
+    -------------------------------------------------------------------------------
     I_AWADDR   <= (others => '0');
     I_AWLEN    <= (others => '0');
     I_AWSIZE   <= (others => '0');
@@ -918,8 +1031,111 @@ begin
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
-    K: AXI4_SLAVE_PLAYER
-        generic map (
+    K_MEM: if (AXI_MEMORY = TRUE) generate           -- 
+    PLAYER: AXI4_MEMORY_PLAYER                       -- 
+        generic map (                                -- 
+            SCENARIO_FILE       => SCENARIO_FILE   , -- 
+            NAME                => "K"             , -- 
+            READ_ENABLE         => TRUE            , -- 
+            WRITE_ENABLE        => FALSE           , -- 
+            OUTPUT_DELAY        => DELAY           , -- 
+            WIDTH               => K_WIDTH         , -- 
+            SYNC_PLUG_NUM       => 4               , -- 
+            SYNC_WIDTH          => SYNC_WIDTH      , -- 
+            GPI_WIDTH           => GPI_WIDTH       , -- 
+            GPO_WIDTH           => GPO_WIDTH       , -- 
+            MEMORY_SIZE         => K_MEM_SIZE      , --
+            FINISH_ABORT        => FALSE             -- 
+        )                                            -- 
+        port map(                                    -- 
+        ---------------------------------------------------------------------------
+        -- グローバルシグナル.
+        ---------------------------------------------------------------------------
+            ACLK                => CLK             , -- In  :
+            ARESETn             => ARESETn         , -- In  :
+        ---------------------------------------------------------------------------
+        -- リードアドレスチャネルシグナル.
+        ---------------------------------------------------------------------------
+            ARADDR              => K_ARADDR        , -- In  :    
+            ARLEN               => K_ARLEN         , -- In  :    
+            ARSIZE              => K_ARSIZE        , -- In  :    
+            ARBURST             => K_ARBURST       , -- In  :    
+            ARLOCK              => K_ARLOCK        , -- In  :    
+            ARCACHE             => K_ARCACHE       , -- In  :    
+            ARPROT              => K_ARPROT        , -- In  :    
+            ARQOS               => K_ARQOS         , -- In  :    
+            ARREGION            => K_ARREGION      , -- In  :    
+            ARUSER              => K_ARUSER        , -- In  :    
+            ARID                => K_ARID          , -- In  :    
+            ARVALID             => K_ARVALID       , -- In  :    
+            ARREADY             => K_ARREADY       , -- I/O : 
+        ---------------------------------------------------------------------------
+        -- リードデータチャネルシグナル.
+        ---------------------------------------------------------------------------
+            RLAST               => K_RLAST         , -- I/O : 
+            RDATA               => K_RDATA         , -- I/O : 
+            RRESP               => K_RRESP         , -- I/O : 
+            RUSER               => K_RUSER         , -- I/O : 
+            RID                 => K_RID           , -- I/O : 
+            RVALID              => K_RVALID        , -- I/O : 
+            RREADY              => K_RREADY        , -- In  :    
+        ---------------------------------------------------------------------------
+        -- ライトアドレスチャネルシグナル.
+        ---------------------------------------------------------------------------
+            AWADDR              => K_AWADDR        , -- In  :    
+            AWLEN               => K_AWLEN         , -- In  :    
+            AWSIZE              => K_AWSIZE        , -- In  :    
+            AWBURST             => K_AWBURST       , -- In  :    
+            AWLOCK              => K_AWLOCK        , -- In  :    
+            AWCACHE             => K_AWCACHE       , -- In  :    
+            AWPROT              => K_AWPROT        , -- In  :    
+            AWQOS               => K_AWQOS         , -- In  :    
+            AWREGION            => K_AWREGION      , -- In  :    
+            AWUSER              => K_AWUSER        , -- In  :    
+            AWID                => K_AWID          , -- In  :    
+            AWVALID             => K_AWVALID       , -- In  :    
+            AWREADY             => K_AWREADY       , -- I/O : 
+        ---------------------------------------------------------------------------
+        -- ライトデータチャネルシグナル.
+        ---------------------------------------------------------------------------
+            WLAST               => K_WLAST         , -- In  :    
+            WDATA               => K_WDATA         , -- In  :    
+            WSTRB               => K_WSTRB         , -- In  :    
+            WUSER               => K_WUSER         , -- In  :    
+            WID                 => K_WID           , -- In  :    
+            WVALID              => K_WVALID        , -- In  :    
+            WREADY              => K_WREADY        , -- I/O : 
+        --------------------------------------------------------------------------
+        -- ライト応答チャネルシグナル.
+        --------------------------------------------------------------------------
+            BRESP               => K_BRESP         , -- I/O : 
+            BUSER               => K_BUSER         , -- I/O : 
+            BID                 => K_BID           , -- I/O : 
+            BVALID              => K_BVALID        , -- I/O : 
+            BREADY              => K_BREADY        , -- In  :    
+        ---------------------------------------------------------------------------
+        -- シンクロ用信号
+        ---------------------------------------------------------------------------
+            SYNC(0)             => SYNC(0)         , -- I/O :
+            SYNC(1)             => SYNC(1)         , -- I/O :
+        --------------------------------------------------------------------------
+        -- GPIO
+        --------------------------------------------------------------------------
+            GPI                 => K_GPI           , -- In  :
+            GPO                 => K_GPO           , -- Out :
+        --------------------------------------------------------------------------
+        -- 各種状態出力.
+        --------------------------------------------------------------------------
+            REPORT_STATUS       => K_REPORT        , -- Out :
+            FINISH              => K_FINISH          -- Out :
+       );                                            -- 
+    end generate;
+    -------------------------------------------------------------------------------
+    --
+    -------------------------------------------------------------------------------
+    K_SLV: if (AXI_MEMORY = FALSE) generate          -- 
+    PLAYER: AXI4_SLAVE_PLAYER                        -- 
+        generic map (                                -- 
             SCENARIO_FILE       => SCENARIO_FILE   , -- 
             NAME                => "K"             , -- 
             READ_ENABLE         => TRUE            , -- 
@@ -1013,12 +1229,116 @@ begin
         --------------------------------------------------------------------------
             REPORT_STATUS       => K_REPORT        , -- Out :
             FINISH              => K_FINISH          -- Out :
-       );                                            -- 
+       );                                            --
+    end generate;                                    -- 
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
-    T: AXI4_SLAVE_PLAYER
-        generic map (
+    T_MEM: if (AXI_MEMORY = TRUE) generate           -- 
+    PLAYER: AXI4_MEMORY_PLAYER                       -- 
+        generic map (                                -- 
+            SCENARIO_FILE       => SCENARIO_FILE   , -- 
+            NAME                => "T"             , -- 
+            READ_ENABLE         => TRUE            , -- 
+            WRITE_ENABLE        => FALSE           , -- 
+            OUTPUT_DELAY        => DELAY           , -- 
+            WIDTH               => T_WIDTH         , -- 
+            SYNC_PLUG_NUM       => 5               , -- 
+            SYNC_WIDTH          => SYNC_WIDTH      , -- 
+            GPI_WIDTH           => GPI_WIDTH       , -- 
+            GPO_WIDTH           => GPO_WIDTH       , -- 
+            MEMORY_SIZE         => TH_MEM_SIZE     , --
+            FINISH_ABORT        => FALSE             -- 
+        )                                            -- 
+        port map(                                    -- 
+        ---------------------------------------------------------------------------
+        -- グローバルシグナル.
+        ---------------------------------------------------------------------------
+            ACLK                => CLK             , -- In  :
+            ARESETn             => ARESETn         , -- In  :
+        ---------------------------------------------------------------------------
+        -- リードアドレスチャネルシグナル.
+        ---------------------------------------------------------------------------
+            ARADDR              => T_ARADDR        , -- In  :    
+            ARLEN               => T_ARLEN         , -- In  :    
+            ARSIZE              => T_ARSIZE        , -- In  :    
+            ARBURST             => T_ARBURST       , -- In  :    
+            ARLOCK              => T_ARLOCK        , -- In  :    
+            ARCACHE             => T_ARCACHE       , -- In  :    
+            ARPROT              => T_ARPROT        , -- In  :    
+            ARQOS               => T_ARQOS         , -- In  :    
+            ARREGION            => T_ARREGION      , -- In  :    
+            ARUSER              => T_ARUSER        , -- In  :    
+            ARID                => T_ARID          , -- In  :    
+            ARVALID             => T_ARVALID       , -- In  :    
+            ARREADY             => T_ARREADY       , -- I/O : 
+        ---------------------------------------------------------------------------
+        -- リードデータチャネルシグナル.
+        ---------------------------------------------------------------------------
+            RLAST               => T_RLAST         , -- I/O : 
+            RDATA               => T_RDATA         , -- I/O : 
+            RRESP               => T_RRESP         , -- I/O : 
+            RUSER               => T_RUSER         , -- I/O : 
+            RID                 => T_RID           , -- I/O : 
+            RVALID              => T_RVALID        , -- I/O : 
+            RREADY              => T_RREADY        , -- In  :    
+        ---------------------------------------------------------------------------
+        -- ライトアドレスチャネルシグナル.
+        ---------------------------------------------------------------------------
+            AWADDR              => T_AWADDR        , -- In  :    
+            AWLEN               => T_AWLEN         , -- In  :    
+            AWSIZE              => T_AWSIZE        , -- In  :    
+            AWBURST             => T_AWBURST       , -- In  :    
+            AWLOCK              => T_AWLOCK        , -- In  :    
+            AWCACHE             => T_AWCACHE       , -- In  :    
+            AWPROT              => T_AWPROT        , -- In  :    
+            AWQOS               => T_AWQOS         , -- In  :    
+            AWREGION            => T_AWREGION      , -- In  :    
+            AWUSER              => T_AWUSER        , -- In  :    
+            AWID                => T_AWID          , -- In  :    
+            AWVALID             => T_AWVALID       , -- In  :    
+            AWREADY             => T_AWREADY       , -- I/O : 
+        ---------------------------------------------------------------------------
+        -- ライトデータチャネルシグナル.
+        ---------------------------------------------------------------------------
+            WLAST               => T_WLAST         , -- In  :    
+            WDATA               => T_WDATA         , -- In  :    
+            WSTRB               => T_WSTRB         , -- In  :    
+            WUSER               => T_WUSER         , -- In  :    
+            WID                 => T_WID           , -- In  :    
+            WVALID              => T_WVALID        , -- In  :    
+            WREADY              => T_WREADY        , -- I/O : 
+        --------------------------------------------------------------------------
+        -- ライト応答チャネルシグナル.
+        --------------------------------------------------------------------------
+            BRESP               => T_BRESP         , -- I/O : 
+            BUSER               => T_BUSER         , -- I/O : 
+            BID                 => T_BID           , -- I/O : 
+            BVALID              => T_BVALID        , -- I/O : 
+            BREADY              => T_BREADY        , -- In  :    
+        ---------------------------------------------------------------------------
+        -- シンクロ用信号
+        ---------------------------------------------------------------------------
+            SYNC(0)             => SYNC(0)         , -- I/O :
+            SYNC(1)             => SYNC(1)         , -- I/O :
+        --------------------------------------------------------------------------
+        -- GPIO
+        --------------------------------------------------------------------------
+            GPI                 => T_GPI           , -- In  :
+            GPO                 => T_GPO           , -- Out :
+        --------------------------------------------------------------------------
+        -- 各種状態出力.
+        --------------------------------------------------------------------------
+            REPORT_STATUS       => T_REPORT        , -- Out :
+            FINISH              => T_FINISH          -- Out :
+       );                                            --
+    end generate;                                    --
+    -------------------------------------------------------------------------------
+    --
+    -------------------------------------------------------------------------------
+    T_SLV: if (AXI_MEMORY = FALSE) generate          -- 
+    PLAYER: AXI4_SLAVE_PLAYER                        -- 
+        generic map (                                -- 
             SCENARIO_FILE       => SCENARIO_FILE   , -- 
             NAME                => "T"             , -- 
             READ_ENABLE         => TRUE            , -- 
@@ -1112,12 +1432,116 @@ begin
         --------------------------------------------------------------------------
             REPORT_STATUS       => T_REPORT        , -- Out :
             FINISH              => T_FINISH          -- Out :
-       );                                            -- 
+       );                                            --
+    end generate;
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
-    O: AXI4_SLAVE_PLAYER
-        generic map (
+    O_MEM: if (AXI_MEMORY = TRUE) generate           -- 
+    PLAYER: AXI4_MEMORY_PLAYER                       -- 
+        generic map (                                -- 
+            SCENARIO_FILE       => SCENARIO_FILE   , -- 
+            NAME                => "O"             , -- 
+            READ_ENABLE         => FALSE           , -- 
+            WRITE_ENABLE        => TRUE            , -- 
+            OUTPUT_DELAY        => DELAY           , -- 
+            WIDTH               => O_WIDTH         , -- 
+            SYNC_PLUG_NUM       => 6               , -- 
+            SYNC_WIDTH          => SYNC_WIDTH      , -- 
+            GPI_WIDTH           => GPI_WIDTH       , -- 
+            GPO_WIDTH           => GPO_WIDTH       , -- 
+            MEMORY_SIZE         => OUT_MEM_SIZE    , --
+            FINISH_ABORT        => FALSE             -- 
+        )                                            -- 
+        port map(                                    -- 
+        ---------------------------------------------------------------------------
+        -- グローバルシグナル.
+        ---------------------------------------------------------------------------
+            ACLK                => CLK             , -- In  :
+            ARESETn             => ARESETn         , -- In  :
+        ---------------------------------------------------------------------------
+        -- リードアドレスチャネルシグナル.
+        ---------------------------------------------------------------------------
+            ARADDR              => O_ARADDR        , -- In  :    
+            ARLEN               => O_ARLEN         , -- In  :    
+            ARSIZE              => O_ARSIZE        , -- In  :    
+            ARBURST             => O_ARBURST       , -- In  :    
+            ARLOCK              => O_ARLOCK        , -- In  :    
+            ARCACHE             => O_ARCACHE       , -- In  :    
+            ARPROT              => O_ARPROT        , -- In  :    
+            ARQOS               => O_ARQOS         , -- In  :    
+            ARREGION            => O_ARREGION      , -- In  :    
+            ARUSER              => O_ARUSER        , -- In  :    
+            ARID                => O_ARID          , -- In  :    
+            ARVALID             => O_ARVALID       , -- In  :    
+            ARREADY             => O_ARREADY       , -- I/O : 
+        ---------------------------------------------------------------------------
+        -- リードデータチャネルシグナル.
+        ---------------------------------------------------------------------------
+            RLAST               => O_RLAST         , -- I/O : 
+            RDATA               => O_RDATA         , -- I/O : 
+            RRESP               => O_RRESP         , -- I/O : 
+            RUSER               => O_RUSER         , -- I/O : 
+            RID                 => O_RID           , -- I/O : 
+            RVALID              => O_RVALID        , -- I/O : 
+            RREADY              => O_RREADY        , -- In  :    
+        ---------------------------------------------------------------------------
+        -- ライトアドレスチャネルシグナル.
+        ---------------------------------------------------------------------------
+            AWADDR              => O_AWADDR        , -- In  :    
+            AWLEN               => O_AWLEN         , -- In  :    
+            AWSIZE              => O_AWSIZE        , -- In  :    
+            AWBURST             => O_AWBURST       , -- In  :    
+            AWLOCK              => O_AWLOCK        , -- In  :    
+            AWCACHE             => O_AWCACHE       , -- In  :    
+            AWPROT              => O_AWPROT        , -- In  :    
+            AWQOS               => O_AWQOS         , -- In  :    
+            AWREGION            => O_AWREGION      , -- In  :    
+            AWUSER              => O_AWUSER        , -- In  :    
+            AWID                => O_AWID          , -- In  :    
+            AWVALID             => O_AWVALID       , -- In  :    
+            AWREADY             => O_AWREADY       , -- I/O : 
+        ---------------------------------------------------------------------------
+        -- ライトデータチャネルシグナル.
+        ---------------------------------------------------------------------------
+            WLAST               => O_WLAST         , -- In  :    
+            WDATA               => O_WDATA         , -- In  :    
+            WSTRB               => O_WSTRB         , -- In  :    
+            WUSER               => O_WUSER         , -- In  :    
+            WID                 => O_WID           , -- In  :    
+            WVALID              => O_WVALID        , -- In  :    
+            WREADY              => O_WREADY        , -- I/O : 
+        --------------------------------------------------------------------------
+        -- ライト応答チャネルシグナル.
+        --------------------------------------------------------------------------
+            BRESP               => O_BRESP         , -- I/O : 
+            BUSER               => O_BUSER         , -- I/O : 
+            BID                 => O_BID           , -- I/O : 
+            BVALID              => O_BVALID        , -- I/O : 
+            BREADY              => O_BREADY        , -- In  :    
+        ---------------------------------------------------------------------------
+        -- シンクロ用信号
+        ---------------------------------------------------------------------------
+            SYNC(0)             => SYNC(0)         , -- I/O :
+            SYNC(1)             => SYNC(1)         , -- I/O :
+        --------------------------------------------------------------------------
+        -- GPIO
+        --------------------------------------------------------------------------
+            GPI                 => O_GPI           , -- In  :
+            GPO                 => O_GPO           , -- Out :
+        --------------------------------------------------------------------------
+        -- 各種状態出力.
+        --------------------------------------------------------------------------
+            REPORT_STATUS       => O_REPORT        , -- Out :
+            FINISH              => O_FINISH          -- Out :
+       );                                            --
+    end generate;                                    --
+    -------------------------------------------------------------------------------
+    --
+    -------------------------------------------------------------------------------
+    O_SLV: if (AXI_MEMORY = FALSE) generate          -- 
+    PLAYER: AXI4_SLAVE_PLAYER                        -- 
+        generic map (                                -- 
             SCENARIO_FILE       => SCENARIO_FILE   , -- 
             NAME                => "O"             , -- 
             READ_ENABLE         => FALSE           , -- 
@@ -1212,6 +1636,10 @@ begin
             REPORT_STATUS       => O_REPORT        , -- Out :
             FINISH              => O_FINISH          -- Out :
        );                                            -- 
+    end generate;                                    -- 
+    -------------------------------------------------------------------------------
+    --
+    -------------------------------------------------------------------------------
     O_ARADDR   <= (others => '0');
     O_ARLEN    <= (others => '0');
     O_ARSIZE   <= (others => '0');
@@ -1242,10 +1670,14 @@ begin
     -------------------------------------------------------------------------------
     S_GPI(0)  <= IRQ;
     S_GPI(S_GPI'high downto 1) <= (S_GPI'high downto 1 => '0');
-    I_GPI     <= (others => '0');
-    K_GPI     <= (others => '0');
-    T_GPI     <= (others => '0');
-    O_GPI     <= (others => '0');
+    I_GPI(0)  <= S_GPO(0);
+    I_GPI(I_GPI'high downto 1) <= (I_GPI'high downto 1 => '0');
+    O_GPI(0)  <= S_GPO(0);
+    O_GPI(O_GPI'high downto 1) <= (O_GPI'high downto 1 => '0');
+    K_GPI(0)  <= S_GPO(0);
+    K_GPI(K_GPI'high downto 1) <= (K_GPI'high downto 1 => '0');
+    T_GPI(0)  <= S_GPO(0);
+    T_GPI(T_GPI'high downto 1) <= (T_GPI'high downto 1 => '0');
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
@@ -1305,25 +1737,27 @@ begin
     end process;
 end MODEL;
 -----------------------------------------------------------------------------------
--- IN_C_UNROLL=1 OUT_C_UNROLL=1 BUF_SIZE=64
+-- AXI_MEMORY=FALSE IN_C_UNROLL=1 OUT_C_UNROLL=1 BUF_SIZE=64
 -----------------------------------------------------------------------------------
 library ieee;
 use     ieee.std_logic_1164.all;
-entity  QCONV_STRIP_AXI_CORE_TEST_BENCH_1_1_064 is
+entity  QCONV_STRIP_AXI_CORE_TEST_BENCH_SLV_1_1_064 is
     generic (
         NAME            : STRING  := "test";
-        SCENARIO_FILE   : STRING  := "test_1_1_064.snr";
+        SCENARIO_FILE   : STRING  := "test_slv_1_1_064.snr";
+        AXI_MEMORY      : boolean := FALSE;
         IN_C_UNROLL     : integer := 1;
         OUT_C_UNROLL    : integer := 1;
         BUF_SIZE        : integer := 64;
         FINISH_ABORT    : boolean := FALSE
     );
-end     QCONV_STRIP_AXI_CORE_TEST_BENCH_1_1_064;
-architecture MODEL of QCONV_STRIP_AXI_CORE_TEST_BENCH_1_1_064 is
+end     QCONV_STRIP_AXI_CORE_TEST_BENCH_SLV_1_1_064;
+architecture MODEL of QCONV_STRIP_AXI_CORE_TEST_BENCH_SLV_1_1_064 is
 begin
     TB: entity WORK.QCONV_STRIP_AXI_CORE_TEST_BENCH generic map (
         NAME            => NAME            , 
         SCENARIO_FILE   => SCENARIO_FILE   , 
+        AXI_MEMORY      => AXI_MEMORY      ,
         IN_C_UNROLL     => IN_C_UNROLL     , 
         OUT_C_UNROLL    => OUT_C_UNROLL    , 
         BUF_SIZE        => BUF_SIZE        , 
@@ -1331,25 +1765,83 @@ begin
     );
 end MODEL;
 -----------------------------------------------------------------------------------
--- IN_C_UNROLL=1 OUT_C_UNROLL=2 BUF_SIZE=16
+-- AXI_MEMORY=FALSE IN_C_UNROLL=1 OUT_C_UNROLL=2 BUF_SIZE=16
 -----------------------------------------------------------------------------------
 library ieee;
 use     ieee.std_logic_1164.all;
-entity  QCONV_STRIP_AXI_CORE_TEST_BENCH_1_2_016 is
+entity  QCONV_STRIP_AXI_CORE_TEST_BENCH_SLV_1_2_016 is
     generic (
         NAME            : STRING  := "test";
-        SCENARIO_FILE   : STRING  := "test_1_2_016.snr";
+        SCENARIO_FILE   : STRING  := "test_slv_1_2_016.snr";
+        AXI_MEMORY      : boolean := FALSE;
         IN_C_UNROLL     : integer := 1;
         OUT_C_UNROLL    : integer := 2;
         BUF_SIZE        : integer := 16;
         FINISH_ABORT    : boolean := FALSE
     );
-end     QCONV_STRIP_AXI_CORE_TEST_BENCH_1_2_016;
-architecture MODEL of QCONV_STRIP_AXI_CORE_TEST_BENCH_1_2_016 is
+end     QCONV_STRIP_AXI_CORE_TEST_BENCH_SLV_1_2_016;
+architecture MODEL of QCONV_STRIP_AXI_CORE_TEST_BENCH_SLV_1_2_016 is
 begin
     TB: entity WORK.QCONV_STRIP_AXI_CORE_TEST_BENCH generic map (
         NAME            => NAME            , 
         SCENARIO_FILE   => SCENARIO_FILE   , 
+        AXI_MEMORY      => AXI_MEMORY      ,
+        IN_C_UNROLL     => IN_C_UNROLL     , 
+        OUT_C_UNROLL    => OUT_C_UNROLL    , 
+        BUF_SIZE        => BUF_SIZE        , 
+        FINISH_ABORT    => FINISH_ABORT    
+    );
+end MODEL;
+-----------------------------------------------------------------------------------
+-- AXI_MEMORY=FALSE IN_C_UNROLL=1 OUT_C_UNROLL=8 BUF_SIZE=512
+-----------------------------------------------------------------------------------
+library ieee;
+use     ieee.std_logic_1164.all;
+entity  QCONV_STRIP_AXI_CORE_TEST_BENCH_SLV_1_8_512 is
+    generic (
+        NAME            : STRING  := "test";
+        SCENARIO_FILE   : STRING  := "test_slv_1_8_512.snr";
+        AXI_MEMORY      : boolean := FALSE;
+        IN_C_UNROLL     : integer := 1;
+        OUT_C_UNROLL    : integer := 8;
+        BUF_SIZE        : integer := 512;
+        FINISH_ABORT    : boolean := FALSE
+    );
+end     QCONV_STRIP_AXI_CORE_TEST_BENCH_SLV_1_8_512;
+architecture MODEL of QCONV_STRIP_AXI_CORE_TEST_BENCH_SLV_1_8_512 is
+begin
+    TB: entity WORK.QCONV_STRIP_AXI_CORE_TEST_BENCH generic map (
+        NAME            => NAME            , 
+        SCENARIO_FILE   => SCENARIO_FILE   , 
+        AXI_MEMORY      => AXI_MEMORY      ,
+        IN_C_UNROLL     => IN_C_UNROLL     , 
+        OUT_C_UNROLL    => OUT_C_UNROLL    , 
+        BUF_SIZE        => BUF_SIZE        , 
+        FINISH_ABORT    => FINISH_ABORT    
+    );
+end MODEL;
+-----------------------------------------------------------------------------------
+-- AXI_MEMORY=TRUE IN_C_UNROLL=1 OUT_C_UNROLL=8 BUF_SIZE=512
+-----------------------------------------------------------------------------------
+library ieee;
+use     ieee.std_logic_1164.all;
+entity  QCONV_STRIP_AXI_CORE_TEST_BENCH_MEM_1_8_512 is
+    generic (
+        NAME            : STRING  := "test";
+        SCENARIO_FILE   : STRING  := "test_mem_1_8_512.snr";
+        AXI_MEMORY      : boolean := TRUE;
+        IN_C_UNROLL     : integer := 1;
+        OUT_C_UNROLL    : integer := 8;
+        BUF_SIZE        : integer := 512;
+        FINISH_ABORT    : boolean := FALSE
+    );
+end     QCONV_STRIP_AXI_CORE_TEST_BENCH_MEM_1_8_512;
+architecture MODEL of QCONV_STRIP_AXI_CORE_TEST_BENCH_MEM_1_8_512 is
+begin
+    TB: entity WORK.QCONV_STRIP_AXI_CORE_TEST_BENCH generic map (
+        NAME            => NAME            , 
+        SCENARIO_FILE   => SCENARIO_FILE   , 
+        AXI_MEMORY      => AXI_MEMORY      ,
         IN_C_UNROLL     => IN_C_UNROLL     , 
         OUT_C_UNROLL    => OUT_C_UNROLL    , 
         BUF_SIZE        => BUF_SIZE        , 
