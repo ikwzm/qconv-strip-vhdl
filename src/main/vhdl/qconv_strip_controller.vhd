@@ -2,7 +2,7 @@
 --!     @file    qconv_strip_controller.vhd
 --!     @brief   Quantized Convolution (strip) Controller Module
 --!     @version 0.1.0
---!     @date    2019/4/11
+--!     @date    2019/4/18
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>
 -----------------------------------------------------------------------------------
 --
@@ -203,6 +203,15 @@ architecture RTL of QCONV_STRIP_CONTROLLER is
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
+    function MIN(A,B:integer) return integer is
+    begin
+        if (A < B) then return A;
+        else            return B;
+        end if;
+    end function;
+    -------------------------------------------------------------------------------
+    --
+    -------------------------------------------------------------------------------
     signal    conv_3x3              :  boolean;
     signal    kernel_half_size      :  integer range 0 to 1;
     signal    in_data_c_by_word     :  integer range 0 to QCONV_PARAM.MAX_IN_C_BY_WORD;
@@ -299,16 +308,16 @@ begin
         --     IN_C_BY_WORD= 9〜16 -> BUF_DEPTH/16
         --     IN_C_BY_WORD=17〜32 -> BUF_DEPTH/32
         ---------------------------------------------------------------------------
-        function  DEVIDE_BY_LOG2(BUF_DEPTH: integer; IN_C_BY_WORD: integer) return integer is
+        function  DEVIDE_BY_LOG2(BUF_DEPTH, IN_C_BY_WORD, MAX: integer) return integer is
             variable  u_in_c_by_word    :  unsigned(QCONV_PARAM.IN_C_BY_WORD_BITS-1 downto 0);
         begin
             u_in_c_by_word := to_unsigned(IN_C_BY_WORD, QCONV_PARAM.IN_C_BY_WORD_BITS) - 1;
             for i in u_in_c_by_word'high downto u_in_c_by_word'low loop
                 if (u_in_c_by_word(i) = '1') then
-                    return BUF_DEPTH/(2**(i+1));
+                    return MIN(MAX, BUF_DEPTH/(2**(i+1)));
                 end if;
             end loop;
-            return BUF_DEPTH;
+            return MIN(MAX, BUF_DEPTH);
         end function;
         ---------------------------------------------------------------------------
         --
@@ -378,13 +387,13 @@ begin
                         when PREP_STATE =>
                             if (conv_3x3) then
                                 rndup_in_c_by_word   := ROUND_UP_IN_C_BY_WORD(in_data_c_by_word, IN_C_UNROLL    );
-                                out_data_slice_c_max <= DEVIDE_BY_LOG2(     K_BUF_DEPTH, rndup_in_c_by_word); 
-                                out_data_slice_x_max <= DEVIDE_BY_LOG2(    IN_BUF_DEPTH, rndup_in_c_by_word) - 2;
+                                out_data_slice_c_max <= DEVIDE_BY_LOG2(     K_BUF_DEPTH, rndup_in_c_by_word, QCONV_PARAM.MAX_OUT_C); 
+                                out_data_slice_x_max <= DEVIDE_BY_LOG2(    IN_BUF_DEPTH, rndup_in_c_by_word, QCONV_PARAM.MAX_OUT_W) - 2;
                                 kernel_half_size     <= 1;
                             else
                                 rndup_in_c_by_word   := ROUND_UP_IN_C_BY_WORD(in_data_c_by_word, IN_C_UNROLL * 8);
-                                out_data_slice_c_max <= DEVIDE_BY_LOG2(8 *  K_BUF_DEPTH, rndup_in_c_by_word); 
-                                out_data_slice_x_max <= DEVIDE_BY_LOG2(2 * IN_BUF_DEPTH, rndup_in_c_by_word);
+                                out_data_slice_c_max <= DEVIDE_BY_LOG2(8 *  K_BUF_DEPTH, rndup_in_c_by_word, QCONV_PARAM.MAX_OUT_C);
+                                out_data_slice_x_max <= DEVIDE_BY_LOG2(2 * IN_BUF_DEPTH, rndup_in_c_by_word, QCONV_PARAM.MAX_OUT_W);
                                 kernel_half_size     <= 0;
                             end if;
                             out_data_slice_c_pos   <= 0;
