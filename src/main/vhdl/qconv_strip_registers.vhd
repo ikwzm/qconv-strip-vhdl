@@ -2,7 +2,7 @@
 --!     @file    qconv_strip_registers.vhd
 --!     @brief   Quantized Convolution (strip) Registers Module
 --!     @version 0.1.0
---!     @date    2019/3/22
+--!     @date    2019/4/21
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>
 -----------------------------------------------------------------------------------
 --
@@ -172,73 +172,81 @@ architecture RTL of QCONV_STRIP_REGISTERS is
     -------------------------------------------------------------------------------
     --           31            24              16               8               0
     --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    -- Addr=0x00 |      "N"      |      "O"      |      "C"      |      "Q"      |
+    -- Addr=0x00 |                                                       busy--| |
     --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    -- Addr=0x04 |      "1"      |      "S"      |      "-"      |      "V"      |
+    -- Addr=0x04 |                                                               |
     --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    -- Addr=0x08 |                                                               |
+    -- Addr=0x08 |                                                      start--| |
     --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    -- Addr=0x0C | Control[7:0]  |  Status[7:0]  |          Mode[15:00]          |
+    -- Addr=0x0C |                                                               |
     --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    -- Addr=0x10 |                   In  Data Address[31:00]                     |
+    -- Addr=0x10 |                                           interrupt enable--| |
     --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    -- Addr=0x14 |                   In  Data Address[63:32]                     |
+    -- Addr=0x14 |                                                               |
     --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    -- Addr=0x18 |                   Out Data Address[31:00]                     |
+    -- Addr=0x18 |                             Status[31:00]                     |
     --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    -- Addr=0x1C |                   Out Data Address[63:32]                     |
+    -- Addr=0x1C |                                                               |
     --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    -- Addr=0x20 |                   K   Data Address[31:00]                     |
+    -- Addr=0x20 |                   In  Data Address[31:00]                     |
     --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    -- Addr=0x24 |                   K   Data Address[63:32]                     |
+    -- Addr=0x24 |                   In  Data Address[63:32]                     |
     --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    -- Addr=0x28 |                   Th  Data Address[31:00]                     |
+    -- Addr=0x28 |                   Out Data Address[31:00]                     |
     --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    -- Addr=0x2C |                   Th  Data Address[63:32]                     |
+    -- Addr=0x2C |                   Out Data Address[63:32]                     |
     --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    -- Addr=0x30 |                               |     In  Width  [15:00]        |
+    -- Addr=0x30 |                   K   Data Address[31:00]                     |
     --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    -- Addr=0x34 |                                                               |
+    -- Addr=0x34 |                   K   Data Address[63:32]                     |
     --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    -- Addr=0x38 |                               |     In  Height [15:00]        |
+    -- Addr=0x38 |                   Th  Data Address[31:00]                     |
     --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    -- Addr=0x3C |                                                               |
+    -- Addr=0x3C |                   Th  Data Address[63:32]                     |
     --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    -- Addr=0x40 |                               |     In  Channel[15:00]        |
+    -- Addr=0x40 |                               |     In  Width  [15:00]        |
     --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     -- Addr=0x44 |                                                               |
     --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    -- Addr=0x48 |                               |     Out Width  [15:00]        |
+    -- Addr=0x48 |                               |     In  Height [15:00]        |
     --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     -- Addr=0x4C |                                                               |
     --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    -- Addr=0x50 |                               |     Out Height [15:00]        |
+    -- Addr=0x50 |                               |     In  Channel[15:00]        |
     --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     -- Addr=0x54 |                                                               |
     --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    -- Addr=0x58 |                               |     Out Channel[15:00]        |
+    -- Addr=0x58 |                               |     Out Width  [15:00]        |
     --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     -- Addr=0x5C |                                                               |
     --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    -- Addr=0x60 |                                             | K  Width[03:00] |
+    -- Addr=0x60 |                               |     Out Height [15:00]        |
     --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     -- Addr=0x64 |                                                               |
     --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    -- Addr=0x68 |                                             | K Height[03:00] |
+    -- Addr=0x68 |                               |     Out Channel[15:00]        |
     --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     -- Addr=0x6C |                                                               |
     --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    -- Addr=0x70 |                                             | Pad Size[03:00] |
+    -- Addr=0x70 |                                             | K  Width[03:00] |
     --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     -- Addr=0x74 |                                                               |
     --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    -- Addr=0x78 |                                             |  Use Th [00:00] |
+    -- Addr=0x78 |                                             | K Height[03:00] |
     --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     -- Addr=0x7C |                                                               |
     --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    -- Addr=0x80 |                                             | Pad Size[03:00] |
+    --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    -- Addr=0x84 |                                                               |
+    --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    -- Addr=0x88 |                                             |  Use Th [00:00] |
+    --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    -- Addr=0x8C |                                                               |
+    --           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     -------------------------------------------------------------------------------
     constant  REGS_BASE_ADDR        :  integer := 16#00#;
-    constant  REGS_DATA_BITS        :  integer := 16#80# * 8;
+    constant  REGS_DATA_BITS        :  integer := 16#90# * 8;
     -------------------------------------------------------------------------------
     -- レジスタアクセス用の信号群.
     -------------------------------------------------------------------------------
@@ -246,98 +254,54 @@ architecture RTL of QCONV_STRIP_REGISTERS is
     signal    regs_wbit             :  std_logic_vector(REGS_DATA_BITS-1 downto 0);
     signal    regs_rbit             :  std_logic_vector(REGS_DATA_BITS-1 downto 0);
     -------------------------------------------------------------------------------
-    -- Quantized Convolution (strip) Identifier Regiseter
+    -- Quantized Convolution (strip) Busy Register
     -------------------------------------------------------------------------------
-    function  GEN_ID_REGS(ID: string;LEN: integer) return std_logic_vector is
-        alias     id_string         :  STRING(1 to ID'length) is ID;
-        variable  ret_value         :  std_logic_vector(8*LEN-1 downto 0);
-    begin
-        for i in 0 to LEN-1 loop
-            if (i+1>=id_string'low and i+1<=id_string'high) then
-                ret_value(8*(i+1)-1 downto 8*i) := std_logic_vector(to_unsigned(character'pos(id_string(i+1)),8));
-            else
-                ret_value(8*(i+1)-1 downto 8*i) := std_logic_vector(to_unsigned(character'pos(' '           ),8));
-            end if;
-        end loop;
-        return ret_value;
-    end function;
-    constant  ID_REGS_ADDR          :  integer := REGS_BASE_ADDR + 16#00#;
-    constant  ID_REGS_BITS          :  integer := 64;
-    constant  ID_REGS_LO            :  integer := 8*ID_REGS_ADDR;
-    constant  ID_REGS_HI            :  integer := 8*ID_REGS_ADDR + ID_REGS_BITS - 1;
-    constant  ID_REGS               :  std_logic_vector(ID_REGS_BITS-1 downto 0) := GEN_ID_REGS(ID,8);
+    -- Busy[63:1]  = 予約.
+    -- Busy[0]     = 1: 動作中であることを示す. 0: 待機中であることを示す.
     -------------------------------------------------------------------------------
-    -- Quantized Convolution (strip) Reserve Register
-    -------------------------------------------------------------------------------
-    constant  RESV_REGS_ADDR        :  integer := REGS_BASE_ADDR + 16#08#;
-    constant  RESV_REGS_BITS        :  integer := 32;
-    constant  RESV_REGS_LO          :  integer := 8*RESV_REGS_ADDR;
-    constant  RESV_REGS_HI          :  integer := 8*RESV_REGS_ADDR + RESV_REGS_BITS - 1;
-    -------------------------------------------------------------------------------
-    -- Quantized Convolution (strip) Mode Register
-    -------------------------------------------------------------------------------
-    -- Mode[15:02] = 予約.
-    -- Mode[01]    = 1:エラー発生時(Status[1]='1')に割り込みを発生する.
-    -- Mode[00]    = 1:転送終了時(Status[0]='1')に割り込みを発生する.
-    -------------------------------------------------------------------------------
-    constant  MODE_REGS_ADDR        :  integer := REGS_BASE_ADDR + 16#0C#;
-    constant  MODE_REGS_BITS        :  integer := 16;
-    constant  MODE_REGS_HI          :  integer := 8*MODE_REGS_ADDR + 15;
-    constant  MODE_REGS_LO          :  integer := 8*MODE_REGS_ADDR +  0;
-    constant  MODE_RESV_HI          :  integer := 8*MODE_REGS_ADDR + 15;
-    constant  MODE_RESV_LO          :  integer := 8*MODE_REGS_ADDR +  2;
-    constant  MODE_ERROR_POS        :  integer := 8*MODE_REGS_ADDR +  1;
-    constant  MODE_DONE_POS         :  integer := 8*MODE_REGS_ADDR +  0;
-    signal    mode_regs             :  std_logic_vector(MODE_REGS_BITS-1 downto 0);
-    -------------------------------------------------------------------------------
-    -- Quantized Convolution (strip) Mode Register
-    -------------------------------------------------------------------------------
-    -- Status[7:2] = 予約.
-    -- Status[1]   = エラー発生時にセットされる.
-    -- Status[0]   = 転送終了時かつ Control[2]='1' にセットされる.
-    -------------------------------------------------------------------------------
-    constant  STAT_REGS_ADDR        :  integer := REGS_BASE_ADDR + 16#0E#;
-    constant  STAT_REGS_BITS        :  integer := 8;
-    constant  STAT_RESV_HI          :  integer := 8*STAT_REGS_ADDR +  7;
-    constant  STAT_RESV_LO          :  integer := 8*STAT_REGS_ADDR +  2;
-    constant  STAT_ERROR_POS        :  integer := 8*STAT_REGS_ADDR +  1;
-    constant  STAT_DONE_POS         :  integer := 8*STAT_REGS_ADDR +  0;
-    constant  STAT_RESV_BITS        :  integer := STAT_RESV_HI - STAT_RESV_LO + 1;
-    constant  STAT_RESV_NULL        :  std_logic_vector(STAT_RESV_BITS-1 downto 0) := (others => '0');
-    signal    stat_error            :  std_logic;
-    signal    stat_done             :  std_logic;
+    constant  BUSY_REGS_ADDR        :  integer := REGS_BASE_ADDR + 16#00#;
+    constant  BUSY_BUSY_POS         :  integer := 8*BUSY_REGS_ADDR + 0;
+    constant  BUSY_RESV_LO          :  integer := 8*BUSY_REGS_ADDR + 1;
+    constant  BUSY_RESV_HI          :  integer := 8*BUSY_REGS_ADDR + 64-1;
     -------------------------------------------------------------------------------
     -- Quantized Convolution (strip) Control Register
     -------------------------------------------------------------------------------
-    -- Control[7]  = 1:モジュールをリセットする. 0:リセットを解除する.
-    -- Control[6]  = 1:転送を一時中断する.       0:転送を再開する.
-    -- Control[5]  = 1:転送を中止する.           0:意味無し.
-    -- Control[4]  = 1:転送を開始する.           0:意味無し.
-    -- Control[3]  = 予約.
-    -- Control[2]  = 1:転送終了時にStatus[0]がセットされる.
-    -- Control[1]  = 予約.
-    -- Control[0]  = 予約.
+    -- Control[63:1] = 予約.
+    -- Control[0]    = 1 を書き込むことで動作を開始する.
     -------------------------------------------------------------------------------
-    constant  CTRL_REGS_ADDR        :  integer := REGS_BASE_ADDR + 16#0F#;
-    constant  CTRL_RESET_POS        :  integer := 8*CTRL_REGS_ADDR +  7;
-    constant  CTRL_PAUSE_POS        :  integer := 8*CTRL_REGS_ADDR +  6;
-    constant  CTRL_STOP_POS         :  integer := 8*CTRL_REGS_ADDR +  5;
-    constant  CTRL_START_POS        :  integer := 8*CTRL_REGS_ADDR +  4;
-    constant  CTRL_RESV_POS         :  integer := 8*CTRL_REGS_ADDR +  3;
-    constant  CTRL_DONE_POS         :  integer := 8*CTRL_REGS_ADDR +  2;
-    constant  CTRL_FIRST_POS        :  integer := 8*CTRL_REGS_ADDR +  1;
-    constant  CTRL_LAST_POS         :  integer := 8*CTRL_REGS_ADDR +  0;
-    signal    ctrl_reset            :  std_logic;
-    signal    ctrl_pause            :  std_logic;
-    signal    ctrl_stop             :  std_logic;
-    signal    ctrl_start            :  std_logic;
-    signal    ctrl_done             :  std_logic;
-    signal    ctrl_first            :  std_logic;
-    signal    ctrl_last             :  std_logic;
+    constant  CTRL_REGS_ADDR        :  integer := REGS_BASE_ADDR + 16#08#;
+    constant  CTRL_START_POS        :  integer := 8*CTRL_REGS_ADDR + 0;
+    constant  CTRL_RESV_LO          :  integer := 8*CTRL_REGS_ADDR + 1;
+    constant  CTRL_RESV_HI          :  integer := 8*CTRL_REGS_ADDR + 64-1;
+    -------------------------------------------------------------------------------
+    -- Quantized Convolution (strip) Interrupt Enable Register
+    -------------------------------------------------------------------------------
+    -- IrqEna[63:1] = 予約.
+    -- IrqEna[0]    = 1: 割込みを許可する. 0: 割込みを禁止する.
+    -------------------------------------------------------------------------------
+    constant  IRQE_REGS_ADDR        :  integer := REGS_BASE_ADDR + 16#10#;
+    constant  IRQE_IREQ_POS         :  integer := 8*IRQE_REGS_ADDR + 0;
+    constant  IRQE_RESV_LO          :  integer := 8*IRQE_REGS_ADDR + 1;
+    constant  IRQE_RESV_HI          :  integer := 8*IRQE_REGS_ADDR + 64-1;
+    signal    irq_enable            :  std_logic;
+    -------------------------------------------------------------------------------
+    -- Quantized Convolution (strip) Status Register
+    -------------------------------------------------------------------------------
+    -- Status[63:2] = 予約.
+    -- Status[1]    = 1: 動作が終了したことを示す.
+    -- Status[0]    = 1: 割込みが発生したことを示す.
+    -------------------------------------------------------------------------------
+    constant  STAT_REGS_ADDR        :  integer := REGS_BASE_ADDR + 16#18#;
+    constant  STAT_IRQ_POS          :  integer := 8*STAT_REGS_ADDR + 0;
+    constant  STAT_DONE_POS         :  integer := 8*STAT_REGS_ADDR + 1;
+    constant  STAT_RESV_LO          :  integer := 8*STAT_REGS_ADDR + 2;
+    constant  STAT_RESV_HI          :  integer := 8*STAT_REGS_ADDR + 64-1;
+    signal    status_done           :  std_logic;
+    signal    status_irq            :  std_logic;
     -------------------------------------------------------------------------------
     -- Quantized Convolution (strip) In  Data Address Register
     -------------------------------------------------------------------------------
-    constant  I_DATA_ADDR_REGS_ADDR :  integer := REGS_BASE_ADDR + 16#10#;
+    constant  I_DATA_ADDR_REGS_ADDR :  integer := REGS_BASE_ADDR + 16#20#;
     constant  I_DATA_ADDR_REGS_BITS :  integer := 64;
     constant  I_DATA_ADDR_REGS_LO   :  integer := 8*I_DATA_ADDR_REGS_ADDR;
     constant  I_DATA_ADDR_REGS_HI   :  integer := 8*I_DATA_ADDR_REGS_ADDR + I_DATA_ADDR_REGS_BITS-1;
@@ -345,7 +309,7 @@ architecture RTL of QCONV_STRIP_REGISTERS is
     -------------------------------------------------------------------------------
     -- Quantized Convolution (strip) Out Data Address Register
     -------------------------------------------------------------------------------
-    constant  O_DATA_ADDR_REGS_ADDR :  integer := REGS_BASE_ADDR + 16#18#;
+    constant  O_DATA_ADDR_REGS_ADDR :  integer := REGS_BASE_ADDR + 16#28#;
     constant  O_DATA_ADDR_REGS_BITS :  integer := 64;
     constant  O_DATA_ADDR_REGS_LO   :  integer := 8*O_DATA_ADDR_REGS_ADDR;
     constant  O_DATA_ADDR_REGS_HI   :  integer := 8*O_DATA_ADDR_REGS_ADDR + O_DATA_ADDR_REGS_BITS-1;
@@ -353,7 +317,7 @@ architecture RTL of QCONV_STRIP_REGISTERS is
     -------------------------------------------------------------------------------
     -- Quantized Convolution (strip) K   Data Address Register
     -------------------------------------------------------------------------------
-    constant  K_DATA_ADDR_REGS_ADDR :  integer := REGS_BASE_ADDR + 16#20#;
+    constant  K_DATA_ADDR_REGS_ADDR :  integer := REGS_BASE_ADDR + 16#30#;
     constant  K_DATA_ADDR_REGS_BITS :  integer := 64;
     constant  K_DATA_ADDR_REGS_LO   :  integer := 8*K_DATA_ADDR_REGS_ADDR;
     constant  K_DATA_ADDR_REGS_HI   :  integer := 8*K_DATA_ADDR_REGS_ADDR + K_DATA_ADDR_REGS_BITS-1;
@@ -361,7 +325,7 @@ architecture RTL of QCONV_STRIP_REGISTERS is
     -------------------------------------------------------------------------------
     -- Quantized Convolution (strip) Th  Data Address Register
     -------------------------------------------------------------------------------
-    constant  T_DATA_ADDR_REGS_ADDR :  integer := REGS_BASE_ADDR + 16#28#;
+    constant  T_DATA_ADDR_REGS_ADDR :  integer := REGS_BASE_ADDR + 16#38#;
     constant  T_DATA_ADDR_REGS_BITS :  integer := 64;
     constant  T_DATA_ADDR_REGS_LO   :  integer := 8*T_DATA_ADDR_REGS_ADDR;
     constant  T_DATA_ADDR_REGS_HI   :  integer := 8*T_DATA_ADDR_REGS_ADDR + T_DATA_ADDR_REGS_BITS-1;
@@ -369,7 +333,7 @@ architecture RTL of QCONV_STRIP_REGISTERS is
     -------------------------------------------------------------------------------
     -- Quantized Convolution (strip) In  Width    Register
     -------------------------------------------------------------------------------
-    constant  I_WIDTH_REGS_ADDR     :  integer := REGS_BASE_ADDR + 16#30#;
+    constant  I_WIDTH_REGS_ADDR     :  integer := REGS_BASE_ADDR + 16#40#;
     constant  I_WIDTH_REGS_BITS     :  integer := I_WIDTH'length;
     constant  I_WIDTH_REGS_LO       :  integer := 8*I_WIDTH_REGS_ADDR;
     constant  I_WIDTH_REGS_HI       :  integer := 8*I_WIDTH_REGS_ADDR    + I_WIDTH_REGS_BITS-1;
@@ -379,7 +343,7 @@ architecture RTL of QCONV_STRIP_REGISTERS is
     -------------------------------------------------------------------------------
     -- Quantized Convolution (strip) In  Height   Register
     -------------------------------------------------------------------------------
-    constant  I_HEIGHT_REGS_ADDR    :  integer := REGS_BASE_ADDR + 16#38#;
+    constant  I_HEIGHT_REGS_ADDR    :  integer := REGS_BASE_ADDR + 16#48#;
     constant  I_HEIGHT_REGS_BITS    :  integer := I_HEIGHT'length;
     constant  I_HEIGHT_REGS_LO      :  integer := 8*I_HEIGHT_REGS_ADDR;
     constant  I_HEIGHT_REGS_HI      :  integer := 8*I_HEIGHT_REGS_ADDR   + I_HEIGHT_REGS_BITS-1;
@@ -389,7 +353,7 @@ architecture RTL of QCONV_STRIP_REGISTERS is
     -------------------------------------------------------------------------------
     -- Quantized Convolution (strip) In  Channels Register
     -------------------------------------------------------------------------------
-    constant  I_CHANNELS_REGS_ADDR  :  integer := REGS_BASE_ADDR + 16#40#;
+    constant  I_CHANNELS_REGS_ADDR  :  integer := REGS_BASE_ADDR + 16#50#;
     constant  I_CHANNELS_REGS_BITS  :  integer := I_CHANNELS'length;
     constant  I_CHANNELS_REGS_LO    :  integer := 8*I_CHANNELS_REGS_ADDR;
     constant  I_CHANNELS_REGS_HI    :  integer := 8*I_CHANNELS_REGS_ADDR + I_CHANNELS_REGS_BITS-1;
@@ -399,7 +363,7 @@ architecture RTL of QCONV_STRIP_REGISTERS is
     -------------------------------------------------------------------------------
     -- Quantized Convolution (strip) Out Width    Register
     -------------------------------------------------------------------------------
-    constant  O_WIDTH_REGS_ADDR     :  integer := REGS_BASE_ADDR + 16#48#;
+    constant  O_WIDTH_REGS_ADDR     :  integer := REGS_BASE_ADDR + 16#58#;
     constant  O_WIDTH_REGS_BITS     :  integer := O_WIDTH'length;
     constant  O_WIDTH_REGS_LO       :  integer := 8*O_WIDTH_REGS_ADDR;
     constant  O_WIDTH_REGS_HI       :  integer := 8*O_WIDTH_REGS_ADDR    + O_WIDTH_REGS_BITS-1;
@@ -409,7 +373,7 @@ architecture RTL of QCONV_STRIP_REGISTERS is
     -------------------------------------------------------------------------------
     -- Quantized Convolution (strip) Out Height   Register
     -------------------------------------------------------------------------------
-    constant  O_HEIGHT_REGS_ADDR    :  integer := REGS_BASE_ADDR + 16#50#;
+    constant  O_HEIGHT_REGS_ADDR    :  integer := REGS_BASE_ADDR + 16#60#;
     constant  O_HEIGHT_REGS_BITS    :  integer := O_HEIGHT'length;
     constant  O_HEIGHT_REGS_LO      :  integer := 8*O_HEIGHT_REGS_ADDR;
     constant  O_HEIGHT_REGS_HI      :  integer := 8*O_HEIGHT_REGS_ADDR   + O_HEIGHT_REGS_BITS-1;
@@ -419,7 +383,7 @@ architecture RTL of QCONV_STRIP_REGISTERS is
     -------------------------------------------------------------------------------
     -- Quantized Convolution (strip) Out Channels Register
     -------------------------------------------------------------------------------
-    constant  O_CHANNELS_REGS_ADDR  :  integer := REGS_BASE_ADDR + 16#58#;
+    constant  O_CHANNELS_REGS_ADDR  :  integer := REGS_BASE_ADDR + 16#68#;
     constant  O_CHANNELS_REGS_BITS  :  integer := O_CHANNELS'length;
     constant  O_CHANNELS_REGS_LO    :  integer := 8*O_CHANNELS_REGS_ADDR;
     constant  O_CHANNELS_REGS_HI    :  integer := 8*O_CHANNELS_REGS_ADDR + O_CHANNELS_REGS_BITS-1;
@@ -429,7 +393,7 @@ architecture RTL of QCONV_STRIP_REGISTERS is
     -------------------------------------------------------------------------------
     -- Quantized Convolution (strip) K   Width    Register
     -------------------------------------------------------------------------------
-    constant  K_WIDTH_REGS_ADDR     :  integer := REGS_BASE_ADDR + 16#60#;
+    constant  K_WIDTH_REGS_ADDR     :  integer := REGS_BASE_ADDR + 16#70#;
     constant  K_WIDTH_REGS_BITS     :  integer := K_WIDTH'length;
     constant  K_WIDTH_REGS_LO       :  integer := 8*K_WIDTH_REGS_ADDR;
     constant  K_WIDTH_REGS_HI       :  integer := 8*K_WIDTH_REGS_ADDR    + K_WIDTH_REGS_BITS-1;
@@ -439,7 +403,7 @@ architecture RTL of QCONV_STRIP_REGISTERS is
     -------------------------------------------------------------------------------
     -- Quantized Convolution (strip) K   Height   Register
     -------------------------------------------------------------------------------
-    constant  K_HEIGHT_REGS_ADDR    :  integer := REGS_BASE_ADDR + 16#68#;
+    constant  K_HEIGHT_REGS_ADDR    :  integer := REGS_BASE_ADDR + 16#78#;
     constant  K_HEIGHT_REGS_BITS    :  integer := K_HEIGHT'length;
     constant  K_HEIGHT_REGS_LO      :  integer := 8*K_HEIGHT_REGS_ADDR;
     constant  K_HEIGHT_REGS_HI      :  integer := 8*K_HEIGHT_REGS_ADDR   + K_HEIGHT_REGS_BITS-1;
@@ -449,7 +413,7 @@ architecture RTL of QCONV_STRIP_REGISTERS is
     -------------------------------------------------------------------------------
     -- Quantized Convolution (strip) Pad Size     Register
     -------------------------------------------------------------------------------
-    constant  PAD_SIZE_REGS_ADDR    :  integer := REGS_BASE_ADDR + 16#70#;
+    constant  PAD_SIZE_REGS_ADDR    :  integer := REGS_BASE_ADDR + 16#80#;
     constant  PAD_SIZE_REGS_BITS    :  integer := PAD_SIZE'length;
     constant  PAD_SIZE_REGS_LO      :  integer := 8*PAD_SIZE_REGS_ADDR;
     constant  PAD_SIZE_REGS_HI      :  integer := 8*PAD_SIZE_REGS_ADDR   + PAD_SIZE_REGS_BITS-1;
@@ -459,7 +423,7 @@ architecture RTL of QCONV_STRIP_REGISTERS is
     -------------------------------------------------------------------------------
     -- Quantized Convolution (strip) Use Threshold Register
     -------------------------------------------------------------------------------
-    constant  USE_TH_REGS_ADDR      :  integer := REGS_BASE_ADDR + 16#78#;
+    constant  USE_TH_REGS_ADDR      :  integer := REGS_BASE_ADDR + 16#88#;
     constant  USE_TH_REGS_BITS      :  integer := 1;
     constant  USE_TH_REGS_LO        :  integer := 8*USE_TH_REGS_ADDR;
     constant  USE_TH_REGS_HI        :  integer := 8*USE_TH_REGS_ADDR   + USE_TH_REGS_BITS-1;
@@ -498,93 +462,26 @@ begin
             R_DATA      => regs_rbit         -- In  :
         );
     -------------------------------------------------------------------------------
-    -- Quantized Convolution (strip) Identifier 
-    -------------------------------------------------------------------------------
-    regs_rbit(ID_REGS_HI downto ID_REGS_LO) <= ID_REGS;
-    -------------------------------------------------------------------------------
-    -- Quantized Convolution (strip) Reserve Register
-    -------------------------------------------------------------------------------
-    regs_rbit(RESV_REGS_HI downto RESV_REGS_LO) <= (RESV_REGS_HI downto RESV_REGS_LO => '0');
-    -------------------------------------------------------------------------------
-    -- Quantized Convolution (strip) Mode Register
+    -- Quantized Convolution (strip) Control/Status Register
     -------------------------------------------------------------------------------
     process (CLK, RST) begin
         if (RST = '1') then
-                mode_regs <= (others => '0');
+                state       <= IDLE_STATE;
+                irq_enable  <= '0';
+                status_done <= '0';
+                status_irq  <= '0';
         elsif (CLK'event and CLK = '1') then
             if (CLR = '1') then
-                mode_regs <= (others => '0');
+                state       <= IDLE_STATE;
+                irq_enable  <= '0';
+                status_done <= '0';
+                status_irq  <= '0';
             else
-                for pos in mode_regs'range loop
-                    if (regs_load(pos+MODE_REGS_LO) = '1') then
-                        mode_regs(pos) <= regs_wbit(pos+MODE_REGS_LO);
-                    end if;
-                end loop;
-            end if;
-        end if;
-    end process;
-    regs_rbit(MODE_REGS_HI downto MODE_REGS_LO) <= mode_regs;
-    -------------------------------------------------------------------------------
-    -- Quantized Convolution (strip) Status Register
-    -------------------------------------------------------------------------------
-    process (CLK, RST) begin
-        if (RST = '1') then
-                stat_done  <= '0';
-                stat_error <= '0';
-        elsif (CLK'event and CLK = '1') then
-            if (CLR = '1' or ctrl_reset = '1') then
-                stat_done  <= '0';
-                stat_error <= '0';
-            else
-                if (regs_load(STAT_DONE_POS) = '1') then
-                    stat_done  <= regs_wbit(STAT_DONE_POS );
-                elsif (state = RUN_STATE and RES_VALID = '1' and ctrl_done  = '1') then
-                    stat_done  <= '1';
-                end if;
-                if (regs_load(STAT_ERROR_POS) = '1') then
-                    stat_error <= regs_wbit(STAT_ERROR_POS);
-                elsif (state = RUN_STATE and RES_VALID = '1' and RES_STATUS = '1') then
-                    stat_error <= '1';
-                end if;
-            end if;
-        end if;
-    end process;
-    regs_rbit(STAT_RESV_HI downto STAT_RESV_LO) <= (STAT_RESV_HI downto STAT_RESV_LO => '0');
-    regs_rbit(STAT_ERROR_POS) <= stat_error;
-    regs_rbit(STAT_DONE_POS ) <= stat_done;
-    -------------------------------------------------------------------------------
-    -- Quantized Convolution (strip) Control Register
-    -------------------------------------------------------------------------------
-    process (CLK, RST) begin
-        if (RST = '1') then
-                ctrl_reset <= '0';
-                ctrl_pause <= '0';
-                ctrl_stop  <= '0';
-                ctrl_done  <= '0';
-                ctrl_first <= '0';
-                ctrl_last  <= '0';
-        elsif (CLK'event and CLK = '1') then
-            if (CLR = '1') then
-                ctrl_reset <= '0';
-                ctrl_pause <= '0';
-                ctrl_stop  <= '0';
-                ctrl_done  <= '0';
-                ctrl_first <= '0';
-                ctrl_last  <= '0';
-            else
-                if (regs_load(CTRL_RESET_POS) = '1') then
-                    ctrl_reset <= regs_wbit(CTRL_RESET_POS);
-                end if;
-                if (regs_load(CTRL_PAUSE_POS) = '1') then
-                    ctrl_pause <= regs_wbit(CTRL_PAUSE_POS);
-                end if;
-                if (regs_load(CTRL_DONE_POS)  = '1') then
-                    ctrl_done  <= regs_wbit(CTRL_DONE_POS );
-                end if;
                 case state is
                     when IDLE_STATE =>
                         if (regs_load(CTRL_START_POS) = '1' and regs_wbit(CTRL_START_POS) = '1') then
                             state <= REQ_STATE;
+                            status_done <= '0';
                         else
                             state <= IDLE_STATE;
                         end if;
@@ -602,26 +499,35 @@ begin
                         end if;
                     when DONE_STATE =>
                             state <= IDLE_STATE;
+                            status_done <= '1';
                     when others => 
                             state <= IDLE_STATE;
                 end case;
+                if (regs_load(IRQE_IREQ_POS) = '1') then
+                    irq_enable <= regs_wbit(IRQE_IREQ_POS);
+                end if;
+                if    (regs_load(STAT_IRQ_POS) = '1' and regs_wbit(STAT_IRQ_POS) = '1') then
+                    status_irq <= '0';
+                elsif (state = DONE_STATE) then
+                    status_irq <= '1';
+                end if;
             end if;
         end if;
     end process;
-    ctrl_start <= '1' when (state /= IDLE_STATE) else '0';
     REQ_VALID  <= '1' when (state  = REQ_STATE ) else '0';
     RES_READY  <= '1' when (state  = RUN_STATE ) else '0';
-    REQ_RESET  <= ctrl_reset;
-    REQ_PAUSE  <= ctrl_pause;
-    REQ_STOP   <= ctrl_stop;
-    regs_rbit(CTRL_RESET_POS) <= ctrl_reset;
-    regs_rbit(CTRL_PAUSE_POS) <= ctrl_pause;
-    regs_rbit(CTRL_STOP_POS ) <= ctrl_stop;
-    regs_rbit(CTRL_START_POS) <= ctrl_start;
-    regs_rbit(CTRL_RESV_POS ) <= '0';
-    regs_rbit(CTRL_DONE_POS ) <= ctrl_done;
-    regs_rbit(CTRL_FIRST_POS) <= ctrl_first;
-    regs_rbit(CTRL_LAST_POS ) <= ctrl_last;
+    REQ_RESET  <= '0';
+    REQ_PAUSE  <= '0';
+    REQ_STOP   <= '0';
+    regs_rbit(BUSY_BUSY_POS ) <= '1' when (state /= IDLE_STATE) else '0';
+    regs_rbit(BUSY_RESV_HI downto BUSY_RESV_LO) <= (BUSY_RESV_HI downto BUSY_RESV_LO => '0');
+    regs_rbit(CTRL_START_POS) <= '0';
+    regs_rbit(CTRL_RESV_HI downto CTRL_RESV_LO) <= (CTRL_RESV_HI downto CTRL_RESV_LO => '0');
+    regs_rbit(IRQE_IREQ_POS ) <= irq_enable;
+    regs_rbit(IRQE_RESV_HI downto IRQE_RESV_LO) <= (IRQE_RESV_HI downto IRQE_RESV_LO => '0');
+    regs_rbit(STAT_IRQ_POS  ) <= status_irq;
+    regs_rbit(STAT_DONE_POS ) <= status_done;
+    regs_rbit(STAT_RESV_HI downto STAT_RESV_LO) <= (STAT_RESV_HI downto STAT_RESV_LO => '0');
     -------------------------------------------------------------------------------
     -- Quantized Convolution (strip) In  Data Address Register
     -------------------------------------------------------------------------------
@@ -921,8 +827,7 @@ begin
         elsif (CLK'event and CLK = '1') then
             if (CLR = '1') then
                 IRQ <= '0';
-            elsif (regs_rbit(STAT_DONE_POS ) = '1' and regs_rbit(MODE_DONE_POS ) = '1') or
-                  (regs_rbit(STAT_ERROR_POS) = '1' and regs_rbit(MODE_ERROR_POS) = '1') then
+            elsif (irq_enable = '1' and status_irq = '1') then
                 IRQ <= '1';
             else
                 IRQ <= '0';

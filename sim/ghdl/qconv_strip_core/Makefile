@@ -26,19 +26,23 @@ IMAGE_STREAM_MODELS   := image_stream_models.o image_stream_player.o image_strea
 
 .PHONY all: $(TEST_BENCH)
 
-qconv_strip_core_test_bench_1_1 : qconv_strip_core_test_bench.o test.snr
+qconv_strip_core_test_bench_1_1 : qconv_strip_core_test_bench.o $(SCENARIO_PATH)/test.snr
+	cp $(SCENARIO_PATH)/test.snr test.snr
 	$(GHDL) -e $(GHDLFLAGS) --work=WORK $@
 	$(GHDL) -r $(GHDLFLAGS) --work=WORK $@
 
-qconv_strip_core_test_bench_1_4 : qconv_strip_core_test_bench.o test.snr
+qconv_strip_core_test_bench_1_4 : qconv_strip_core_test_bench.o $(SCENARIO_PATH)/test.snr
+	cp $(SCENARIO_PATH)/test.snr test.snr
 	$(GHDL) -e $(GHDLFLAGS) --work=WORK $@
 	$(GHDL) -r $(GHDLFLAGS) --work=WORK $@
 
-qconv_strip_core_test_bench_4_1 : qconv_strip_core_test_bench.o test.snr
+qconv_strip_core_test_bench_4_1 : qconv_strip_core_test_bench.o $(SCENARIO_PATH)/test.snr
+	cp $(SCENARIO_PATH)/test.snr test.snr
 	$(GHDL) -e $(GHDLFLAGS) --work=WORK $@
 	$(GHDL) -r $(GHDLFLAGS) --work=WORK $@
 
-qconv_strip_core_test_bench_2_2 : qconv_strip_core_test_bench.o test.snr
+qconv_strip_core_test_bench_2_2 : qconv_strip_core_test_bench.o $(SCENARIO_PATH)/test.snr
+	cp $(SCENARIO_PATH)/test.snr test.snr
 	$(GHDL) -e $(GHDLFLAGS) --work=WORK $@
 	$(GHDL) -r $(GHDLFLAGS) --work=WORK $@
 
@@ -90,7 +94,4 @@ image_stream_slave_player.o     : $(PIPEWORKTEST_SRC_PATH)/image_stream_models/i
 
 qconv_strip_core_test_bench.o : ../../../src/test/vhdl/qconv_strip_core_test_bench.vhd $(PIPEWORK) $(DUMMY_PLUG) $(QCONV) $(IMAGE_STREAM_MODELS)
 	$(GHDL) -a $(GHDLFLAGS) --work=$(WORK) $<
-
-test.snr : $(SCENARIO_PATH)/test.snr
-	cp $< $@
 
