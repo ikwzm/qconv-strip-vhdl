@@ -2,7 +2,7 @@
 --!     @file    qconv_strip_th_data_buffer.vhd
 --!     @brief   Quantized Convolution (strip) Thresholds Data Buffer Module
 --!     @version 0.1.0
---!     @date    2019/4/11
+--!     @date    2019/4/25
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>
 -----------------------------------------------------------------------------------
 --
@@ -91,7 +91,7 @@ entity  QCONV_STRIP_TH_DATA_BUFFER is
     -- 
     -------------------------------------------------------------------------------
         OUT_C           : --! @brief OUTPUT C CHANNEL SIZE :
-                          in  integer range 0 to O_SHAPE.D.MAX_SIZE := O_SHAPE.D.SIZE;
+                          in  integer range 0 to O_SHAPE.C.MAX_SIZE := O_SHAPE.C.SIZE;
         OUT_W           : --! @brief OUTPUT IMAGE WIDTH :
                           in  integer range 0 to O_SHAPE.X.MAX_SIZE := O_SHAPE.X.SIZE;
         OUT_H           : --! @brief OUTPUT IMAGE HEIGHT :
@@ -158,7 +158,7 @@ architecture RTL of QCONV_STRIP_TH_DATA_BUFFER is
                                    );
     constant  BUF_SHAPE         :  IMAGE_SHAPE_TYPE := NEW_IMAGE_SHAPE(
                                        ELEM_BITS => QCONV_PARAM.NBITS_OUT_DATA*QCONV_PARAM.NUM_THRESHOLDS,
-                                       C         => O_SHAPE.D,
+                                       C         => O_SHAPE.C,
                                        D         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(1),
                                        X         => O_SHAPE.X,
                                        Y         => O_SHAPE.Y
