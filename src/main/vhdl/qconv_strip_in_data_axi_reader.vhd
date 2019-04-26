@@ -2,7 +2,7 @@
 --!     @file    qconv_strip_in_data_axi_reader.vhd
 --!     @brief   Quantized Convolution (strip) In Data AXI Reader Module
 --!     @version 0.1.0
---!     @date    2019/4/5
+--!     @date    2019/4/26
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>
 -----------------------------------------------------------------------------------
 --
@@ -155,6 +155,22 @@ architecture RTL of QCONV_STRIP_IN_DATA_AXI_READER is
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
+    function  MIN(A,B: integer) return integer is
+    begin
+        if (A < B) then return A;
+        else            return B;
+        end if;
+    end function;
+    -------------------------------------------------------------------------------
+    --
+    -------------------------------------------------------------------------------
+    function  MIN(A,B,C: integer) return integer is
+    begin
+        return MIN(A,MIN(B,C));
+    end function;
+    -------------------------------------------------------------------------------
+    --
+    -------------------------------------------------------------------------------
     function CALC_BITS(SIZE:integer) return integer is
         variable bits : integer;
     begin
@@ -179,14 +195,19 @@ architecture RTL of QCONV_STRIP_IN_DATA_AXI_READER is
     signal    req_slice_x_pos       :  integer range 0 to IMAGE_SHAPE.X.MAX_SIZE;
     signal    req_slice_x_size      :  integer range 0 to IMAGE_SHAPE.X.MAX_SIZE;
     signal    req_axi_addr          :  std_logic_vector(AXI_ADDR_WIDTH-1 downto 0);
+    -------------------------------------------------------------------------------
+    -- 一回のトランザクションで転送する最大転送バイト数
+    -------------------------------------------------------------------------------
+    constant  MAX_XFER_BYTES        :  integer := MIN(4096, 256*(AXI_DATA_WIDTH/8), 2**AXI_XFER_SIZE);
+    constant  MAX_XFER_SIZE         :  integer := CALC_BITS(MAX_XFER_BYTES);
     ------------------------------------------------------------------------------
     -- バッファの容量をバイト数で示す.
     ------------------------------------------------------------------------------
-    constant  BUF_SIZE              :  integer := (2**AXI_XFER_SIZE)*2;
+    constant  BUF_BYTES             :  integer := MAX_XFER_BYTES*2;
     ------------------------------------------------------------------------------
     -- バッファの容量(バイト数)を２のべき乗値で示す.
     ------------------------------------------------------------------------------
-    constant  BUF_DEPTH             :  integer := CALC_BITS(BUF_SIZE);
+    constant  BUF_DEPTH             :  integer := CALC_BITS(BUF_BYTES);
     ------------------------------------------------------------------------------
     -- バッファのデータ幅のビット数を示す.
     ------------------------------------------------------------------------------
@@ -205,9 +226,9 @@ architecture RTL of QCONV_STRIP_IN_DATA_AXI_READER is
     constant  I_REQ_ADDR_VALID      :  integer := 1;
     constant  I_REQ_SIZE_VALID      :  integer := 1;
     constant  I_FLOW_READY_LEVEL    :  std_logic_vector(BUF_DEPTH downto 0)
-                                    := std_logic_vector(to_unsigned(BUF_SIZE - 2**AXI_XFER_SIZE  , BUF_DEPTH+1));
+                                    := std_logic_vector(to_unsigned(BUF_BYTES - MAX_XFER_BYTES    , BUF_DEPTH+1));
     constant  I_BUF_READY_LEVEL     :  std_logic_vector(BUF_DEPTH downto 0)
-                                    := std_logic_vector(to_unsigned(BUF_SIZE - 1*AXI_DATA_WIDTH/8, BUF_DEPTH+1));
+                                    := std_logic_vector(to_unsigned(BUF_BYTES - 1*AXI_DATA_WIDTH/8, BUF_DEPTH+1));
     constant  I_MAX_REQ_SIZE        :  integer := IMAGE_SHAPE.X.MAX_SIZE * IMAGE_SHAPE.C.MAX_SIZE * IMAGE_SHAPE.ELEM_BITS / 8;
     constant  REQ_SIZE_WIDTH        :  integer := CALC_BITS(I_MAX_REQ_SIZE+1);
     -------------------------------------------------------------------------------
@@ -542,8 +563,8 @@ begin
             BUF_PTR_BITS        => BUF_DEPTH           , --   
             ALIGNMENT_BITS      => AXI_ALIGNMENT_BITS  , --   
             XFER_SIZE_BITS      => BUF_DEPTH+1         , --   
-            XFER_MIN_SIZE       => AXI_XFER_SIZE       , --   
-            XFER_MAX_SIZE       => AXI_XFER_SIZE       , --   
+            XFER_MIN_SIZE       => MAX_XFER_SIZE       , --   
+            XFER_MAX_SIZE       => MAX_XFER_SIZE       , --   
             QUEUE_SIZE          => AXI_REQ_QUEUE       , --   
             RDATA_REGS          => AXI_RDATA_REGS      , --   
             ACK_REGS            => AXI_ACK_REGS          --   

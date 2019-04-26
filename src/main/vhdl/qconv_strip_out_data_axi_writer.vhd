@@ -175,6 +175,22 @@ architecture RTL of QCONV_STRIP_OUT_DATA_AXI_WRITER is
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
+    function  MIN(A,B: integer) return integer is
+    begin
+        if (A < B) then return A;
+        else            return B;
+        end if;
+    end function;
+    -------------------------------------------------------------------------------
+    --
+    -------------------------------------------------------------------------------
+    function  MIN(A,B,C: integer) return integer is
+    begin
+        return MIN(A,MIN(B,C));
+    end function;
+    -------------------------------------------------------------------------------
+    --
+    -------------------------------------------------------------------------------
     function CALC_BITS(SIZE:integer) return integer is
         variable bits : integer;
     begin
@@ -202,14 +218,19 @@ architecture RTL of QCONV_STRIP_OUT_DATA_AXI_WRITER is
     signal    req_slice_x_size      :  integer range 0 to IMAGE_SHAPE.X.MAX_SIZE;
     signal    req_elem_bytes        :  integer range 0 to IMAGE_SHAPE.ELEM_BITS/8;
     signal    req_axi_addr          :  std_logic_vector(AXI_ADDR_WIDTH-1 downto 0);
+    -------------------------------------------------------------------------------
+    -- 一回のトランザクションで転送する最大転送バイト数
+    -------------------------------------------------------------------------------
+    constant  MAX_XFER_BYTES        :  integer := MIN(4096, 256*(AXI_DATA_WIDTH/8), 2**AXI_XFER_SIZE);
+    constant  MAX_XFER_SIZE         :  integer := CALC_BITS(MAX_XFER_BYTES);
     ------------------------------------------------------------------------------
     -- バッファの容量をバイト数で示す.
     ------------------------------------------------------------------------------
-    constant  BUF_SIZE              :  integer := (2**AXI_XFER_SIZE)*2;
+    constant  BUF_BYTES             :  integer := MAX_XFER_BYTES*2;
     ------------------------------------------------------------------------------
     -- バッファの容量(バイト数)を２のべき乗値で示す.
     ------------------------------------------------------------------------------
-    constant  BUF_DEPTH             :  integer := CALC_BITS(BUF_SIZE);
+    constant  BUF_DEPTH             :  integer := CALC_BITS(BUF_BYTES);
     ------------------------------------------------------------------------------
     -- バッファのデータ幅のビット数を示す.
     ------------------------------------------------------------------------------
@@ -622,8 +643,8 @@ begin
             BUF_PTR_BITS        => BUF_DEPTH           , --   
             ALIGNMENT_BITS      => AXI_ALIGNMENT_BITS  , --   
             XFER_SIZE_BITS      => BUF_DEPTH+1         , --   
-            XFER_MIN_SIZE       => AXI_XFER_SIZE       , --   
-            XFER_MAX_SIZE       => AXI_XFER_SIZE       , --   
+            XFER_MIN_SIZE       => MAX_XFER_SIZE       , --   
+            XFER_MAX_SIZE       => MAX_XFER_SIZE       , --   
             QUEUE_SIZE          => AXI_REQ_QUEUE       , --   
             REQ_REGS            => AXI_REQ_REGS        , --   
             ACK_REGS            => AXI_ACK_REGS        , --   

@@ -2,7 +2,7 @@
 --!     @file    qconv_components.vhd                                            --
 --!     @brief   Quantized Convolution Component Library                         --
 --!     @version 0.1.0                                                           --
---!     @date    2019/04/21                                                      --
+--!     @date    2019/04/26                                                      --
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>                     --
 -----------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------
@@ -96,7 +96,7 @@ component QCONV_STRIP_AXI_CORE
         I_AXI_USER_WIDTH    : --! @brief IN  DATA AXI ID WIDTH :
                               integer := 8;
         I_AXI_XFER_SIZE     : --! @brief IN  DATA AXI MAX XFER_SIZE :
-                              integer := 12;
+                              integer := 11;
         I_AXI_ID            : --! @brief IN  DATA AXI ID :
                               integer := 0;
         I_AXI_PROT          : --! @brief IN  DATA AXI PROT :
@@ -118,7 +118,7 @@ component QCONV_STRIP_AXI_CORE
         O_AXI_USER_WIDTH    : --! @brief OUT DATA AXI ID WIDTH :
                               integer := 8;
         O_AXI_XFER_SIZE     : --! @brief OUT DATA AXI MAX XFER_SIZE :
-                              integer := 12;
+                              integer := 11;
         O_AXI_ID            : --! @brief OUT DATA AXI ID :
                               integer := 0;
         O_AXI_PROT          : --! @brief OUT DATA AXI PROT :
@@ -140,7 +140,7 @@ component QCONV_STRIP_AXI_CORE
         K_AXI_USER_WIDTH    : --! @brief K   DATA AXI ID WIDTH :
                               integer := 8;
         K_AXI_XFER_SIZE     : --! @brief K   DATA AXI MAX XFER_SIZE :
-                              integer := 12;
+                              integer := 11;
         K_AXI_ID            : --! @brief K   DATA AXI ID :
                               integer := 0;
         K_AXI_PROT          : --! @brief K   DATA AXI PROT :
@@ -162,7 +162,7 @@ component QCONV_STRIP_AXI_CORE
         T_AXI_USER_WIDTH    : --! @brief TH  DATA AXI ID WIDTH :
                               integer := 8;
         T_AXI_XFER_SIZE     : --! @brief TH  DATA AXI MAX XFER_SIZE :
-                              integer := 12;
+                              integer := 11;
         T_AXI_ID            : --! @brief TH  DATA AXI ID :
                               integer := 0;
         T_AXI_PROT          : --! @brief TH  DATA AXI PROT :
@@ -438,10 +438,7 @@ component QCONV_STRIP_CORE
                           integer := 16;
         OUT_DATA_BITS   : --! @brief OUTPUT DATA BIT SIZE :
                           --! OUT_DATA のビット幅を指定する.
-                          --! * OUT_DATA のビット幅は、QCONV_PARAM.NBITS_IN_DATA の
-                          --!   倍数でなければならない.
-                          --! * OUT_DATA のビット幅は、QCONV_PARAM.NBITS_OUT_DATA の
-                          --!   倍数でなければならない.
+                          --! * OUT_DATA のビット幅は、64の倍数でなければならない.
                           integer := 64
     );
     port (
@@ -968,7 +965,7 @@ component QCONV_STRIP_TH_DATA_BUFFER
     -- 
     -------------------------------------------------------------------------------
         OUT_C           : --! @brief OUTPUT C CHANNEL SIZE :
-                          in  integer range 0 to O_SHAPE.D.MAX_SIZE := O_SHAPE.D.SIZE;
+                          in  integer range 0 to O_SHAPE.C.MAX_SIZE := O_SHAPE.C.SIZE;
         OUT_W           : --! @brief OUTPUT IMAGE WIDTH :
                           in  integer range 0 to O_SHAPE.X.MAX_SIZE := O_SHAPE.X.SIZE;
         OUT_H           : --! @brief OUTPUT IMAGE HEIGHT :

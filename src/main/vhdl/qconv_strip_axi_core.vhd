@@ -2,7 +2,7 @@
 --!     @file    qconv_strip_core.vhd
 --!     @brief   Quantized Convolution (strip) AXI I/F Core Module
 --!     @version 0.1.0
---!     @date    2019/4/11
+--!     @date    2019/4/26
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>
 -----------------------------------------------------------------------------------
 --
@@ -89,7 +89,7 @@ entity  QCONV_STRIP_AXI_CORE is
         I_AXI_USER_WIDTH    : --! @brief IN  DATA AXI ID WIDTH :
                               integer := 8;
         I_AXI_XFER_SIZE     : --! @brief IN  DATA AXI MAX XFER_SIZE :
-                              integer := 12;
+                              integer := 11;
         I_AXI_ID            : --! @brief IN  DATA AXI ID :
                               integer := 0;
         I_AXI_PROT          : --! @brief IN  DATA AXI PROT :
@@ -111,7 +111,7 @@ entity  QCONV_STRIP_AXI_CORE is
         O_AXI_USER_WIDTH    : --! @brief OUT DATA AXI ID WIDTH :
                               integer := 8;
         O_AXI_XFER_SIZE     : --! @brief OUT DATA AXI MAX XFER_SIZE :
-                              integer := 12;
+                              integer := 11;
         O_AXI_ID            : --! @brief OUT DATA AXI ID :
                               integer := 0;
         O_AXI_PROT          : --! @brief OUT DATA AXI PROT :
@@ -133,7 +133,7 @@ entity  QCONV_STRIP_AXI_CORE is
         K_AXI_USER_WIDTH    : --! @brief K   DATA AXI ID WIDTH :
                               integer := 8;
         K_AXI_XFER_SIZE     : --! @brief K   DATA AXI MAX XFER_SIZE :
-                              integer := 12;
+                              integer := 11;
         K_AXI_ID            : --! @brief K   DATA AXI ID :
                               integer := 0;
         K_AXI_PROT          : --! @brief K   DATA AXI PROT :
@@ -155,7 +155,7 @@ entity  QCONV_STRIP_AXI_CORE is
         T_AXI_USER_WIDTH    : --! @brief TH  DATA AXI ID WIDTH :
                               integer := 8;
         T_AXI_XFER_SIZE     : --! @brief TH  DATA AXI MAX XFER_SIZE :
-                              integer := 12;
+                              integer := 11;
         T_AXI_ID            : --! @brief TH  DATA AXI ID :
                               integer := 0;
         T_AXI_PROT          : --! @brief TH  DATA AXI PROT :
