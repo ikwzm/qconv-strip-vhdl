@@ -1,0 +1,302 @@
+---
+- MARCHAL : 
+  - SAY : TEST START
+- I:
+  - {DOMAIN: {INDEX: 0, MAP: 0, READ: true, WRITE: true,
+               ADDR: 0x00000000, LAST: 0xFFFFFFFF, RESP: DECERR,
+              ASIZE: "3'b---", ALOCK: "1'b-", ACACHE: "4'b----", APROT: "3'b---", AQOS: "4'b----", AREGION: "4'b----",
+              LATENCY: 8, TIMEOUT: 10000}}
+  - {DOMAIN: {INDEX: 1, MAP: 0, READ: true, WRITE: false,
+               ADDR: 0x81000000, LAST: 0x81007FFF, RESP: OKAY,  
+              ASIZE: "3'b---", ALOCK: "1'b-", ACACHE: "4'b----", APROT: "3'b---", AQOS: "4'b----", AREGION: "4'b----",
+              LATENCY: 12, RDELAY: 1, TIMEOUT: 10000}}
+- K:
+  - {DOMAIN: {INDEX: 0, MAP: 0, READ: true, WRITE: true,
+               ADDR: 0x00000000, LAST: 0xFFFFFFFF, RESP: DECERR,
+              ASIZE: "3'b---", ALOCK: "1'b-", ACACHE: "4'b----", APROT: "3'b---", AQOS: "4'b----", AREGION: "4'b----",
+              LATENCY: 8, TIMEOUT: 10000}}
+  - {DOMAIN: {INDEX: 1, MAP: 0, READ: true, WRITE: false,
+               ADDR: 0x83000000, LAST: 0x83003FFF, RESP: OKAY,  
+              ASIZE: "3'b---", ALOCK: "1'b-", ACACHE: "4'b----", APROT: "3'b---", AQOS: "4'b----", AREGION: "4'b----",
+              LATENCY: 12, RDELAY: 1, TIMEOUT: 10000}}
+- T:
+  - {DOMAIN: {INDEX: 0, MAP: 0, READ: true, WRITE: true,
+               ADDR: 0x00000000, LAST: 0xFFFFFFFF, RESP: DECERR,
+              ASIZE: "3'b---", ALOCK: "1'b-", ACACHE: "4'b----", APROT: "3'b---", AQOS: "4'b----", AREGION: "4'b----",
+              LATENCY: 8, TIMEOUT: 10000}}
+  - {DOMAIN: {INDEX: 1, MAP: 0, READ: true, WRITE: false,
+               ADDR: 0x84000000, LAST: 0x840003FF, RESP: OKAY,  
+              ASIZE: "3'b---", ALOCK: "1'b-", ACACHE: "4'b----", APROT: "3'b---", AQOS: "4'b----", AREGION: "4'b----",
+              LATENCY: 12, RDELAY: 1, TIMEOUT: 10000}}
+- O:
+  - {DOMAIN: {INDEX: 0, MAP: 0, READ: true, WRITE: true,
+               ADDR: 0x00000000, LAST: 0xFFFFFFFF, RESP: DECERR,
+              ASIZE: "3'b---", ALOCK: "1'b-", ACACHE: "4'b----", APROT: "3'b---", AQOS: "4'b----", AREGION: "4'b----",
+              LATENCY: 8, TIMEOUT: 10000}}
+  - {DOMAIN: {INDEX: 1, MAP: 0, READ: false, WRITE: true,
+               ADDR: 0x82000000, LAST: 0x8207FFFF, RESP: OKAY,  
+              ASIZE: "3'b---", ALOCK: "1'b-", ACACHE: "4'b----", APROT: "3'b---", AQOS: "4'b----", AREGION: "4'b----",
+              LATENCY: 1, RDELAY: 12, TIMEOUT: 10000}}
+---
+- MARCHAL : 
+  - SAY : TEST 2.002 IN_C=1  IN_W=8   IN_H=8   OUT_C=32  K_W=1 K_H=1 PAD_SIZE=0 USE_TH=1 START
+- CSR:
+  - OUT  : {GPO(0) : 1}
+  - WRITE: {ADDR: 0x00000020, DATA: "32'h81000000"} # In  Data Address[31:00]
+  - WRITE: {ADDR: 0x00000024, DATA: "32'h00000000"} # In  Data Address[63:32]
+  - WRITE: {ADDR: 0x00000028, DATA: "32'h82000000"} # Out Data Address[31:00]
+  - WRITE: {ADDR: 0x0000002C, DATA: "32'h00000000"} # Out Data Address[63:32]
+  - WRITE: {ADDR: 0x00000030, DATA: "32'h83000000"} # K   Data Address[31:00]
+  - WRITE: {ADDR: 0x00000034, DATA: "32'h00000000"} # K   Data Address[63:32]
+  - WRITE: {ADDR: 0x00000038, DATA: "32'h84000000"} # Th  Data Address[31:00]
+  - WRITE: {ADDR: 0x0000003C, DATA: "32'h00000000"} # Th  Data Address[63:32]
+  - WRITE: {ADDR: 0x00000040, DATA: "32'h00000008"} # IN_W
+  - WRITE: {ADDR: 0x00000048, DATA: "32'h00000008"} # IN_H
+  - WRITE: {ADDR: 0x00000050, DATA: "32'h00000001"} # IN_C_BY_WORD
+  - WRITE: {ADDR: 0x00000058, DATA: "32'h00000008"} # OUT_W
+  - WRITE: {ADDR: 0x00000060, DATA: "32'h00000008"} # OUT_H
+  - WRITE: {ADDR: 0x00000068, DATA: "32'h00000020"} # OUT_C
+  - WRITE: {ADDR: 0x00000070, DATA: "32'h00000001"} # K_W
+  - WRITE: {ADDR: 0x00000078, DATA: "32'h00000001"} # K_H
+  - WRITE: {ADDR: 0x00000080, DATA: "32'h00000000"} # PAD_SIZE
+  - WRITE: {ADDR: 0x00000088, DATA: "32'h00000001"} # USE_TH
+  - WRITE: {ADDR: 0x00000010, DATA: "32'h00000001"} # IRQE[0]<=1
+  - WRITE: {ADDR: 0x00000008, DATA: "32'h00000001"} # CTRL[0]<=1
+  - READ:  {ADDR: 0x00000000, DATA: "32'h00000001"} # BUSY[0]==1
+  - WAIT : {GPI(0) : 1, TIMEOUT: 1000000} # WAIT for IRQ=1
+  - READ : {ADDR: 0x00000018, DATA: "32'h00000003"} # STAT[0]==1, STAT[1]==1
+  - WRITE: {ADDR: 0x00000018, DATA: "32'h00000001"} # STAT[0]<=1
+  - WAIT : {GPI(0) : 0, TIMEOUT: 100} # WAIT for IRQ=0
+  - READ : {ADDR: 0x00000018, DATA: "32'h00000002"} # STAT[0]==0, STAT[1]==1
+  - OUT  : {GPO(0) : 0}
+- I:
+  - SET
+  - ORG   : 0x00000000         #   H   W  C 
+  - DD    : 0xD925D40A04400B91 #   0   0  0
+  - DD    : 0x2853D20145202C2E #   0   1  0
+  - DD    : 0x0008290408C59262 #   0   2  0
+  - DD    : 0x424D085CB400A722 #   0   3  0
+  - DD    : 0x2020154C96D4EA81 #   0   4  0
+  - DD    : 0x708E41AB8D403210 #   0   5  0
+  - DD    : 0x3814DBA8840A0415 #   0   6  0
+  - DD    : 0x3092060C4205E1D0 #   0   7  0
+  - DD    : 0x62205B0F958184F0 #   1   0  0
+  - DD    : 0x9154CE6322A91100 #   1   1  0
+  - DD    : 0x1800402487D03B91 #   1   2  0
+  - DD    : 0x381820384407DF47 #   1   3  0
+  - DD    : 0x0D902824206B57D9 #   1   4  0
+  - DD    : 0xC41445072B401078 #   1   5  0
+  - DD    : 0x8780148D486CC252 #   1   6  0
+  - DD    : 0x64C9016492128E00 #   1   7  0
+  - DD    : 0x604408809F90B143 #   2   0  0
+  - DD    : 0x3568432B8A123040 #   2   1  0
+  - DD    : 0x03181407F8812120 #   2   2  0
+  - DD    : 0x90904C33202D22C8 #   2   3  0
+  - DD    : 0x20B1A8C045485600 #   2   4  0
+  - DD    : 0x3AB180A5054A285A #   2   5  0
+  - DD    : 0x929B510320008494 #   2   6  0
+  - DD    : 0x08827834E015820B #   2   7  0
+  - DD    : 0x22C081A0CD2C1A4E #   3   0  0
+  - DD    : 0x409050A4B40C8C01 #   3   1  0
+  - DD    : 0x44762CEBB3000014 #   3   2  0
+  - DD    : 0x05242675504B4088 #   3   3  0
+  - DD    : 0x06047BB1104A800A #   3   4  0
+  - DD    : 0xD036921C0C484C42 #   3   5  0
+  - DD    : 0x0519B06480404689 #   3   6  0
+  - DD    : 0x1C11E001234A1F78 #   3   7  0
+  - DD    : 0x51046497263B9160 #   4   0  0
+  - DD    : 0x4906D600B2D02983 #   4   1  0
+  - DD    : 0x095519DAC6280601 #   4   2  0
+  - DD    : 0x592316AA04C8C945 #   4   3  0
+  - DD    : 0x21402108823F0E22 #   4   4  0
+  - DD    : 0xC7B5B203000004B4 #   4   5  0
+  - DD    : 0xE440411D03B22A42 #   4   6  0
+  - DD    : 0x903000314942A146 #   4   7  0
+  - DD    : 0xC85F0004278068D9 #   5   0  0
+  - DD    : 0x70494816861485C9 #   5   1  0
+  - DD    : 0x09508101002F34F0 #   5   2  0
+  - DD    : 0x32010657C06C2020 #   5   3  0
+  - DD    : 0x48118C3032A27384 #   5   4  0
+  - DD    : 0x26310EE211CCB104 #   5   5  0
+  - DD    : 0x49A4B24020480C23 #   5   6  0
+  - DD    : 0x49290608A0D2C974 #   5   7  0
+  - DD    : 0xC720813B20584E80 #   6   0  0
+  - DD    : 0x2127D08044582A2B #   6   1  0
+  - DD    : 0xC1A84A2438510011 #   6   2  0
+  - DD    : 0x639230E490010219 #   6   3  0
+  - DD    : 0x1001C75443C20820 #   6   4  0
+  - DD    : 0x4206025021C9C122 #   6   5  0
+  - DD    : 0x08520FB8C7257040 #   6   6  0
+  - DD    : 0x0990E18460461E01 #   6   7  0
+  - DD    : 0x108646648E111101 #   7   0  0
+  - DD    : 0x6A4C13800411EC2F #   7   1  0
+  - DD    : 0xDA8420E920105B00 #   7   2  0
+  - DD    : 0xD7298B842010203A #   7   3  0
+  - DD    : 0x02E8242461050290 #   7   4  0
+  - DD    : 0x320049100164B480 #   7   5  0
+  - DD    : 0x98502C74672E1302 #   7   6  0
+  - DD    : 0x1E0F118421500E6A #   7   7  0
+- K:
+  - SET
+  - ORG   : 0x00000000 #  N  H  W  C 
+  - DW    : 0x410A8390 #  0  0  0  0
+  - DW    : 0x45575083 #  1  0  0  0
+  - DW    : 0xA9EF5880 #  2  0  0  0
+  - DW    : 0x16008735 #  3  0  0  0
+  - DW    : 0x955471C3 #  4  0  0  0
+  - DW    : 0xD17D64C2 #  5  0  0  0
+  - DW    : 0x01D2A95B #  6  0  0  0
+  - DW    : 0xC7B40202 #  7  0  0  0
+  - DW    : 0x5C932273 #  8  0  0  0
+  - DW    : 0x50ABC539 #  9  0  0  0
+  - DW    : 0x2638A0B4 # 10  0  0  0
+  - DW    : 0x275A695C # 11  0  0  0
+  - DW    : 0xB62744F0 # 12  0  0  0
+  - DW    : 0x84A43BB5 # 13  0  0  0
+  - DW    : 0x89058077 # 14  0  0  0
+  - DW    : 0xBF86CE5B # 15  0  0  0
+  - DW    : 0xEE4C9932 # 16  0  0  0
+  - DW    : 0xDD335A36 # 17  0  0  0
+  - DW    : 0x70120A75 # 18  0  0  0
+  - DW    : 0xA7D1FF72 # 19  0  0  0
+  - DW    : 0x03BE45B2 # 20  0  0  0
+  - DW    : 0xDA5121D1 # 21  0  0  0
+  - DW    : 0x56AE0818 # 22  0  0  0
+  - DW    : 0x3C851870 # 23  0  0  0
+  - DW    : 0x604138B6 # 24  0  0  0
+  - DW    : 0x85707A73 # 25  0  0  0
+  - DW    : 0xF7F96C8D # 26  0  0  0
+  - DW    : 0x4FDB8D32 # 27  0  0  0
+  - DW    : 0xAC721AFB # 28  0  0  0
+  - DW    : 0xDF796229 # 29  0  0  0
+  - DW    : 0x5E1A686A # 30  0  0  0
+  - DW    : 0x132CEFCF # 31  0  0  0
+- T:
+  - SET
+  - ORG   : 0x0000
+  - DH    : [0xFFC0, 0x0000, 0x0040, 0xFFFF]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0003]
+  - DH    : [0xFFE0, 0x0000, 0x0020, 0x0001]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0002]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0003]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0004]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0002]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0003]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0004]
+  - DH    : [0xFFE0, 0x0000, 0x0020, 0x0001]
+  - DH    : [0xFFC0, 0x0000, 0x0040, 0xFFFF]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0002]
+  - DH    : [0xFFC0, 0x0000, 0x0040, 0xFFFF]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0004]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0002]
+  - DH    : [0xFFE0, 0x0000, 0x0020, 0x0001]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0004]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0003]
+  - DH    : [0xFFC0, 0x0000, 0x0040, 0xFFFF]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0003]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0004]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0003]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0002]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0002]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0003]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0002]
+  - DH    : [0xFFC0, 0x0000, 0x0040, 0xFFFF]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0002]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0002]
+  - DH    : [0xFFC0, 0x0000, 0x0040, 0xFFFF]
+  - DH    : [0xFFC0, 0x0000, 0x0040, 0xFFFF]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0004]
+- I:
+  - WAIT  : {GPI(0): 1, TIMEOUT: 100000}
+  - START
+  - WAIT  : {GPI(0): 0, TIMEOUT: 100000}
+  - STOP
+- K:
+  - WAIT  : {GPI(0): 1, TIMEOUT: 100000}
+  - START
+  - WAIT  : {GPI(0): 0, TIMEOUT: 100000}
+  - STOP
+- T:
+  - WAIT  : {GPI(0): 1, TIMEOUT: 100000}
+  - START
+  - WAIT  : {GPI(0): 0, TIMEOUT: 100000}
+  - STOP
+- O:
+  - WAIT  : {GPI(0): 1, TIMEOUT: 100000}
+  - START
+  - WAIT  : {GPI(0): 0, TIMEOUT: 100000}
+  - STOP
+- O:
+  - CHECK
+  - ORG   : 0x00000000         #   Y   X   C 
+  - DD    : 0xC015B725252A0092 #   0   0   0
+  - DD    : 0xC015B525252A0292 #   0   1   0
+  - DD    : 0xE0153521052A8296 #   0   2   0
+  - DD    : 0x8015B521652A0296 #   0   3   0
+  - DD    : 0xE015B521052A0296 #   0   4   0
+  - DD    : 0x8015B725652A0092 #   0   5   0
+  - DD    : 0xE015B521052A0296 #   0   6   0
+  - DD    : 0xE011A721052E1096 #   0   7   0
+  - DD    : 0xC015B721252A0096 #   1   0   0
+  - DD    : 0xC015B521252A0296 #   1   1   0
+  - DD    : 0x8015B521652A0296 #   1   2   0
+  - DD    : 0x8015B721652A0096 #   1   3   0
+  - DD    : 0xC015B525252A0292 #   1   4   0
+  - DD    : 0xC015B521252A0296 #   1   5   0
+  - DD    : 0xC015B521252A0296 #   1   6   0
+  - DD    : 0xC015B721252A0096 #   1   7   0
+  - DD    : 0xE015B525052A0292 #   2   0   0
+  - DD    : 0x8015B521652A0296 #   2   1   0
+  - DD    : 0xC015B521252A0296 #   2   2   0
+  - DD    : 0xC015A721252A1096 #   2   3   0
+  - DD    : 0xC015B525252A0292 #   2   4   0
+  - DD    : 0xC015B121252A0696 #   2   5   0
+  - DD    : 0xE015B725052A0092 #   2   6   0
+  - DD    : 0xA015B525452A0292 #   2   7   0
+  - DD    : 0xE015B525052A0292 #   3   0   0
+  - DD    : 0xE015B725052A0092 #   3   1   0
+  - DD    : 0x8015A521652A1296 #   3   2   0
+  - DD    : 0xC015A721252A1096 #   3   3   0
+  - DD    : 0x8015B521652A0296 #   3   4   0
+  - DD    : 0xC015B521252A0296 #   3   5   0
+  - DD    : 0xC0153521252A8296 #   3   6   0
+  - DD    : 0x8015B721652A0096 #   3   7   0
+  - DD    : 0xC015A721252A1096 #   4   0   0
+  - DD    : 0xC015B525252A0292 #   4   1   0
+  - DD    : 0xC015B525252A0292 #   4   2   0
+  - DD    : 0xC015B721252A0096 #   4   3   0
+  - DD    : 0xC015B525252A0292 #   4   4   0
+  - DD    : 0xC015B521252A0296 #   4   5   0
+  - DD    : 0xC015B521252A0296 #   4   6   0
+  - DD    : 0xC011B721252E0096 #   4   7   0
+  - DD    : 0x8015B525652A0292 #   5   0   0
+  - DD    : 0xC015B721252A0096 #   5   1   0
+  - DD    : 0xC015B725252A0092 #   5   2   0
+  - DD    : 0xC011A521252E1296 #   5   3   0
+  - DD    : 0xC015B721252A0096 #   5   4   0
+  - DD    : 0xC015A521252A1296 #   5   5   0
+  - DD    : 0xC015B525252A0292 #   5   6   0
+  - DD    : 0xC015B725252A0092 #   5   7   0
+  - DD    : 0xC015B721252A0096 #   6   0   0
+  - DD    : 0xC015B525252A0292 #   6   1   0
+  - DD    : 0xC015B725252A0092 #   6   2   0
+  - DD    : 0xC011B521252E0296 #   6   3   0
+  - DD    : 0xE015A721052A1096 #   6   4   0
+  - DD    : 0xE415A721012A1096 #   6   5   0
+  - DD    : 0xC015B521252A0296 #   6   6   0
+  - DD    : 0xE015B525052A0292 #   6   7   0
+  - DD    : 0xC015A721252A1096 #   7   0   0
+  - DD    : 0xC015B521252A0296 #   7   1   0
+  - DD    : 0x8015B521652A0296 #   7   2   0
+  - DD    : 0xC015B121252A0696 #   7   3   0
+  - DD    : 0xC0153325252A8492 #   7   4   0
+  - DD    : 0xE015A525052A1292 #   7   5   0
+  - DD    : 0x8015B521652A0296 #   7   6   0
+  - DD    : 0x8015A525652A1292 #   7   7   0
+---
+- MARCHAL : 
+  - SAY : TEST 2.002 IN_C=1  IN_W=8   IN_H=8   OUT_C=32  K_W=1 K_H=1 PAD_SIZE=0 USE_TH=1 DONE
+---
+- MARCHAL : 
+  - SAY : TEST DONE
+---
