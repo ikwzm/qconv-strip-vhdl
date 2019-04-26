@@ -17,6 +17,7 @@ TEST_BENCH            := qconv_strip_axi_core_test_bench_slv_1_1_064 \
                          qconv_strip_axi_core_test_bench_slv_1_2_016 \
                          qconv_strip_axi_core_test_bench_slv_1_8_512 \
                          qconv_strip_axi_core_test_bench_mem_1_8_512 \
+                         qconv_strip_axi_core_test_bench_mem_all     \
                          $(END_LIST)
 
 DUMMY_PLUG            := $(DUMMY_PLUG_WORK_PATH)/dummy_plug-obj93.cf
@@ -48,6 +49,11 @@ qconv_strip_axi_core_test_bench_mem_1_8_512 : qconv_strip_axi_core_test_bench.o 
 	cp      $(SCENARIO_PATH)/test_mem_1_8_512.snr test_mem_1_8_512.snr 
 	$(GHDL) -e $(GHDLFLAGS) --work=WORK $@
 	$(GHDL) -r $(GHDLFLAGS) --work=WORK $@
+
+qconv_strip_axi_core_test_bench_mem_all     : qconv_strip_axi_core_test_bench.o $(SCENARIO_PATH)/test_mem_all.snr
+	cp      $(SCENARIO_PATH)/test_mem_all.snr test_mem_1_8_512.snr 
+	$(GHDL) -e $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+	$(GHDL) -r $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
 
 qconv_strip_axi_core_test_bench.o : ../../../src/test/vhdl/qconv_strip_axi_core_test_bench.vhd $(PIPEWORK) $(DUMMY_PLUG) $(QCONV) 
 	$(GHDL) -a $(GHDLFLAGS) --work=$(WORK) $<

@@ -7,7 +7,7 @@ set project_name            "qconv_strip_axi_core"
 set board_part              [get_board_parts -quiet -latest_file_version "*ultra96v1*"]
 set device_parts            "xczu3eg-sbva484-1-e"
 set test_bench              "QCONV_STRIP_AXI_CORE_TEST_BENCH_MEM_1_8_512"
-set scenario_file           [file join $project_directory ".." ".." ".." "src" "test" "scenarios" $project_name "test_mem_1_8_512.snr" ]
+set scenario_file           [file join $project_directory ".." ".." ".." "src" "test" "scenarios" $project_name "test_mem_all.snr" ]
 #
 # Create project
 #

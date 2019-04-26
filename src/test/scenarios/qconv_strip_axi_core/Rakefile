@@ -1,0 +1,63 @@
+#!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
+require 'rake/clean'
+require_relative "../../../../tools/lib/Dummy_Plug/ScenarioWriter/qconv_strip"
+
+SCENARIOS = [{:test => "1", :seq => 1, :kw => 1, :kh => 1, :ic => 1, :iw => 1, :ih => 1, :oc => 32},
+             {:test => "1", :seq => 2, :kw => 1, :kh => 1, :ic => 1, :iw => 8, :ih => 8, :oc => 32},
+             {:test => "1", :seq => 3, :kw => 1, :kh => 1, :ic => 4, :iw => 1, :ih => 1, :oc => 64},
+             {:test => "1", :seq => 4, :kw => 3, :kh => 3, :ic => 1, :iw => 8, :ih => 8, :oc => 32},
+             {:test => "1", :seq => 5, :kw => 3, :kh => 3, :ic => 4, :iw => 8, :ih => 8, :oc => 64},
+             {:test => "1", :seq => 6, :kw => 3, :kh => 3, :ic => 4, :iw =>32, :ih =>32, :oc => 64},
+             {:test => "2", :seq => 1, :kw => 1, :kh => 1, :ic => 1, :iw => 1, :ih => 1, :oc => 32},
+             {:test => "2", :seq => 2, :kw => 1, :kh => 1, :ic => 1, :iw => 8, :ih => 8, :oc => 32},
+             {:test => "2", :seq => 3, :kw => 1, :kh => 1, :ic => 4, :iw => 1, :ih => 1, :oc => 64},
+             {:test => "2", :seq => 4, :kw => 3, :kh => 3, :ic => 1, :iw => 8, :ih => 8, :oc => 32},
+             {:test => "2", :seq => 5, :kw => 3, :kh => 3, :ic => 4, :iw => 8, :ih => 8, :oc => 64},
+             {:test => "2", :seq => 6, :kw => 3, :kh => 3, :ic => 4, :iw =>32, :ih =>32, :oc => 64}]
+
+scenario_file_list = ["test_mem_all.snr"]
+CLOBBER.include("test_mem_all.snr")
+
+SCENARIOS.each do |test_info|
+  scenario_file_name = sprintf("test_mem_%s_%03d.snr", test_info[:test], test_info[:seq])
+  scenario_file_list.push(scenario_file_name)
+  CLOBBER.include(scenario_file_name)
+  file scenario_file_name do
+    puts "generate #{scenario_file_name}"
+    File.open(scenario_file_name, "w") do |file|
+      writer = Dummy_Plug::ScenarioWriter::QConvStrip::Memory_Test_Writer.new("TEST", 0x81000000, 0x82000000, 0x83000000, 0x84000000)
+      writer.write_start(file)
+      if test_info[:test] == "1" then
+        writer.test1(file, test_info[:seq], test_info[:kw], test_info[:kh], test_info[:ic], test_info[:iw], test_info[:ih], test_info[:oc])
+      end 
+      if test_info[:test] == "2" then
+        writer.test2(file, test_info[:seq], test_info[:kw], test_info[:kh], test_info[:ic], test_info[:iw], test_info[:ih], test_info[:oc])
+      end 
+      writer.write_done(file)
+    end
+  end
+end
+
+file "test_mem_all.snr" do
+  scenario_file_name = "test_mem_all.snr"
+  file scenario_file_name do
+    puts "generate #{scenario_file_name}"
+    File.open(scenario_file_name, "w") do |file|
+      writer = Dummy_Plug::ScenarioWriter::QConvStrip::Memory_Test_Writer.new("TEST", 0x81000000, 0x82000000, 0x83000000, 0x84000000)
+      writer.write_start(file)
+      SCENARIOS.each do |test_info|
+        if test_info[:test] == "1" then
+          writer.test1(file, test_info[:seq], test_info[:kw], test_info[:kh], test_info[:ic], test_info[:iw], test_info[:ih], test_info[:oc])
+        end 
+        if test_info[:test] == "2" then
+          writer.test2(file, test_info[:seq], test_info[:kw], test_info[:kh], test_info[:ic], test_info[:iw], test_info[:ih], test_info[:oc])
+        end
+      end
+      writer.write_done(file)
+    end
+  end
+end
+
+task :default => scenario_file_list
+

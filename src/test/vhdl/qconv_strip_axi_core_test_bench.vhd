@@ -88,10 +88,10 @@ architecture MODEL of QCONV_STRIP_AXI_CORE_TEST_BENCH is
     constant  IN_BUF_SIZE       :  integer := BUF_SIZE*4*IN_C_UNROLL             ;
     constant  K_BUF_SIZE        :  integer := BUF_SIZE*9*IN_C_UNROLL*OUT_C_UNROLL;
     constant  TH_BUF_SIZE       :  integer := BUF_SIZE              *OUT_C_UNROLL;
-    constant  IN_MEM_SIZE       :  integer := 8*1024;
-    constant  K_MEM_SIZE        :  integer := 4*2048;
-    constant  TH_MEM_SIZE       :  integer := 8*256;
-    constant  OUT_MEM_SIZE      :  integer := 8*1024;
+    constant  IN_MEM_SIZE       :  integer := 32*32*256/(QCONV_PARAM.NBITS_IN_DATA * QCONV_PARAM.NBITS_PER_WORD/8);
+    constant  K_MEM_SIZE        :  integer := 256*256  /(QCONV_PARAM.NBITS_K_DATA  * QCONV_PARAM.NBITS_PER_WORD/8);
+    constant  TH_MEM_SIZE       :  integer := 256      *(QCONV_PARAM.NBITS_OUT_DATA* QCONV_PARAM.NUM_THRESHOLDS/8);
+    constant  OUT_MEM_SIZE      :  integer := 32*32*256*(QCONV_PARAM.NBITS_OUT_DATA                            /8);
     -------------------------------------------------------------------------------
     -- グローバルシグナル.
     -------------------------------------------------------------------------------
