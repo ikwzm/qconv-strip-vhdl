@@ -2,7 +2,7 @@
 --!     @file    qconv_strip_core.vhd
 --!     @brief   Quantized Convolution (strip) Core Module
 --!     @version 0.1.0
---!     @date    2019/3/22
+--!     @date    2019/4/25
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>
 -----------------------------------------------------------------------------------
 --
@@ -73,10 +73,7 @@ entity  QCONV_STRIP_CORE is
                           integer := 16;
         OUT_DATA_BITS   : --! @brief OUTPUT DATA BIT SIZE :
                           --! OUT_DATA のビット幅を指定する.
-                          --! * OUT_DATA のビット幅は、QCONV_PARAM.NBITS_IN_DATA の
-                          --!   倍数でなければならない.
-                          --! * OUT_DATA のビット幅は、QCONV_PARAM.NBITS_OUT_DATA の
-                          --!   倍数でなければならない.
+                          --! * OUT_DATA のビット幅は、64の倍数でなければならない.
                           integer := 64
     );
     port (
@@ -961,10 +958,23 @@ begin
     apply_th_d_done  <= '1' when (IMAGE_STREAM_DATA_IS_LAST_C(PARAM.APPLY_TH_D_STREAM, apply_th_d_data) and
                                   IMAGE_STREAM_DATA_IS_LAST_X(PARAM.APPLY_TH_D_STREAM, apply_th_d_data) and
                                   IMAGE_STREAM_DATA_IS_LAST_Y(PARAM.APPLY_TH_D_STREAM, apply_th_d_data)) else '0';
-    apply_th_q_elem  <= apply_th_q_data(PARAM.APPLY_TH_Q_STREAM.DATA.ELEM_FIELD.HI downto PARAM.APPLY_TH_Q_STREAM.DATA.ELEM_FIELD.LO);
     apply_th_q_last  <= '1' when (IMAGE_STREAM_DATA_IS_LAST_C(PARAM.APPLY_TH_Q_STREAM, apply_th_q_data) and
                                   IMAGE_STREAM_DATA_IS_LAST_X(PARAM.APPLY_TH_Q_STREAM, apply_th_q_data) and
                                   IMAGE_STREAM_DATA_IS_LAST_Y(PARAM.APPLY_TH_Q_STREAM, apply_th_q_data)) else '0';
+    process (apply_th_q_data)
+        variable  elem_data     :  std_logic_vector(PARAM.APPLY_TH_Q_STREAM.DATA.ELEM_FIELD.SIZE-1 downto 0);
+        constant  OUT_WORD_BITS :  integer := QCONV_PARAM.NBITS_IN_DATA * QCONV_PARAM.NBITS_PER_WORD;
+        constant  OUT_WORDS     :  integer := OUT_DATA_BITS / OUT_WORD_BITS;
+    begin
+        elem_data := apply_th_q_data(PARAM.APPLY_TH_Q_STREAM.DATA.ELEM_FIELD.HI downto PARAM.APPLY_TH_Q_STREAM.DATA.ELEM_FIELD.LO);
+        for out_pos  in 0 to OUT_WORDS-1 loop
+        for word_pos in 0 to QCONV_PARAM.NBITS_PER_WORD-1 loop
+        for data_pos in 0 to QCONV_PARAM.NBITS_IN_DATA -1 loop
+            apply_th_q_elem(out_pos*OUT_WORD_BITS + data_pos*QCONV_PARAM.NBITS_PER_WORD + word_pos) <= elem_data(out_pos*OUT_WORD_BITS + word_pos*QCONV_PARAM.NBITS_IN_DATA + data_pos);
+        end loop;
+        end loop;
+        end loop;
+    end process;
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
