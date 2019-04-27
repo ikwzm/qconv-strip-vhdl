@@ -2,7 +2,7 @@
 --!     @file    qconv_multiplier.vhd
 --!     @brief   Quantized Convolution Multiplier Module
 --!     @version 0.1.0
---!     @date    2019/3/29
+--!     @date    2019/4/27
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>
 -----------------------------------------------------------------------------------
 --
@@ -224,9 +224,9 @@ begin
     -- o_element : 乗算結果
     -------------------------------------------------------------------------------
     process(i_element, i_c_atrb, k_element, k_c_atrb)
-        variable i_data  :    signed(QCONV_PARAM.NBITS_IN_DATA  downto 0);
-        variable k_data  :  unsigned(QCONV_PARAM.NBITS_K_DATA-1 downto 0);
-        variable o_data  :    signed(O_PARAM.ELEM_BITS       -1 downto 0);
+        variable i_data  :  std_logic_vector(QCONV_PARAM.NBITS_IN_DATA  downto 0);
+        variable k_data  :  std_logic_vector(QCONV_PARAM.NBITS_K_DATA-1 downto 0);
+        variable o_data  :  std_logic_vector(O_PARAM.ELEM_BITS       -1 downto 0);
     begin
         for y in 0 to Q_PARAM.SHAPE.Y.SIZE-1 loop
         for x in 0 to Q_PARAM.SHAPE.X.SIZE-1 loop
@@ -235,17 +235,17 @@ begin
             for i in 0 to QCONV_PARAM.NBITS_PER_WORD-1 loop
                 if (i_c_atrb(c).VALID = TRUE and CHECK_K_VALID /= 0 and k_c_atrb(c).VALID = TRUE) or
                    (i_c_atrb(c).VALID = TRUE and CHECK_K_VALID  = 0                             ) then
-                    i_data := signed("0" & i_element(y,x,d,c)((i+1)*QCONV_PARAM.NBITS_IN_DATA-1 downto i*QCONV_PARAM.NBITS_IN_DATA));
-                    k_data := unsigned(    k_element(y,x,d,c)((i+1)*QCONV_PARAM.NBITS_K_DATA -1 downto i*QCONV_PARAM.NBITS_K_DATA ));
+                    i_data := "0" & i_element(y,x,d,c)((i+1)*QCONV_PARAM.NBITS_IN_DATA-1 downto i*QCONV_PARAM.NBITS_IN_DATA);
+                    k_data :=       k_element(y,x,d,c)((i+1)*QCONV_PARAM.NBITS_K_DATA -1 downto i*QCONV_PARAM.NBITS_K_DATA );
                     if (k_data(0) = '1') then
-                        o_data := resize( i_data, O_PARAM.ELEM_BITS);
+                        o_data := std_logic_vector(resize( signed(i_data), O_PARAM.ELEM_BITS));
                     else
-                        o_data := resize(-i_data, O_PARAM.ELEM_BITS);
+                        o_data := std_logic_vector(resize(-signed(i_data), O_PARAM.ELEM_BITS));
                     end if;
                 else
-                        o_data := to_signed(0, O_PARAM.ELEM_BITS);
+                        o_data := std_logic_vector(to_signed(0, O_PARAM.ELEM_BITS));
                 end if;                         
-                q_element(y,x,d,c)((i+1)*O_PARAM.ELEM_BITS-1 downto i*O_PARAM.ELEM_BITS) <= std_logic_vector(o_data);
+                q_element(y,x,d,c)((i+1)*O_PARAM.ELEM_BITS-1 downto i*O_PARAM.ELEM_BITS) <= o_data;
             end loop;
         end loop;
         end loop;
