@@ -2,7 +2,7 @@
 --!     @file    qconv_components.vhd                                            --
 --!     @brief   Quantized Convolution Component Library                         --
 --!     @version 0.1.0                                                           --
---!     @date    2019/04/26                                                      --
+--!     @date    2019/04/27                                                      --
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>                     --
 -----------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------
@@ -321,7 +321,7 @@ component QCONV_STRIP_AXI_CORE
         K_AXI_AWPROT        : out std_logic_vector(2 downto 0);
         K_AXI_AWQOS         : out std_logic_vector(3 downto 0);
         K_AXI_AWREGION      : out std_logic_vector(3 downto 0);
-        K_AXI_AWUSER        : out std_logic_vector(O_AXI_USER_WIDTH  -1 downto 0);
+        K_AXI_AWUSER        : out std_logic_vector(K_AXI_USER_WIDTH  -1 downto 0);
         K_AXI_AWVALID       : out std_logic;
         K_AXI_AWREADY       : in  std_logic;
     -------------------------------------------------------------------------------
@@ -378,7 +378,7 @@ component QCONV_STRIP_AXI_CORE
         T_AXI_AWPROT        : out std_logic_vector(2 downto 0);
         T_AXI_AWQOS         : out std_logic_vector(3 downto 0);
         T_AXI_AWREGION      : out std_logic_vector(3 downto 0);
-        T_AXI_AWUSER        : out std_logic_vector(O_AXI_USER_WIDTH  -1 downto 0);
+        T_AXI_AWUSER        : out std_logic_vector(T_AXI_USER_WIDTH  -1 downto 0);
         T_AXI_AWVALID       : out std_logic;
         T_AXI_AWREADY       : in  std_logic;
     -------------------------------------------------------------------------------
