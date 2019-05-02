@@ -2,7 +2,7 @@
 --!     @file    qconv_strip_out_data_axi_writer.vhd
 --!     @brief   Quantized Convolution (strip) Out Data AXI Writer Module
 --!     @version 0.1.0
---!     @date    2019/5/1
+--!     @date    2019/5/3
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>
 -----------------------------------------------------------------------------------
 --
@@ -218,6 +218,8 @@ architecture RTL of QCONV_STRIP_OUT_DATA_AXI_WRITER is
     signal    req_slice_x_size      :  integer range 0 to IMAGE_SHAPE.X.MAX_SIZE;
     signal    req_elem_bytes        :  integer range 0 to IMAGE_SHAPE.ELEM_BITS/8;
     signal    req_axi_addr          :  std_logic_vector(AXI_ADDR_WIDTH-1 downto 0);
+    signal    req_ctrl_valid        :  std_logic;
+    signal    req_ctrl_ready        :  std_logic;
     -------------------------------------------------------------------------------
     -- 一回のトランザクションで転送する最大転送バイト数
     -------------------------------------------------------------------------------
@@ -354,34 +356,45 @@ begin
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
-    process (REQ_USE_TH, REQ_OUT_C, REQ_C_POS, REQ_C_SIZE)
-        variable elem_bytes   :  integer;
-        variable image_c_size :  integer;
-        variable slice_c_pos  :  integer;
-        variable slice_c_size :  integer;
-    begin
-        case REQ_USE_TH is
-            when "11" => 
-                elem_bytes   := QCONV_PARAM.NBITS_IN_DATA * QCONV_PARAM.NBITS_PER_WORD / 8;
-                image_c_size := to_integer(to_01(unsigned(REQ_OUT_C ))) / QCONV_PARAM.NBITS_PER_WORD;
-                slice_c_pos  := to_integer(to_01(unsigned(REQ_C_POS ))) / QCONV_PARAM.NBITS_PER_WORD;
-                slice_c_size := to_integer(to_01(unsigned(REQ_C_SIZE))) / QCONV_PARAM.NBITS_PER_WORD;
-            when "10" => 
-                elem_bytes   := 1;
-                image_c_size := to_integer(to_01(unsigned(REQ_OUT_C )));
-                slice_c_pos  := to_integer(to_01(unsigned(REQ_C_POS )));
-                slice_c_size := to_integer(to_01(unsigned(REQ_C_SIZE)));
-            when others => 
-                elem_bytes   := 2;
-                image_c_size := to_integer(to_01(unsigned(REQ_OUT_C )));
-                slice_c_pos  := to_integer(to_01(unsigned(REQ_C_POS )));
-                slice_c_size := to_integer(to_01(unsigned(REQ_C_SIZE)));
-        end case;
-        req_elem_bytes   <= elem_bytes;
-        req_image_c_size <= image_c_size;
-        req_slice_c_pos  <= slice_c_pos;
-        req_slice_c_size <= slice_c_size;
+    process (CLK, RST) begin
+        if (RST = '1') then
+                req_ctrl_valid   <= '0';
+                req_elem_bytes   <=  0 ;
+                req_image_c_size <=  0 ;
+                req_slice_c_pos  <=  0 ;
+                req_slice_c_size <=  0 ;
+        elsif (CLK'event and CLK = '1') then
+            if (CLR = '1') then
+                req_ctrl_valid   <= '0';
+                req_elem_bytes   <=  0 ;
+                req_image_c_size <=  0 ;
+                req_slice_c_pos  <=  0 ;
+                req_slice_c_size <=  0 ;
+            elsif (req_ctrl_valid = '0' and REQ_VALID = '1') then
+                req_ctrl_valid <= '1';
+                case REQ_USE_TH is
+                    when "11" => 
+                        req_elem_bytes   <= QCONV_PARAM.NBITS_IN_DATA * QCONV_PARAM.NBITS_PER_WORD / 8;
+                        req_image_c_size <= to_integer(to_01(unsigned(REQ_OUT_C ))) / QCONV_PARAM.NBITS_PER_WORD;
+                        req_slice_c_pos  <= to_integer(to_01(unsigned(REQ_C_POS ))) / QCONV_PARAM.NBITS_PER_WORD;
+                        req_slice_c_size <= to_integer(to_01(unsigned(REQ_C_SIZE))) / QCONV_PARAM.NBITS_PER_WORD;
+                    when "10" => 
+                        req_elem_bytes   <= 1;
+                        req_image_c_size <= to_integer(to_01(unsigned(REQ_OUT_C )));
+                        req_slice_c_pos  <= to_integer(to_01(unsigned(REQ_C_POS )));
+                        req_slice_c_size <= to_integer(to_01(unsigned(REQ_C_SIZE)));
+                    when others => 
+                        req_elem_bytes   <= 2;
+                        req_image_c_size <= to_integer(to_01(unsigned(REQ_OUT_C )));
+                        req_slice_c_pos  <= to_integer(to_01(unsigned(REQ_C_POS )));
+                        req_slice_c_size <= to_integer(to_01(unsigned(REQ_C_SIZE)));
+                end case;
+            elsif (req_ctrl_valid = '1' and req_ctrl_ready = '1') then
+                req_ctrl_valid <= '0';
+            end if;
+        end if;
     end process;
+    REQ_READY        <= '1' when (req_ctrl_valid = '1' and req_ctrl_ready = '1') else '0';
     req_image_x_size <= to_integer(to_01(unsigned(REQ_OUT_W )));
     req_image_y_size <= to_integer(to_01(unsigned(REQ_OUT_H )));
     req_slice_x_pos  <= to_integer(to_01(unsigned(REQ_X_POS )));
@@ -420,8 +433,8 @@ begin
             SLICE_Y_SIZE        => req_image_y_size    , -- In  :
             ELEM_BYTES          => req_elem_bytes      , -- In  :
             REQ_ADDR            => req_axi_addr        , -- In  :
-            REQ_VALID           => REQ_VALID           , -- In  :
-            REQ_READY           => REQ_READY           , -- Out :
+            REQ_VALID           => req_ctrl_valid      , -- In  :
+            REQ_READY           => req_ctrl_ready      , -- Out :
             RES_NONE            => RES_NONE            , -- Out :
             RES_ERROR           => RES_ERROR           , -- Out :
             RES_VALID           => RES_VALID           , -- Out :
