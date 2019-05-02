@@ -1,0 +1,176 @@
+---
+- MARCHAL : 
+  - SAY : TEST START
+- I:
+  - {DOMAIN: {INDEX: 0, MAP: 0, READ: true, WRITE: true,
+               ADDR: 0x00000000, LAST: 0xFFFFFFFF, RESP: DECERR,
+              ASIZE: "3'b---", ALOCK: "1'b-", ACACHE: "4'b----", APROT: "3'b---", AQOS: "4'b----", AREGION: "4'b----",
+              LATENCY: 8, TIMEOUT: 10000}}
+  - {DOMAIN: {INDEX: 1, MAP: 0, READ: true, WRITE: false,
+               ADDR: 0x81000000, LAST: 0x81007FFF, RESP: OKAY,  
+              ASIZE: "3'b---", ALOCK: "1'b-", ACACHE: "4'b----", APROT: "3'b---", AQOS: "4'b----", AREGION: "4'b----",
+              LATENCY: 12, RDELAY: 1, TIMEOUT: 10000}}
+- K:
+  - {DOMAIN: {INDEX: 0, MAP: 0, READ: true, WRITE: true,
+               ADDR: 0x00000000, LAST: 0xFFFFFFFF, RESP: DECERR,
+              ASIZE: "3'b---", ALOCK: "1'b-", ACACHE: "4'b----", APROT: "3'b---", AQOS: "4'b----", AREGION: "4'b----",
+              LATENCY: 8, TIMEOUT: 10000}}
+  - {DOMAIN: {INDEX: 1, MAP: 0, READ: true, WRITE: false,
+               ADDR: 0x83000000, LAST: 0x83003FFF, RESP: OKAY,  
+              ASIZE: "3'b---", ALOCK: "1'b-", ACACHE: "4'b----", APROT: "3'b---", AQOS: "4'b----", AREGION: "4'b----",
+              LATENCY: 12, RDELAY: 1, TIMEOUT: 10000}}
+- T:
+  - {DOMAIN: {INDEX: 0, MAP: 0, READ: true, WRITE: true,
+               ADDR: 0x00000000, LAST: 0xFFFFFFFF, RESP: DECERR,
+              ASIZE: "3'b---", ALOCK: "1'b-", ACACHE: "4'b----", APROT: "3'b---", AQOS: "4'b----", AREGION: "4'b----",
+              LATENCY: 8, TIMEOUT: 10000}}
+  - {DOMAIN: {INDEX: 1, MAP: 0, READ: true, WRITE: false,
+               ADDR: 0x84000000, LAST: 0x840003FF, RESP: OKAY,  
+              ASIZE: "3'b---", ALOCK: "1'b-", ACACHE: "4'b----", APROT: "3'b---", AQOS: "4'b----", AREGION: "4'b----",
+              LATENCY: 12, RDELAY: 1, TIMEOUT: 10000}}
+- O:
+  - {DOMAIN: {INDEX: 0, MAP: 0, READ: true, WRITE: true,
+               ADDR: 0x00000000, LAST: 0xFFFFFFFF, RESP: DECERR,
+              ASIZE: "3'b---", ALOCK: "1'b-", ACACHE: "4'b----", APROT: "3'b---", AQOS: "4'b----", AREGION: "4'b----",
+              LATENCY: 8, TIMEOUT: 10000}}
+  - {DOMAIN: {INDEX: 1, MAP: 0, READ: false, WRITE: true,
+               ADDR: 0x82000000, LAST: 0x8207FFFF, RESP: OKAY,  
+              ASIZE: "3'b---", ALOCK: "1'b-", ACACHE: "4'b----", APROT: "3'b---", AQOS: "4'b----", AREGION: "4'b----",
+              LATENCY: 1, RDELAY: 12, TIMEOUT: 10000}}
+---
+- MARCHAL : 
+  - SAY : TEST 2.010 IN_C=1  IN_W=1   IN_H=1   OUT_C=32  K_W=1 K_H=1 PAD_SIZE=0 USE_TH=3 START
+- CSR:
+  - OUT  : {GPO(0) : 1}
+  - WRITE: {ADDR: 0x00000020, DATA: "32'h81000000"} # In  Data Address[31:00]
+  - WRITE: {ADDR: 0x00000024, DATA: "32'h00000000"} # In  Data Address[63:32]
+  - WRITE: {ADDR: 0x00000028, DATA: "32'h82000000"} # Out Data Address[31:00]
+  - WRITE: {ADDR: 0x0000002C, DATA: "32'h00000000"} # Out Data Address[63:32]
+  - WRITE: {ADDR: 0x00000030, DATA: "32'h83000000"} # K   Data Address[31:00]
+  - WRITE: {ADDR: 0x00000034, DATA: "32'h00000000"} # K   Data Address[63:32]
+  - WRITE: {ADDR: 0x00000038, DATA: "32'h84000000"} # Th  Data Address[31:00]
+  - WRITE: {ADDR: 0x0000003C, DATA: "32'h00000000"} # Th  Data Address[63:32]
+  - WRITE: {ADDR: 0x00000040, DATA: "32'h00000001"} # IN_W
+  - WRITE: {ADDR: 0x00000048, DATA: "32'h00000001"} # IN_H
+  - WRITE: {ADDR: 0x00000050, DATA: "32'h00000001"} # IN_C_BY_WORD
+  - WRITE: {ADDR: 0x00000058, DATA: "32'h00000001"} # OUT_W
+  - WRITE: {ADDR: 0x00000060, DATA: "32'h00000001"} # OUT_H
+  - WRITE: {ADDR: 0x00000068, DATA: "32'h00000020"} # OUT_C
+  - WRITE: {ADDR: 0x00000070, DATA: "32'h00000001"} # K_W
+  - WRITE: {ADDR: 0x00000078, DATA: "32'h00000001"} # K_H
+  - WRITE: {ADDR: 0x00000080, DATA: "32'h00000000"} # PAD_SIZE
+  - WRITE: {ADDR: 0x00000088, DATA: "32'h00000003"} # USE_TH
+  - WRITE: {ADDR: 0x00000010, DATA: "32'h00000001"} # IRQE[0]<=1
+  - WRITE: {ADDR: 0x00000008, DATA: "32'h00000001"} # CTRL[0]<=1
+  - READ:  {ADDR: 0x00000000, DATA: "32'h00000001"} # BUSY[0]==1
+  - WAIT : {GPI(0) : 1, TIMEOUT: 1000000} # WAIT for IRQ=1
+  - READ : {ADDR: 0x00000018, DATA: "32'h00000003"} # STAT[0]==1, STAT[1]==1
+  - WRITE: {ADDR: 0x00000018, DATA: "32'h00000001"} # STAT[0]<=1
+  - WAIT : {GPI(0) : 0, TIMEOUT: 100} # WAIT for IRQ=0
+  - READ : {ADDR: 0x00000018, DATA: "32'h00000002"} # STAT[0]==0, STAT[1]==1
+  - OUT  : {GPO(0) : 0}
+- I:
+  - SET
+  - ORG   : 0x00000000         #   H   W  C 
+  - DD    : 0x223050000C42295B #   0   0  0
+- K:
+  - SET
+  - ORG   : 0x00000000 #  N  H  W  C 
+  - DW    : 0x786BB37C #  0  0  0  0
+  - DW    : 0x1D3C9012 #  1  0  0  0
+  - DW    : 0xF6360CC5 #  2  0  0  0
+  - DW    : 0xD0273AF5 #  3  0  0  0
+  - DW    : 0x0CC9FC80 #  4  0  0  0
+  - DW    : 0x9DF2EEEA #  5  0  0  0
+  - DW    : 0x0AE8BDE2 #  6  0  0  0
+  - DW    : 0xF22F518C #  7  0  0  0
+  - DW    : 0x0093F33C #  8  0  0  0
+  - DW    : 0xBCF63E25 #  9  0  0  0
+  - DW    : 0x7EA749CE # 10  0  0  0
+  - DW    : 0xC835B7CF # 11  0  0  0
+  - DW    : 0xD99BD43F # 12  0  0  0
+  - DW    : 0x7E79C58A # 13  0  0  0
+  - DW    : 0xC3882C8A # 14  0  0  0
+  - DW    : 0x58C656E5 # 15  0  0  0
+  - DW    : 0xB512FBD0 # 16  0  0  0
+  - DW    : 0x82A2C897 # 17  0  0  0
+  - DW    : 0xB8BAFFB1 # 18  0  0  0
+  - DW    : 0x4DE285AC # 19  0  0  0
+  - DW    : 0x31DF6B74 # 20  0  0  0
+  - DW    : 0x5D6D1979 # 21  0  0  0
+  - DW    : 0xBF70C8B3 # 22  0  0  0
+  - DW    : 0xBB59D44A # 23  0  0  0
+  - DW    : 0x4E3ADDAA # 24  0  0  0
+  - DW    : 0x49241072 # 25  0  0  0
+  - DW    : 0x09DD47F0 # 26  0  0  0
+  - DW    : 0xD65F26C1 # 27  0  0  0
+  - DW    : 0x1C63BDB7 # 28  0  0  0
+  - DW    : 0x436E19DB # 29  0  0  0
+  - DW    : 0xBFC77283 # 30  0  0  0
+  - DW    : 0x944DD2B3 # 31  0  0  0
+- T:
+  - SET
+  - ORG   : 0x0000
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0003]
+  - DH    : [0xFFC0, 0x0000, 0x0040, 0xFFFF]
+  - DH    : [0xFFC0, 0x0000, 0x0040, 0xFFFF]
+  - DH    : [0xFFC0, 0x0000, 0x0040, 0xFFFF]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0003]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0004]
+  - DH    : [0xFFE0, 0x0000, 0x0020, 0x0001]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0002]
+  - DH    : [0xFFC0, 0x0000, 0x0040, 0xFFFF]
+  - DH    : [0xFFC0, 0x0000, 0x0040, 0xFFFF]
+  - DH    : [0xFFE0, 0x0000, 0x0020, 0x0001]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0004]
+  - DH    : [0xFFC0, 0x0000, 0x0040, 0xFFFF]
+  - DH    : [0xFFE0, 0x0000, 0x0020, 0x0001]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0004]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0004]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0002]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0002]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0004]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0002]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0003]
+  - DH    : [0xFFC0, 0x0000, 0x0040, 0xFFFF]
+  - DH    : [0xFFE0, 0x0000, 0x0020, 0x0001]
+  - DH    : [0xFFE0, 0x0000, 0x0020, 0x0001]
+  - DH    : [0xFFE0, 0x0000, 0x0020, 0x0001]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0004]
+  - DH    : [0xFFE0, 0x0000, 0x0020, 0x0001]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0002]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0003]
+  - DH    : [0xFFE0, 0x0000, 0x0020, 0x0001]
+  - DH    : [0x0000, 0x0000, 0x0000, 0x0002]
+  - DH    : [0xFFE0, 0x0000, 0x0020, 0x0001]
+- I:
+  - WAIT  : {GPI(0): 1, TIMEOUT: 100000}
+  - START
+  - WAIT  : {GPI(0): 0, TIMEOUT: 100000}
+  - STOP
+- K:
+  - WAIT  : {GPI(0): 1, TIMEOUT: 100000}
+  - START
+  - WAIT  : {GPI(0): 0, TIMEOUT: 100000}
+  - STOP
+- T:
+  - WAIT  : {GPI(0): 1, TIMEOUT: 100000}
+  - START
+  - WAIT  : {GPI(0): 0, TIMEOUT: 100000}
+  - STOP
+- O:
+  - WAIT  : {GPI(0): 1, TIMEOUT: 100000}
+  - START
+  - WAIT  : {GPI(0): 0, TIMEOUT: 100000}
+  - STOP
+- O:
+  - CHECK
+  - ORG   : 0x00000000         #   Y   X   C 
+  - DD    : 0x23C4FD6A94300215 #   0   0   0
+---
+- MARCHAL : 
+  - SAY : TEST 2.010 IN_C=1  IN_W=1   IN_H=1   OUT_C=32  K_W=1 K_H=1 PAD_SIZE=0 USE_TH=3 DONE
+---
+- MARCHAL : 
+  - SAY : TEST DONE
+---

@@ -17,6 +17,24 @@ TEST_BENCH            := qconv_strip_axi_core_test_bench_slv_1_1_064 \
                          qconv_strip_axi_core_test_bench_slv_1_2_016 \
                          qconv_strip_axi_core_test_bench_slv_1_8_512 \
                          qconv_strip_axi_core_test_bench_mem_1_8_512 \
+                         qconv_strip_axi_core_test_bench_mem_1_001   \
+                         qconv_strip_axi_core_test_bench_mem_1_002   \
+                         qconv_strip_axi_core_test_bench_mem_1_003   \
+                         qconv_strip_axi_core_test_bench_mem_1_004   \
+                         qconv_strip_axi_core_test_bench_mem_1_005   \
+                         qconv_strip_axi_core_test_bench_mem_1_006   \
+                         qconv_strip_axi_core_test_bench_mem_1_007   \
+                         qconv_strip_axi_core_test_bench_mem_2_001   \
+                         qconv_strip_axi_core_test_bench_mem_2_002   \
+                         qconv_strip_axi_core_test_bench_mem_2_003   \
+                         qconv_strip_axi_core_test_bench_mem_2_004   \
+                         qconv_strip_axi_core_test_bench_mem_2_005   \
+                         qconv_strip_axi_core_test_bench_mem_2_006   \
+                         qconv_strip_axi_core_test_bench_mem_2_007   \
+                         qconv_strip_axi_core_test_bench_mem_2_008   \
+                         qconv_strip_axi_core_test_bench_mem_2_009   \
+                         qconv_strip_axi_core_test_bench_mem_2_010   \
+                         qconv_strip_axi_core_test_bench_mem_2_011   \
                          qconv_strip_axi_core_test_bench_mem_all     \
                          $(END_LIST)
 
@@ -49,6 +67,96 @@ qconv_strip_axi_core_test_bench_mem_1_8_512 : qconv_strip_axi_core_test_bench.o 
 	cp      $(SCENARIO_PATH)/test_mem_1_8_512.snr test_mem_1_8_512.snr 
 	$(GHDL) -e $(GHDLFLAGS) --work=WORK $@
 	$(GHDL) -r $(GHDLFLAGS) --work=WORK $@
+
+qconv_strip_axi_core_test_bench_mem_1_001   : qconv_strip_axi_core_test_bench.o $(SCENARIO_PATH)/test_mem_1_001.snr
+	cp      $(SCENARIO_PATH)/test_mem_1_001.snr test_mem_1_8_512.snr 
+	$(GHDL) -e $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+	$(GHDL) -r $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+
+qconv_strip_axi_core_test_bench_mem_1_002   : qconv_strip_axi_core_test_bench.o $(SCENARIO_PATH)/test_mem_1_002.snr
+	cp      $(SCENARIO_PATH)/test_mem_1_002.snr test_mem_1_8_512.snr 
+	$(GHDL) -e $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+	$(GHDL) -r $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+
+qconv_strip_axi_core_test_bench_mem_1_003   : qconv_strip_axi_core_test_bench.o $(SCENARIO_PATH)/test_mem_1_003.snr
+	cp      $(SCENARIO_PATH)/test_mem_1_003.snr test_mem_1_8_512.snr 
+	$(GHDL) -e $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+	$(GHDL) -r $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+
+qconv_strip_axi_core_test_bench_mem_1_004   : qconv_strip_axi_core_test_bench.o $(SCENARIO_PATH)/test_mem_1_004.snr
+	cp      $(SCENARIO_PATH)/test_mem_1_004.snr test_mem_1_8_512.snr 
+	$(GHDL) -e $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+	$(GHDL) -r $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+
+qconv_strip_axi_core_test_bench_mem_1_005   : qconv_strip_axi_core_test_bench.o $(SCENARIO_PATH)/test_mem_1_005.snr
+	cp      $(SCENARIO_PATH)/test_mem_1_005.snr test_mem_1_8_512.snr 
+	$(GHDL) -e $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+	$(GHDL) -r $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+
+qconv_strip_axi_core_test_bench_mem_1_006   : qconv_strip_axi_core_test_bench.o $(SCENARIO_PATH)/test_mem_1_006.snr
+	cp      $(SCENARIO_PATH)/test_mem_1_006.snr test_mem_1_8_512.snr 
+	$(GHDL) -e $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+	$(GHDL) -r $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+
+qconv_strip_axi_core_test_bench_mem_1_007   : qconv_strip_axi_core_test_bench.o $(SCENARIO_PATH)/test_mem_1_007.snr
+	cp      $(SCENARIO_PATH)/test_mem_1_007.snr test_mem_1_8_512.snr 
+	$(GHDL) -e $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+	$(GHDL) -r $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+
+qconv_strip_axi_core_test_bench_mem_2_001   : qconv_strip_axi_core_test_bench.o $(SCENARIO_PATH)/test_mem_2_001.snr
+	cp      $(SCENARIO_PATH)/test_mem_2_001.snr test_mem_1_8_512.snr 
+	$(GHDL) -e $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+	$(GHDL) -r $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+
+qconv_strip_axi_core_test_bench_mem_2_002   : qconv_strip_axi_core_test_bench.o $(SCENARIO_PATH)/test_mem_2_002.snr
+	cp      $(SCENARIO_PATH)/test_mem_2_002.snr test_mem_1_8_512.snr 
+	$(GHDL) -e $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+	$(GHDL) -r $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+
+qconv_strip_axi_core_test_bench_mem_2_003   : qconv_strip_axi_core_test_bench.o $(SCENARIO_PATH)/test_mem_2_003.snr
+	cp      $(SCENARIO_PATH)/test_mem_2_003.snr test_mem_1_8_512.snr 
+	$(GHDL) -e $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+	$(GHDL) -r $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+
+qconv_strip_axi_core_test_bench_mem_2_004   : qconv_strip_axi_core_test_bench.o $(SCENARIO_PATH)/test_mem_2_004.snr
+	cp      $(SCENARIO_PATH)/test_mem_2_004.snr test_mem_1_8_512.snr 
+	$(GHDL) -e $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+	$(GHDL) -r $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+
+qconv_strip_axi_core_test_bench_mem_2_005   : qconv_strip_axi_core_test_bench.o $(SCENARIO_PATH)/test_mem_2_005.snr
+	cp      $(SCENARIO_PATH)/test_mem_2_005.snr test_mem_1_8_512.snr 
+	$(GHDL) -e $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+	$(GHDL) -r $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+
+qconv_strip_axi_core_test_bench_mem_2_006   : qconv_strip_axi_core_test_bench.o $(SCENARIO_PATH)/test_mem_2_006.snr
+	cp      $(SCENARIO_PATH)/test_mem_2_006.snr test_mem_1_8_512.snr 
+	$(GHDL) -e $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+	$(GHDL) -r $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+
+qconv_strip_axi_core_test_bench_mem_2_007   : qconv_strip_axi_core_test_bench.o $(SCENARIO_PATH)/test_mem_2_007.snr
+	cp      $(SCENARIO_PATH)/test_mem_2_007.snr test_mem_1_8_512.snr 
+	$(GHDL) -e $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+	$(GHDL) -r $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+
+qconv_strip_axi_core_test_bench_mem_2_008   : qconv_strip_axi_core_test_bench.o $(SCENARIO_PATH)/test_mem_2_008.snr
+	cp      $(SCENARIO_PATH)/test_mem_2_008.snr test_mem_1_8_512.snr 
+	$(GHDL) -e $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+	$(GHDL) -r $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+
+qconv_strip_axi_core_test_bench_mem_2_009   : qconv_strip_axi_core_test_bench.o $(SCENARIO_PATH)/test_mem_2_009.snr
+	cp      $(SCENARIO_PATH)/test_mem_2_009.snr test_mem_1_8_512.snr 
+	$(GHDL) -e $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+	$(GHDL) -r $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+
+qconv_strip_axi_core_test_bench_mem_2_010   : qconv_strip_axi_core_test_bench.o $(SCENARIO_PATH)/test_mem_2_010.snr
+	cp      $(SCENARIO_PATH)/test_mem_2_010.snr test_mem_1_8_512.snr 
+	$(GHDL) -e $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+	$(GHDL) -r $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+
+qconv_strip_axi_core_test_bench_mem_2_011   : qconv_strip_axi_core_test_bench.o $(SCENARIO_PATH)/test_mem_2_011.snr
+	cp      $(SCENARIO_PATH)/test_mem_2_011.snr test_mem_1_8_512.snr 
+	$(GHDL) -e $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+	$(GHDL) -r $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
 
 qconv_strip_axi_core_test_bench_mem_all     : qconv_strip_axi_core_test_bench.o $(SCENARIO_PATH)/test_mem_all.snr
 	cp      $(SCENARIO_PATH)/test_mem_all.snr test_mem_1_8_512.snr 
