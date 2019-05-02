@@ -2,7 +2,7 @@
 --!     @file    qconv_strip_axi_core.vhd
 --!     @brief   Quantized Convolution (strip) AXI I/F Core Module
 --!     @version 0.1.0
---!     @date    2019/4/27
+--!     @date    2019/5/1
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>
 -----------------------------------------------------------------------------------
 --
@@ -448,7 +448,7 @@ architecture RTL of QCONV_STRIP_AXI_CORE is
     signal    ctrl_k_w              :  std_logic_vector(QCONV_PARAM.K_W_BITS         -1 downto 0);
     signal    ctrl_k_h              :  std_logic_vector(QCONV_PARAM.K_H_BITS         -1 downto 0);
     signal    ctrl_pad_size         :  std_logic_vector(QCONV_PARAM.PAD_SIZE_BITS    -1 downto 0);
-    signal    ctrl_use_th           :  std_logic;
+    signal    ctrl_use_th           :  std_logic_vector(1 downto 0);
     signal    ctrl_req_valid        :  std_logic;
     signal    ctrl_req_ready        :  std_logic;
     signal    ctrl_res_valid        :  std_logic;
@@ -469,7 +469,7 @@ architecture RTL of QCONV_STRIP_AXI_CORE is
     signal    core_r_pad_size       :  std_logic_vector(QCONV_PARAM.PAD_SIZE_BITS    -1 downto 0);
     signal    core_t_pad_size       :  std_logic_vector(QCONV_PARAM.PAD_SIZE_BITS    -1 downto 0);
     signal    core_b_pad_size       :  std_logic_vector(QCONV_PARAM.PAD_SIZE_BITS    -1 downto 0);
-    signal    core_use_th           :  std_logic;
+    signal    core_use_th           :  std_logic_vector(1 downto 0);
     signal    core_param_in         :  std_logic;
     signal    core_req_valid        :  std_logic;
     signal    core_req_ready        :  std_logic;
@@ -502,7 +502,7 @@ architecture RTL of QCONV_STRIP_AXI_CORE is
     constant  O_DATA_WIDTH          :  integer := 64;
     signal    o_data_addr           :  std_logic_vector(DATA_ADDR_WIDTH              -1 downto 0);
     signal    o_data                :  std_logic_vector(O_DATA_WIDTH                 -1 downto 0);
-    constant  o_data_strb           :  std_logic_vector(O_DATA_WIDTH/8               -1 downto 0) := (others => '1');
+    signal    o_data_strb           :  std_logic_vector(O_DATA_WIDTH/8               -1 downto 0);
     signal    o_data_last           :  std_logic;
     signal    o_data_valid          :  std_logic;
     signal    o_data_ready          :  std_logic;
@@ -513,7 +513,7 @@ architecture RTL of QCONV_STRIP_AXI_CORE is
     signal    o_c_size              :  std_logic_vector(QCONV_PARAM.OUT_C_BITS       -1 downto 0);
     signal    o_x_pos               :  std_logic_vector(QCONV_PARAM.OUT_W_BITS       -1 downto 0);
     signal    o_x_size              :  std_logic_vector(QCONV_PARAM.OUT_W_BITS       -1 downto 0);
-    signal    o_use_th              :  std_logic;
+    signal    o_use_th              :  std_logic_vector(1 downto 0);
     signal    o_req_valid           :  std_logic;
     signal    o_req_ready           :  std_logic;
     signal    o_res_valid           :  std_logic;
@@ -1220,6 +1220,7 @@ begin
         -- データ出力 I/F
         ---------------------------------------------------------------------------
             OUT_DATA        => o_data              , -- Out :
+            OUT_STRB        => o_data_strb         , -- Out :
             OUT_LAST        => o_data_last         , -- Out :
             OUT_VALID       => o_data_valid        , -- Out :
             OUT_READY       => o_data_ready          -- In  :

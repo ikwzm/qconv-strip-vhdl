@@ -2,7 +2,7 @@
 --!     @file    qconv_strip_controller.vhd
 --!     @brief   Quantized Convolution (strip) Controller Module
 --!     @version 0.1.0
---!     @date    2019/4/18
+--!     @date    2019/5/1
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>
 -----------------------------------------------------------------------------------
 --
@@ -89,7 +89,7 @@ entity  QCONV_STRIP_CONTROLLER is
         K_W             : in  std_logic_vector(QCONV_PARAM.K_W_BITS         -1 downto 0);
         K_H             : in  std_logic_vector(QCONV_PARAM.K_H_BITS         -1 downto 0);
         PAD_SIZE        : in  std_logic_vector(QCONV_PARAM.PAD_SIZE_BITS    -1 downto 0);
-        USE_TH          : in  std_logic;
+        USE_TH          : in  std_logic_vector(1 downto 0);
         REQ_VALID       : in  std_logic;
         REQ_READY       : out std_logic;
         RES_VALID       : out std_logic;
@@ -110,7 +110,7 @@ entity  QCONV_STRIP_CONTROLLER is
         CORE_R_PAD_SIZE : out std_logic_vector(QCONV_PARAM.PAD_SIZE_BITS    -1 downto 0);
         CORE_T_PAD_SIZE : out std_logic_vector(QCONV_PARAM.PAD_SIZE_BITS    -1 downto 0);
         CORE_B_PAD_SIZE : out std_logic_vector(QCONV_PARAM.PAD_SIZE_BITS    -1 downto 0);
-        CORE_USE_TH     : out std_logic;
+        CORE_USE_TH     : out std_logic_vector(1 downto 0);
         CORE_PARAM_IN   : out std_logic;
         CORE_REQ_VALID  : out std_logic;
         CORE_REQ_READY  : in  std_logic;
@@ -167,7 +167,7 @@ entity  QCONV_STRIP_CONTROLLER is
         O_C_SIZE        : out std_logic_vector(QCONV_PARAM.OUT_C_BITS-1 downto 0);
         O_X_POS         : out std_logic_vector(QCONV_PARAM.OUT_W_BITS-1 downto 0);
         O_X_SIZE        : out std_logic_vector(QCONV_PARAM.OUT_W_BITS-1 downto 0);
-        O_USE_TH        : out std_logic;
+        O_USE_TH        : out std_logic_vector(1 downto 0);
         O_REQ_VALID     : out std_logic;
         O_REQ_READY     : in  std_logic;
         O_RES_VALID     : in  std_logic;
@@ -445,7 +445,7 @@ begin
         ---------------------------------------------------------------------------
         conv_start         <= '1' when (state = START_STATE) else '0';
         k_data_read_start  <= '1' when (state = START_STATE) else '0';
-        th_data_read_start <= '1' when (state = START_STATE and USE_TH = '1') else '0';
+        th_data_read_start <= '1' when (state = START_STATE and USE_TH /= "00") else '0';
     end block;
     -------------------------------------------------------------------------------
     -- Quantized Convolution (strip) Main Control.

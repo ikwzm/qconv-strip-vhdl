@@ -130,8 +130,8 @@ module Dummy_Plug
           end
           return self
         end
-        def apply_thresholds(t_data)
-          o_data = OutData.new(@channels, @width, @height, 1)
+        def apply_thresholds(t_data, use_th)
+          o_data = OutData.new(@channels, @width, @height, use_th)
           @height.times do |y|
             @width.times do |x|
               @channels.times do |c|
@@ -351,7 +351,7 @@ module Dummy_Plug
           super(name, size, addr_start, false, true)
         end
         def generate_check(data, org=0)
-          if (data.use_th == 1) then
+          if (data.use_th == 3) then
             channels_by_word = (data.channels+31).div(32)
             data_size = channels_by_word * data.width * data.height * 8
             warn "#{self.class}(#{@name}) data overflow (memory size = #{@size}, data size = #{data_size})" if (data_size > @size)
@@ -372,8 +372,22 @@ module Dummy_Plug
               end
             end
             return str
+          elsif (data.use_th == 2) then
+            data_size = data.channels * data.width * data.height * 1
+            warn "#{self.class}(#{@name}) data overflow (memory size = #{@size}, data size = #{data_size})" if (data_size > @size)
+            str  = "- #{@name}:\n"
+            str += "  - CHECK\n"
+            str += sprintf("  - ORG   : 0x%08X         #   Y   X   C \n", org)
+            data.height.times do |y|
+              data.width.times   do |x|
+                data.channels.times do |c|
+                  str += sprintf("  - DB    : 0x%02X       # %3d %3d %3d\n", data.read(c, x, y) & 0xFF, y, x, c)
+                end
+              end
+            end
+            return str
           else
-            data_size = data.channels              * data.width * data.height * 2
+            data_size = data.channels * data.width * data.height * 2
             warn "#{self.class}(#{@name}) data overflow (memory size = #{@size}, data size = #{data_size})" if (data_size > @size)
             str  = "- #{@name}:\n"
             str += "  - CHECK\n"
@@ -543,7 +557,7 @@ module Dummy_Plug
           file.print @t_mem.generate_domain
           file.print @o_mem.generate_domain
         end
-        def write_test(file, title, i_data, k_data, o_data, t_data=nil)
+        def write_test(file, title, i_data, k_data, o_data, t_data=nil, use_th=0)
           setup_param = Hash.new
           setup_param[:i_data_addr] = @i_mem.addr_start
           setup_param[:k_data_addr] = @k_mem.addr_start
@@ -558,7 +572,7 @@ module Dummy_Plug
           setup_param[:k_width    ] = k_data.kernel_width
           setup_param[:k_height   ] = k_data.kernel_height
           setup_param[:pad_size   ] = (k_data.kernel_width == 3 and k_data.kernel_height == 3)? 1 : 0
-          setup_param[:use_th     ] = (t_data.nil? == false) ? 1 : 0
+          setup_param[:use_th     ] = use_th
           setup_param[:start      ] = true
           setup_param[:interrupt  ] = true
           file.print "---\n"
@@ -591,11 +605,11 @@ module Dummy_Plug
           o_data = o_data.convolution(i_data, k_data)
           write_test(file, title, i_data, k_data, o_data)
         end
-        def test2(file, seq, kw, kh, ic, iw, ih, oc)
+        def test2(file, seq, kw, kh, ic, iw, ih, oc, use_th)
           ps = (kw == 3 and kh == 3)? 1 : 0
           ow = iw
           oh = ih
-          title = sprintf("TEST 2.%03d IN_C=%-2d IN_W=%-3d IN_H=%-3d OUT_C=%-3d K_W=%d K_H=%d PAD_SIZE=%d USE_TH=%d", seq, ic, iw, ih, oc, kw, kh, ps, 1)
+          title = sprintf("TEST 2.%03d IN_C=%-2d IN_W=%-3d IN_H=%-3d OUT_C=%-3d K_W=%d K_H=%d PAD_SIZE=%d USE_TH=%d", seq, ic, iw, ih, oc, kw, kh, ps, use_th)
           i_data = InData .new(ic*32, iw, ih, ps){rand(3)}
           o_data = OutData.new(oc, ow, oh)
           k_data = KernelData.new(i_data.channels, kw, kh, o_data.channels){rand(2)}
@@ -619,8 +633,8 @@ module Dummy_Plug
               t_data.write(c,3,f)
             end
           end
-          o_data = o_data.convolution(i_data, k_data).apply_thresholds(t_data)
-          write_test(file, title, i_data, k_data, o_data, t_data)
+          o_data = o_data.convolution(i_data, k_data).apply_thresholds(t_data, use_th)
+          write_test(file, title, i_data, k_data, o_data, t_data, use_th)
         end
       end
     end

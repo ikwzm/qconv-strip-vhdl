@@ -2,7 +2,7 @@
 --!     @file    qconv_components.vhd                                            --
 --!     @brief   Quantized Convolution Component Library                         --
 --!     @version 0.1.0                                                           --
---!     @date    2019/04/27                                                      --
+--!     @date    2019/05/02                                                      --
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>                     --
 -----------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------
@@ -482,7 +482,7 @@ component QCONV_STRIP_CORE
         BOTTOM_PAD_SIZE : --! @brief PAD SIZE REGISTER :
                           in  std_logic_vector(QCONV_PARAM.PAD_SIZE_BITS    -1 downto 0);
         USE_TH          : --! @brief USE THRESHOLD REGISTER :
-                          in  std_logic;
+                          in  std_logic_vector(1 downto 0);
         PARAM_IN        : --! @brief K DATA / TH DATA INPUT FLAG :
                           in  std_logic;
         REQ_VALID       : --! @brief REQUEST VALID :
@@ -534,7 +534,10 @@ component QCONV_STRIP_CORE
     -------------------------------------------------------------------------------
         OUT_DATA        : --! @brief OUTPUT DATA :
                           --! OUT DATA 出力.
-                          out std_logic_vector(OUT_DATA_BITS-1 downto 0);
+                          out std_logic_vector(OUT_DATA_BITS  -1 downto 0);
+        OUT_STRB        : --! @brief OUTPUT DATA :
+                          --! OUT DATA 出力.
+                          out std_logic_vector(OUT_DATA_BITS/8-1 downto 0);
         OUT_LAST        : --! @brief OUTPUT LAST DATA :
                           --! OUT LAST 出力.
                           out std_logic;
@@ -597,7 +600,7 @@ component QCONV_STRIP_CONTROLLER
         K_W             : in  std_logic_vector(QCONV_PARAM.K_W_BITS         -1 downto 0);
         K_H             : in  std_logic_vector(QCONV_PARAM.K_H_BITS         -1 downto 0);
         PAD_SIZE        : in  std_logic_vector(QCONV_PARAM.PAD_SIZE_BITS    -1 downto 0);
-        USE_TH          : in  std_logic;
+        USE_TH          : in  std_logic_vector(1 downto 0);
         REQ_VALID       : in  std_logic;
         REQ_READY       : out std_logic;
         RES_VALID       : out std_logic;
@@ -618,7 +621,7 @@ component QCONV_STRIP_CONTROLLER
         CORE_R_PAD_SIZE : out std_logic_vector(QCONV_PARAM.PAD_SIZE_BITS    -1 downto 0);
         CORE_T_PAD_SIZE : out std_logic_vector(QCONV_PARAM.PAD_SIZE_BITS    -1 downto 0);
         CORE_B_PAD_SIZE : out std_logic_vector(QCONV_PARAM.PAD_SIZE_BITS    -1 downto 0);
-        CORE_USE_TH     : out std_logic;
+        CORE_USE_TH     : out std_logic_vector(1 downto 0);
         CORE_PARAM_IN   : out std_logic;
         CORE_REQ_VALID  : out std_logic;
         CORE_REQ_READY  : in  std_logic;
@@ -675,7 +678,7 @@ component QCONV_STRIP_CONTROLLER
         O_C_SIZE        : out std_logic_vector(QCONV_PARAM.OUT_C_BITS-1 downto 0);
         O_X_POS         : out std_logic_vector(QCONV_PARAM.OUT_W_BITS-1 downto 0);
         O_X_SIZE        : out std_logic_vector(QCONV_PARAM.OUT_W_BITS-1 downto 0);
-        O_USE_TH        : out std_logic;
+        O_USE_TH        : out std_logic_vector(1 downto 0);
         O_REQ_VALID     : out std_logic;
         O_REQ_READY     : in  std_logic;
         O_RES_VALID     : in  std_logic;
@@ -777,7 +780,7 @@ component QCONV_STRIP_REGISTERS
         PAD_SIZE        : --! @brief PAD SIZE REGISTER :
                           out std_logic_vector(QCONV_PARAM.PAD_SIZE_BITS    -1 downto 0);
         USE_TH          : --! @brief USE THRESHOLD REGISTER :
-                          out std_logic;
+                          out std_logic_vector(1 downto 0);
     -------------------------------------------------------------------------------
     -- Quantized Convolution (strip) Request/Response Interface
     -------------------------------------------------------------------------------
@@ -1675,7 +1678,7 @@ component QCONV_STRIP_OUT_DATA_AXI_WRITER
         REQ_C_SIZE      : in  std_logic_vector(QCONV_PARAM.OUT_C_BITS-1 downto 0);
         REQ_X_POS       : in  std_logic_vector(QCONV_PARAM.OUT_W_BITS-1 downto 0);
         REQ_X_SIZE      : in  std_logic_vector(QCONV_PARAM.OUT_W_BITS-1 downto 0);
-        REQ_USE_TH      : in  std_logic;
+        REQ_USE_TH      : in  std_logic_vector(1 downto 0);
         REQ_READY       : out std_logic;
         RES_VALID       : out std_logic;
         RES_NONE        : out std_logic;

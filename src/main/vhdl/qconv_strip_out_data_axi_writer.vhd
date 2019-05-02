@@ -2,7 +2,7 @@
 --!     @file    qconv_strip_out_data_axi_writer.vhd
 --!     @brief   Quantized Convolution (strip) Out Data AXI Writer Module
 --!     @version 0.1.0
---!     @date    2019/4/15
+--!     @date    2019/5/1
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>
 -----------------------------------------------------------------------------------
 --
@@ -134,7 +134,7 @@ entity  QCONV_STRIP_OUT_DATA_AXI_WRITER is
         REQ_C_SIZE      : in  std_logic_vector(QCONV_PARAM.OUT_C_BITS-1 downto 0);
         REQ_X_POS       : in  std_logic_vector(QCONV_PARAM.OUT_W_BITS-1 downto 0);
         REQ_X_SIZE      : in  std_logic_vector(QCONV_PARAM.OUT_W_BITS-1 downto 0);
-        REQ_USE_TH      : in  std_logic;
+        REQ_USE_TH      : in  std_logic_vector(1 downto 0);
         REQ_READY       : out std_logic;
         RES_VALID       : out std_logic;
         RES_NONE        : out std_logic;
@@ -359,28 +359,24 @@ begin
         variable image_c_size :  integer;
         variable slice_c_pos  :  integer;
         variable slice_c_size :  integer;
-        procedure CALC_C_SIZE(constant ELEM_BITS: integer) is
-        begin
-            if    (ELEM_BITS mod I_DATA_WIDTH = 0) then
-                elem_bytes   := ELEM_BITS/8;
+    begin
+        case REQ_USE_TH is
+            when "11" => 
+                elem_bytes   := QCONV_PARAM.NBITS_IN_DATA * QCONV_PARAM.NBITS_PER_WORD / 8;
+                image_c_size := to_integer(to_01(unsigned(REQ_OUT_C ))) / QCONV_PARAM.NBITS_PER_WORD;
+                slice_c_pos  := to_integer(to_01(unsigned(REQ_C_POS ))) / QCONV_PARAM.NBITS_PER_WORD;
+                slice_c_size := to_integer(to_01(unsigned(REQ_C_SIZE))) / QCONV_PARAM.NBITS_PER_WORD;
+            when "10" => 
+                elem_bytes   := 1;
                 image_c_size := to_integer(to_01(unsigned(REQ_OUT_C )));
                 slice_c_pos  := to_integer(to_01(unsigned(REQ_C_POS )));
                 slice_c_size := to_integer(to_01(unsigned(REQ_C_SIZE)));
-            elsif (ELEM_BITS < I_DATA_WIDTH and I_DATA_WIDTH mod ELEM_BITS = 0) then
-                elem_bytes   := I_DATA_WIDTH/8;
-                image_c_size := to_integer(to_01(unsigned(REQ_OUT_C ))) / (I_DATA_WIDTH / ELEM_BITS);
-                slice_c_pos  := to_integer(to_01(unsigned(REQ_C_POS ))) / (I_DATA_WIDTH / ELEM_BITS);
-                slice_c_size := to_integer(to_01(unsigned(REQ_C_SIZE))) / (I_DATA_WIDTH / ELEM_BITS);
-            else
-                assert (FALSE) report string'("Invalid ELEM_BITS") severity FAILURE;
-            end if;
-        end procedure;
-    begin
-        if (REQ_USE_TH = '1') then
-            CALC_C_SIZE(QCONV_PARAM.NBITS_IN_DATA );
-        else
-            CALC_C_SIZE(QCONV_PARAM.NBITS_OUT_DATA);
-        end if;
+            when others => 
+                elem_bytes   := 2;
+                image_c_size := to_integer(to_01(unsigned(REQ_OUT_C )));
+                slice_c_pos  := to_integer(to_01(unsigned(REQ_C_POS )));
+                slice_c_size := to_integer(to_01(unsigned(REQ_C_SIZE)));
+        end case;
         req_elem_bytes   <= elem_bytes;
         req_image_c_size <= image_c_size;
         req_slice_c_pos  <= slice_c_pos;

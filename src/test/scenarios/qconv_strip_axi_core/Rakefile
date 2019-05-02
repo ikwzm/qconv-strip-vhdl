@@ -4,17 +4,23 @@ require 'rake/clean'
 require_relative "../../../../tools/lib/Dummy_Plug/ScenarioWriter/qconv_strip"
 
 SCENARIOS = [{:test => "1", :seq => 1, :kw => 1, :kh => 1, :ic => 1, :iw => 1, :ih => 1, :oc => 32},
-             {:test => "1", :seq => 2, :kw => 1, :kh => 1, :ic => 1, :iw => 8, :ih => 8, :oc => 32},
-             {:test => "1", :seq => 3, :kw => 1, :kh => 1, :ic => 4, :iw => 1, :ih => 1, :oc => 64},
-             {:test => "1", :seq => 4, :kw => 3, :kh => 3, :ic => 1, :iw => 8, :ih => 8, :oc => 32},
-             {:test => "1", :seq => 5, :kw => 3, :kh => 3, :ic => 4, :iw => 8, :ih => 8, :oc => 64},
-             {:test => "1", :seq => 6, :kw => 3, :kh => 3, :ic => 4, :iw =>32, :ih =>32, :oc => 64},
-             {:test => "2", :seq => 1, :kw => 1, :kh => 1, :ic => 1, :iw => 1, :ih => 1, :oc => 32},
-             {:test => "2", :seq => 2, :kw => 1, :kh => 1, :ic => 1, :iw => 8, :ih => 8, :oc => 32},
-             {:test => "2", :seq => 3, :kw => 1, :kh => 1, :ic => 4, :iw => 1, :ih => 1, :oc => 64},
-             {:test => "2", :seq => 4, :kw => 3, :kh => 3, :ic => 1, :iw => 8, :ih => 8, :oc => 32},
-             {:test => "2", :seq => 5, :kw => 3, :kh => 3, :ic => 4, :iw => 8, :ih => 8, :oc => 64},
-             {:test => "2", :seq => 6, :kw => 3, :kh => 3, :ic => 4, :iw =>32, :ih =>32, :oc => 64}]
+             {:test => "1", :seq => 2, :kw => 1, :kh => 1, :ic => 1, :iw =>10, :ih => 4, :oc =>  3},
+             {:test => "1", :seq => 3, :kw => 1, :kh => 1, :ic => 1, :iw => 8, :ih => 8, :oc => 32},
+             {:test => "1", :seq => 4, :kw => 1, :kh => 1, :ic => 4, :iw => 1, :ih => 1, :oc => 64},
+             {:test => "1", :seq => 5, :kw => 3, :kh => 3, :ic => 1, :iw => 8, :ih => 8, :oc => 32},
+             {:test => "1", :seq => 6, :kw => 3, :kh => 3, :ic => 4, :iw => 8, :ih => 8, :oc => 64},
+             {:test => "1", :seq => 7, :kw => 3, :kh => 3, :ic => 4, :iw =>32, :ih =>32, :oc => 64},
+             {:test => "2", :seq => 1, :kw => 1, :kh => 1, :ic => 1, :iw => 1, :ih => 1, :oc => 32, :use_th => 1},
+             {:test => "2", :seq => 2, :kw => 1, :kh => 1, :ic => 1, :iw =>10, :ih => 4, :oc =>  3, :use_th => 1},
+             {:test => "2", :seq => 3, :kw => 1, :kh => 1, :ic => 1, :iw => 8, :ih => 8, :oc => 32, :use_th => 1},
+             {:test => "2", :seq => 4, :kw => 1, :kh => 1, :ic => 4, :iw => 1, :ih => 1, :oc => 64, :use_th => 1},
+             {:test => "2", :seq => 5, :kw => 3, :kh => 3, :ic => 1, :iw => 8, :ih => 8, :oc => 32, :use_th => 1},
+             {:test => "2", :seq => 6, :kw => 3, :kh => 3, :ic => 4, :iw => 8, :ih => 8, :oc => 64, :use_th => 1},
+             {:test => "2", :seq => 7, :kw => 3, :kh => 3, :ic => 4, :iw =>32, :ih =>32, :oc => 64, :use_th => 1},
+             {:test => "2", :seq => 8, :kw => 1, :kh => 1, :ic => 1, :iw =>10, :ih => 4, :oc =>  3, :use_th => 2},
+             {:test => "2", :seq => 9, :kw => 3, :kh => 3, :ic => 1, :iw => 8, :ih => 8, :oc => 32, :use_th => 2},
+             {:test => "2", :seq =>10, :kw => 1, :kh => 1, :ic => 1, :iw => 1, :ih => 1, :oc => 32, :use_th => 3},
+             {:test => "2", :seq =>11, :kw => 3, :kh => 3, :ic => 1, :iw => 8, :ih => 8, :oc => 32, :use_th => 3}]
 
 scenario_file_list = ["test_mem_all.snr"]
 CLOBBER.include("test_mem_all.snr")
@@ -32,7 +38,7 @@ SCENARIOS.each do |test_info|
         writer.test1(file, test_info[:seq], test_info[:kw], test_info[:kh], test_info[:ic], test_info[:iw], test_info[:ih], test_info[:oc])
       end 
       if test_info[:test] == "2" then
-        writer.test2(file, test_info[:seq], test_info[:kw], test_info[:kh], test_info[:ic], test_info[:iw], test_info[:ih], test_info[:oc])
+        writer.test2(file, test_info[:seq], test_info[:kw], test_info[:kh], test_info[:ic], test_info[:iw], test_info[:ih], test_info[:oc], test_info[:use_th])
       end 
       writer.write_done(file)
     end
@@ -51,7 +57,7 @@ file "test_mem_all.snr" do
           writer.test1(file, test_info[:seq], test_info[:kw], test_info[:kh], test_info[:ic], test_info[:iw], test_info[:ih], test_info[:oc])
         end 
         if test_info[:test] == "2" then
-          writer.test2(file, test_info[:seq], test_info[:kw], test_info[:kh], test_info[:ic], test_info[:iw], test_info[:ih], test_info[:oc])
+          writer.test2(file, test_info[:seq], test_info[:kw], test_info[:kh], test_info[:ic], test_info[:iw], test_info[:ih], test_info[:oc], test_info[:use_th])
         end
       end
       writer.write_done(file)

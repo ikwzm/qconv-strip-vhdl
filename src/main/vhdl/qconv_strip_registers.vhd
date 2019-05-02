@@ -2,7 +2,7 @@
 --!     @file    qconv_strip_registers.vhd
 --!     @brief   Quantized Convolution (strip) Registers Module
 --!     @version 0.1.0
---!     @date    2019/4/21
+--!     @date    2019/5/1
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>
 -----------------------------------------------------------------------------------
 --
@@ -131,7 +131,7 @@ entity  QCONV_STRIP_REGISTERS is
         PAD_SIZE        : --! @brief PAD SIZE REGISTER :
                           out std_logic_vector(QCONV_PARAM.PAD_SIZE_BITS    -1 downto 0);
         USE_TH          : --! @brief USE THRESHOLD REGISTER :
-                          out std_logic;
+                          out std_logic_vector(1 downto 0);
     -------------------------------------------------------------------------------
     -- Quantized Convolution (strip) Request/Response Interface
     -------------------------------------------------------------------------------
@@ -424,7 +424,7 @@ architecture RTL of QCONV_STRIP_REGISTERS is
     -- Quantized Convolution (strip) Use Threshold Register
     -------------------------------------------------------------------------------
     constant  USE_TH_REGS_ADDR      :  integer := REGS_BASE_ADDR + 16#88#;
-    constant  USE_TH_REGS_BITS      :  integer := 1;
+    constant  USE_TH_REGS_BITS      :  integer := 2;
     constant  USE_TH_REGS_LO        :  integer := 8*USE_TH_REGS_ADDR;
     constant  USE_TH_REGS_HI        :  integer := 8*USE_TH_REGS_ADDR   + USE_TH_REGS_BITS-1;
     constant  USE_TH_RESV_LO        :  integer := USE_TH_REGS_HI       + 1;
@@ -817,7 +817,7 @@ begin
     end process;
     regs_rbit(USE_TH_REGS_HI downto USE_TH_REGS_LO) <= use_th_regs;
     regs_rbit(USE_TH_RESV_HI downto USE_TH_RESV_LO) <= (USE_TH_RESV_HI downto USE_TH_RESV_LO => '0');
-    USE_TH <= use_th_regs(0);
+    USE_TH <= use_th_regs;
     -------------------------------------------------------------------------------
     -- Interrupt Request
     -------------------------------------------------------------------------------
