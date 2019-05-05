@@ -169,6 +169,7 @@ architecture MODEL of QCONV_STRIP_AXI_CORE_TEST_BENCH is
     constant  I_AXI_QOS         :  integer := 0;
     constant  I_AXI_REGION      :  integer := 1;
     constant  I_AXI_CACHE       :  integer := 15;
+    constant  I_AXI_AUSER       :  integer := 1;
     constant  I_AXI_REQ_QUEUE   :  integer := 2;
     constant  I_AXI_XFER_SIZE   :  integer := 12;
     constant  I_WIDTH           :  AXI4_SIGNAL_WIDTH_TYPE := (
@@ -237,6 +238,7 @@ architecture MODEL of QCONV_STRIP_AXI_CORE_TEST_BENCH is
     constant  O_AXI_QOS         :  integer := 0;
     constant  O_AXI_REGION      :  integer := 1;
     constant  O_AXI_CACHE       :  integer := 15;
+    constant  O_AXI_AUSER       :  integer := 1;
     constant  O_AXI_REQ_QUEUE   :  integer := 2;
     constant  O_AXI_XFER_SIZE   :  integer := 12;
     constant  O_WIDTH           :  AXI4_SIGNAL_WIDTH_TYPE := (
@@ -305,6 +307,7 @@ architecture MODEL of QCONV_STRIP_AXI_CORE_TEST_BENCH is
     constant  K_AXI_QOS         :  integer := 0;
     constant  K_AXI_REGION      :  integer := 1;
     constant  K_AXI_CACHE       :  integer := 15;
+    constant  K_AXI_AUSER       :  integer := 1;
     constant  K_AXI_REQ_QUEUE   :  integer := 2;
     constant  K_AXI_XFER_SIZE   :  integer := 12;
     constant  K_WIDTH           :  AXI4_SIGNAL_WIDTH_TYPE := (
@@ -373,6 +376,7 @@ architecture MODEL of QCONV_STRIP_AXI_CORE_TEST_BENCH is
     constant  T_AXI_QOS         :  integer := 0;
     constant  T_AXI_REGION      :  integer := 1;
     constant  T_AXI_CACHE       :  integer := 15;
+    constant  T_AXI_AUSER       :  integer := 1;
     constant  T_AXI_REQ_QUEUE   :  integer := 2;
     constant  T_AXI_XFER_SIZE   :  integer := 12;
     constant  T_WIDTH           :  AXI4_SIGNAL_WIDTH_TYPE := (
@@ -490,6 +494,7 @@ begin
             I_AXI_QOS           => I_AXI_QOS           , --   
             I_AXI_REGION        => I_AXI_REGION        , --   
             I_AXI_CACHE         => I_AXI_CACHE         , --   
+            I_AXI_AUSER         => I_AXI_AUSER         , --   
             I_AXI_REQ_QUEUE     => I_AXI_REQ_QUEUE     , --   
             O_AXI_ADDR_WIDTH    => O_WIDTH.AWADDR      , --   
             O_AXI_DATA_WIDTH    => O_WIDTH.WDATA       , --   
@@ -501,6 +506,7 @@ begin
             O_AXI_QOS           => O_AXI_QOS           , --   
             O_AXI_REGION        => O_AXI_REGION        , --   
             O_AXI_CACHE         => O_AXI_CACHE         , --   
+            O_AXI_AUSER         => O_AXI_AUSER         , --   
             O_AXI_REQ_QUEUE     => O_AXI_REQ_QUEUE     , --   
             K_AXI_ADDR_WIDTH    => K_WIDTH.ARADDR      , --   
             K_AXI_DATA_WIDTH    => K_WIDTH.RDATA       , --   
@@ -512,6 +518,7 @@ begin
             K_AXI_QOS           => K_AXI_QOS           , --   
             K_AXI_REGION        => K_AXI_REGION        , --   
             K_AXI_CACHE         => K_AXI_CACHE         , --   
+            K_AXI_AUSER         => K_AXI_AUSER         , --   
             K_AXI_REQ_QUEUE     => K_AXI_REQ_QUEUE     , --   
             T_AXI_ADDR_WIDTH    => T_WIDTH.ARADDR      , --   
             T_AXI_DATA_WIDTH    => T_WIDTH.RDATA       , --   
@@ -523,6 +530,7 @@ begin
             T_AXI_QOS           => T_AXI_QOS           , --   
             T_AXI_REGION        => T_AXI_REGION        , --   
             T_AXI_CACHE         => T_AXI_CACHE         , --   
+            T_AXI_AUSER         => T_AXI_AUSER         , --   
             T_AXI_REQ_QUEUE     => T_AXI_REQ_QUEUE       --   
         )                                                -- 
         port map (                                       -- 

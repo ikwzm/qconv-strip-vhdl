@@ -2,7 +2,7 @@
 --!     @file    qconv_strip_axi_core.vhd
 --!     @brief   Quantized Convolution (strip) AXI I/F Core Module
 --!     @version 0.1.0
---!     @date    2019/5/1
+--!     @date    2019/5/5
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>
 -----------------------------------------------------------------------------------
 --
@@ -100,6 +100,8 @@ entity  QCONV_STRIP_AXI_CORE is
                               integer := 0;
         I_AXI_CACHE         : --! @brief IN  DATA AXI REGION :
                               integer := 15;
+        I_AXI_AUSER         : --! @brief IN  DATA AXI ARUSER :
+                              integer := 0;
         I_AXI_REQ_QUEUE     : --! @brief IN  DATA AXI REQUEST QUEUE SIZE :
                               integer := 4;
         O_AXI_ADDR_WIDTH    : --! @brief OUT DATA AXI ADDRESS WIDTH :
@@ -122,6 +124,8 @@ entity  QCONV_STRIP_AXI_CORE is
                               integer := 0;
         O_AXI_CACHE         : --! @brief OUT DATA AXI REGION :
                               integer := 15;
+        O_AXI_AUSER         : --! @brief OUT DATA AXI AWUSER :
+                              integer := 0;
         O_AXI_REQ_QUEUE     : --! @brief OUT DATA AXI REQUEST QUEUE SIZE :
                               integer := 4;
         K_AXI_ADDR_WIDTH    : --! @brief K   DATA AXI ADDRESS WIDTH :
@@ -144,6 +148,8 @@ entity  QCONV_STRIP_AXI_CORE is
                               integer := 0;
         K_AXI_CACHE         : --! @brief K   DATA AXI REGION :
                               integer := 15;
+        K_AXI_AUSER         : --! @brief K   DATA AXI ARUSER :
+                              integer := 0;
         K_AXI_REQ_QUEUE     : --! @brief K   DATA AXI REQUEST QUEUE SIZE :
                               integer := 4;
         T_AXI_ADDR_WIDTH    : --! @brief TH  DATA AXI ADDRESS WIDTH :
@@ -166,6 +172,8 @@ entity  QCONV_STRIP_AXI_CORE is
                               integer := 0;
         T_AXI_CACHE         : --! @brief TH  DATA AXI REGION :
                               integer := 15;
+        T_AXI_AUSER         : --! @brief TH  DATA AXI ARUSER :
+                              integer := 0;
         T_AXI_REQ_QUEUE     : --! @brief TH  DATA AXI REQUEST QUEUE SIZE :
                               integer := 1
     );
@@ -346,7 +354,7 @@ entity  QCONV_STRIP_AXI_CORE is
         T_AXI_ARPROT        : out std_logic_vector(2 downto 0);
         T_AXI_ARQOS         : out std_logic_vector(3 downto 0);
         T_AXI_ARREGION      : out std_logic_vector(3 downto 0);
-        T_AXI_ARUSER        : out std_logic_vector(K_AXI_USER_WIDTH  -1 downto 0);
+        T_AXI_ARUSER        : out std_logic_vector(T_AXI_USER_WIDTH  -1 downto 0);
         T_AXI_ARVALID       : out std_logic;
         T_AXI_ARREADY       : in  std_logic;
     -------------------------------------------------------------------------------
@@ -654,6 +662,7 @@ begin
             AXI_QOS         => I_AXI_QOS           , --
             AXI_REGION      => I_AXI_REGION        , -- 
             AXI_CACHE       => I_AXI_CACHE         , --
+            AXI_AUSER       => I_AXI_AUSER         , --
             AXI_REQ_QUEUE   => I_AXI_REQ_QUEUE     , --
             REQ_ADDR_WIDTH  => DATA_ADDR_WIDTH       -- 
         )                                            -- 
@@ -728,6 +737,7 @@ begin
             AXI_QOS         => O_AXI_QOS           , --
             AXI_REGION      => O_AXI_REGION        , --
             AXI_CACHE       => O_AXI_CACHE         , --
+            AXI_AUSER       => O_AXI_AUSER         , --
             AXI_REQ_QUEUE   => O_AXI_REQ_QUEUE     , --
             I_DATA_WIDTH    => O_DATA_WIDTH        , --
             REQ_ADDR_WIDTH  => DATA_ADDR_WIDTH       --
@@ -814,6 +824,7 @@ begin
             AXI_QOS         => K_AXI_QOS           , --
             AXI_REGION      => K_AXI_REGION        , --
             AXI_CACHE       => K_AXI_CACHE         , --
+            AXI_AUSER       => K_AXI_AUSER         , --
             AXI_REQ_QUEUE   => K_AXI_REQ_QUEUE     , --
             REQ_ADDR_WIDTH  => DATA_ADDR_WIDTH       --
         )                                            -- 
@@ -906,6 +917,7 @@ begin
             AXI_QOS         => T_AXI_QOS           , --
             AXI_REGION      => T_AXI_REGION        , --
             AXI_CACHE       => T_AXI_CACHE         , --
+            AXI_AUSER       => T_AXI_AUSER         , --
             AXI_REQ_QUEUE   => T_AXI_REQ_QUEUE     , --
             REQ_ADDR_WIDTH  => DATA_ADDR_WIDTH       --
         )                                            -- 

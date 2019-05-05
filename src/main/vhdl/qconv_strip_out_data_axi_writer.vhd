@@ -2,7 +2,7 @@
 --!     @file    qconv_strip_out_data_axi_writer.vhd
 --!     @brief   Quantized Convolution (strip) Out Data AXI Writer Module
 --!     @version 0.1.0
---!     @date    2019/5/3
+--!     @date    2019/5/5
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>
 -----------------------------------------------------------------------------------
 --
@@ -68,6 +68,8 @@ entity  QCONV_STRIP_OUT_DATA_AXI_WRITER is
                           integer := 0;
         AXI_CACHE       : --! @brief AXI REGION :
                           integer := 15;
+        AXI_AUSER       : --! @brief AXI AWUSER :
+                          integer := 1;
         AXI_REQ_QUEUE   : --! @brief AXI REQUEST QUEUE SIZE :
                           integer := 4;
         I_DATA_WIDTH    : --! @brief STREAM DATA WIDTH :
@@ -265,8 +267,10 @@ architecture RTL of QCONV_STRIP_OUT_DATA_AXI_WRITER is
                                     := std_logic_vector(to_unsigned(AXI_REGION, AXI4_AREGION_WIDTH));
     constant  AXI_REQ_CACHE         :  AXI4_ACACHE_TYPE
                                     := std_logic_vector(to_unsigned(AXI_CACHE , AXI4_ACACHE_WIDTH ));
-    constant  AXI_REQ_ID            :  std_logic_vector(AXI_ID_WIDTH -1 downto 0)
+    constant  AXI_REQ_ID            :  std_logic_vector(AXI_ID_WIDTH  -1 downto 0)
                                     := std_logic_vector(to_unsigned(AXI_ID    , AXI_ID_WIDTH      ));
+    constant  AXI_REQ_AUSER         :  std_logic_vector(AXI_USER_WIDTH-1 downto 0)
+                                    := std_logic_vector(to_unsigned(AXI_AUSER , AXI_USER_WIDTH    ));
     constant  AXI_REQ_LOCK          :  AXI4_ALOCK_TYPE  := (others => '0');
     constant  AXI_REQ_SPECULATIVE   :  std_logic := '1';
     constant  AXI_REQ_SAFETY        :  std_logic := '0';
@@ -770,6 +774,10 @@ begin
             BUF_DATA            => buf_rdata           , -- Out :
             BUF_PTR             => buf_rptr              -- Out :
         );                                               -- 
+    -------------------------------------------------------------------------------
+    -- 
+    -------------------------------------------------------------------------------
+    AXI_AWUSER <= AXI_REQ_AUSER;
     -------------------------------------------------------------------------------
     -- 
     -------------------------------------------------------------------------------
