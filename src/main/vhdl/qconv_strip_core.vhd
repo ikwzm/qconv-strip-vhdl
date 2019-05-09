@@ -1,8 +1,8 @@
 -----------------------------------------------------------------------------------
 --!     @file    qconv_strip_core.vhd
 --!     @brief   Quantized Convolution (strip) Core Module
---!     @version 0.1.0
---!     @date    2019/5/1
+--!     @version 0.2.0
+--!     @date    2019/5/9
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>
 -----------------------------------------------------------------------------------
 --

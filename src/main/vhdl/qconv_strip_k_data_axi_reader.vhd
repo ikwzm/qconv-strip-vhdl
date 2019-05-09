@@ -1,7 +1,7 @@
 -----------------------------------------------------------------------------------
 --!     @file    qconv_strip_k_data_axi_reader.vhd
 --!     @brief   Quantized Convolution (strip) Kernel Weight Data AXI Reader Module
---!     @version 0.1.0
+--!     @version 0.2.0
 --!     @date    2019/5/5
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>
 -----------------------------------------------------------------------------------
@@ -416,6 +416,7 @@ begin
             I_FIXED_POOL_OPEN   => I_FIXED_POOL_OPEN   , --
             O_CLK_RATE          => 1                   , --
             O_DATA_BITS         => O_DATA'length       , --
+            O_WORD_BITS         => AXI_ALIGNMENT_BITS  , -- 
             BUF_DEPTH           => BUF_DEPTH           , --
             BUF_DATA_BITS       => BUF_WIDTH           , --
             I2O_OPEN_INFO_BITS  => OPEN_INFO_BITS      , --

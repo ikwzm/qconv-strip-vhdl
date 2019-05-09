@@ -1,8 +1,8 @@
 -----------------------------------------------------------------------------------
 --!     @file    qconv_components.vhd                                            --
 --!     @brief   Quantized Convolution Component Library                         --
---!     @version 0.1.0                                                           --
---!     @date    2019/05/05                                                      --
+--!     @version 0.2.0                                                           --
+--!     @date    2019/05/10                                                      --
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>                     --
 -----------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------
@@ -81,6 +81,8 @@ component QCONV_STRIP_AXI_CORE
         DATA_ADDR_WIDTH     : --! @brief DATA ADDRESS WIDTH :
                               --! IN_DATA/OUT_DATA/K_DATA/TH_DATA のメモリアドレスのビット幅を指定する.
                               integer := 32;
+        OUT_DATA_WIDTH        : --! @brief CORE OUTPUT DATA WIDTH :
+                              integer := 64;
         S_AXI_ADDR_WIDTH    : --! @brief CSR I/F AXI ADDRRESS WIDTH :
                               integer := 32;
         S_AXI_DATA_WIDTH    : --! @brief CSR I/F AXI DATA WIDTH :

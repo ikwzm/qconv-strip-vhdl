@@ -1,8 +1,8 @@
 -----------------------------------------------------------------------------------
 --!     @file    qconv_strip_out_data_axi_writer.vhd
 --!     @brief   Quantized Convolution (strip) Out Data AXI Writer Module
---!     @version 0.1.0
---!     @date    2019/5/5
+--!     @version 0.2.0
+--!     @date    2019/5/9
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>
 -----------------------------------------------------------------------------------
 --
@@ -497,6 +497,8 @@ begin
             O_FIXED_POOL_OPEN   => O_FIXED_POOL_OPEN   , --
             I_CLK_RATE          => 1                   , --
             I_DATA_BITS         => I_DATA_WIDTH        , --
+            I_WORD_BITS         => 8                   , --
+            I_JUSTIFIED         => 1                   , --
             BUF_DEPTH           => BUF_DEPTH           , --
             BUF_DATA_BITS       => BUF_WIDTH           , --
             O2I_OPEN_INFO_BITS  => OPEN_INFO_BITS      , --

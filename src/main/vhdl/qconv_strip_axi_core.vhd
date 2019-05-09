@@ -1,8 +1,8 @@
 -----------------------------------------------------------------------------------
 --!     @file    qconv_strip_axi_core.vhd
 --!     @brief   Quantized Convolution (strip) AXI I/F Core Module
---!     @version 0.1.0
---!     @date    2019/5/5
+--!     @version 0.2.0
+--!     @date    2019/5/9
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>
 -----------------------------------------------------------------------------------
 --
@@ -74,6 +74,8 @@ entity  QCONV_STRIP_AXI_CORE is
         DATA_ADDR_WIDTH     : --! @brief DATA ADDRESS WIDTH :
                               --! IN_DATA/OUT_DATA/K_DATA/TH_DATA のメモリアドレスのビット幅を指定する.
                               integer := 32;
+        OUT_DATA_WIDTH        : --! @brief CORE OUTPUT DATA WIDTH :
+                              integer := 64;
         S_AXI_ADDR_WIDTH    : --! @brief CSR I/F AXI ADDRRESS WIDTH :
                               integer := 32;
         S_AXI_DATA_WIDTH    : --! @brief CSR I/F AXI DATA WIDTH :
@@ -507,10 +509,9 @@ architecture RTL of QCONV_STRIP_AXI_CORE is
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
-    constant  O_DATA_WIDTH          :  integer := 64;
     signal    o_data_addr           :  std_logic_vector(DATA_ADDR_WIDTH              -1 downto 0);
-    signal    o_data                :  std_logic_vector(O_DATA_WIDTH                 -1 downto 0);
-    signal    o_data_strb           :  std_logic_vector(O_DATA_WIDTH/8               -1 downto 0);
+    signal    o_data                :  std_logic_vector(OUT_DATA_WIDTH               -1 downto 0);
+    signal    o_data_strb           :  std_logic_vector(OUT_DATA_WIDTH/8             -1 downto 0);
     signal    o_data_last           :  std_logic;
     signal    o_data_valid          :  std_logic;
     signal    o_data_ready          :  std_logic;
@@ -739,7 +740,7 @@ begin
             AXI_CACHE       => O_AXI_CACHE         , --
             AXI_AUSER       => O_AXI_AUSER         , --
             AXI_REQ_QUEUE   => O_AXI_REQ_QUEUE     , --
-            I_DATA_WIDTH    => O_DATA_WIDTH        , --
+            I_DATA_WIDTH    => OUT_DATA_WIDTH      , --
             REQ_ADDR_WIDTH  => DATA_ADDR_WIDTH       --
         )                                            -- 
         port map(                                    -- 
@@ -1180,7 +1181,7 @@ begin
             TH_BUF_SIZE     => TH_BUF_SIZE         , -- 
             IN_C_UNROLL     => IN_C_UNROLL         , -- 
             OUT_C_UNROLL    => OUT_C_UNROLL        , -- 
-            OUT_DATA_BITS   => O_DATA_WIDTH          -- 
+            OUT_DATA_BITS   => OUT_DATA_WIDTH        -- 
         )
         port map (
         ---------------------------------------------------------------------------
