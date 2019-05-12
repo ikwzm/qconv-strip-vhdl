@@ -2,7 +2,7 @@
 --!     @file    qconv_strip_out_data_axi_writer.vhd
 --!     @brief   Quantized Convolution (strip) Out Data AXI Writer Module
 --!     @version 0.2.0
---!     @date    2019/5/9
+--!     @date    2019/5/12
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>
 -----------------------------------------------------------------------------------
 --
@@ -379,9 +379,9 @@ begin
                 case REQ_USE_TH is
                     when "11" => 
                         req_elem_bytes   <= QCONV_PARAM.NBITS_IN_DATA * QCONV_PARAM.NBITS_PER_WORD / 8;
-                        req_image_c_size <= to_integer(to_01(unsigned(REQ_OUT_C ))) / QCONV_PARAM.NBITS_PER_WORD;
-                        req_slice_c_pos  <= to_integer(to_01(unsigned(REQ_C_POS ))) / QCONV_PARAM.NBITS_PER_WORD;
-                        req_slice_c_size <= to_integer(to_01(unsigned(REQ_C_SIZE))) / QCONV_PARAM.NBITS_PER_WORD;
+                        req_image_c_size <= (to_integer(to_01(unsigned(REQ_OUT_C )))+QCONV_PARAM.NBITS_PER_WORD-1) / QCONV_PARAM.NBITS_PER_WORD;
+                        req_slice_c_pos  <= (to_integer(to_01(unsigned(REQ_C_POS )))+QCONV_PARAM.NBITS_PER_WORD-1) / QCONV_PARAM.NBITS_PER_WORD;
+                        req_slice_c_size <= (to_integer(to_01(unsigned(REQ_C_SIZE)))+QCONV_PARAM.NBITS_PER_WORD-1) / QCONV_PARAM.NBITS_PER_WORD;
                     when "10" => 
                         req_elem_bytes   <= 1;
                         req_image_c_size <= to_integer(to_01(unsigned(REQ_OUT_C )));

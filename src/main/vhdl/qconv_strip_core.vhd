@@ -198,6 +198,7 @@ use     QCONV.QCONV_COMPONENTS.QCONV_STRIP_TH_DATA_BUFFER;
 use     QCONV.QCONV_COMPONENTS.QCONV_STRIP_K_DATA_BUFFER;
 use     QCONV.QCONV_COMPONENTS.QCONV_APPLY_THRESHOLDS;
 library PIPEWORK;
+use     PIPEWORK.COMPONENTS.PIPELINE_REGISTER_CONTROLLER;
 use     PIPEWORK.IMAGE_TYPES.all;
 use     PIPEWORK.IMAGE_COMPONENTS.IMAGE_STREAM_CHANNEL_REDUCER;
 use     PIPEWORK.CONVOLUTION_TYPES.all;
@@ -252,10 +253,7 @@ architecture RTL of QCONV_STRIP_CORE is
               CONV_ADD_STREAM       :  IMAGE_STREAM_PARAM_TYPE;
               CONV_ACC_STREAM       :  IMAGE_STREAM_PARAM_TYPE;
               CONV_OUT_STREAM       :  IMAGE_STREAM_PARAM_TYPE;
-              PASS_TH_Q_STREAM      :  IMAGE_STREAM_PARAM_TYPE;
               APPLY_TH_O_STREAM     :  IMAGE_STREAM_PARAM_TYPE;
-              APPLY_TH_1_STREAM     :  IMAGE_STREAM_PARAM_TYPE;
-              APPLY_TH_2_STREAM     :  IMAGE_STREAM_PARAM_TYPE;
               APPLY_TH_3_STREAM     :  IMAGE_STREAM_PARAM_TYPE;
     end record;
     -------------------------------------------------------------------------------
@@ -268,10 +266,6 @@ architecture RTL of QCONV_STRIP_CORE is
         variable  stream_shape_out_c        :  IMAGE_SHAPE_SIDE_TYPE;
         variable  stream_shape_x            :  IMAGE_SHAPE_SIDE_TYPE;
         variable  stream_shape_y            :  IMAGE_SHAPE_SIDE_TYPE;
-        constant  pass_th_q_words           :  integer := OUT_DATA_BITS / QCONV_PARAM.NBITS_OUT_DATA;
-        constant  apply_th_1_words          :  integer := OUT_DATA_BITS / QCONV_PARAM.NBITS_OUT_DATA;
-        constant  apply_th_2_words          :  integer := OUT_DATA_BITS / 8;
-        constant  apply_th_3_words          :  integer := OUT_DATA_BITS / QCONV_PARAM.NBITS_IN_DATA ;
     begin
         stream_shape_in_c_by_word := NEW_IMAGE_SHAPE_SIDE_CONSTANT(9*IN_C_UNROLL                           , TRUE, TRUE);
         stream_shape_in_c         := NEW_IMAGE_SHAPE_SIDE_CONSTANT(9*IN_C_UNROLL*QCONV_PARAM.NBITS_PER_WORD, TRUE, TRUE);
@@ -361,16 +355,6 @@ architecture RTL of QCONV_STRIP_CORE is
         ---------------------------------------------------------------------------
         --
         ---------------------------------------------------------------------------
-        param.PASS_TH_Q_STREAM     := NEW_IMAGE_STREAM_PARAM(
-                                          ELEM_BITS => QCONV_PARAM.NBITS_OUT_DATA,
-                                          C         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(pass_th_q_words ,TRUE,TRUE),
-                                          D         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(1, FALSE, FALSE),
-                                          X         => stream_shape_x,
-                                          Y         => stream_shape_y
-                                      );
-        ---------------------------------------------------------------------------
-        --
-        ---------------------------------------------------------------------------
         param.APPLY_TH_O_STREAM     := NEW_IMAGE_STREAM_PARAM(
                                           ELEM_BITS => QCONV_PARAM.NBITS_IN_DATA,
                                           C         => stream_shape_out_c,
@@ -381,29 +365,9 @@ architecture RTL of QCONV_STRIP_CORE is
         ---------------------------------------------------------------------------
         --
         ---------------------------------------------------------------------------
-        param.APPLY_TH_1_STREAM     := NEW_IMAGE_STREAM_PARAM(
-                                          ELEM_BITS => QCONV_PARAM.NBITS_IN_DATA,
-                                          C         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(apply_th_1_words,TRUE,TRUE),
-                                          D         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(1, FALSE, FALSE),
-                                          X         => stream_shape_x,
-                                          Y         => stream_shape_y
-                                      );
-        ---------------------------------------------------------------------------
-        --
-        ---------------------------------------------------------------------------
-        param.APPLY_TH_2_STREAM     := NEW_IMAGE_STREAM_PARAM(
-                                          ELEM_BITS => QCONV_PARAM.NBITS_IN_DATA,
-                                          C         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(apply_th_2_words,TRUE,TRUE),
-                                          D         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(1, FALSE, FALSE),
-                                          X         => stream_shape_x,
-                                          Y         => stream_shape_y
-                                      );
-        ---------------------------------------------------------------------------
-        --
-        ---------------------------------------------------------------------------
         param.APPLY_TH_3_STREAM     := NEW_IMAGE_STREAM_PARAM(
                                           ELEM_BITS => QCONV_PARAM.NBITS_IN_DATA,
-                                          C         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(apply_th_3_words,TRUE,TRUE),
+                                          C         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(QCONV_PARAM.NBITS_PER_WORD,TRUE,TRUE),
                                           D         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(1, FALSE, FALSE),
                                           X         => stream_shape_x,
                                           Y         => stream_shape_y
@@ -432,6 +396,54 @@ architecture RTL of QCONV_STRIP_CORE is
     --
     -------------------------------------------------------------------------------
     constant  PARAM                 :  PARAM_TYPE := NEW_PARAM;
+    -------------------------------------------------------------------------------
+    --
+    -------------------------------------------------------------------------------
+    procedure GEN_OUT_DATA(
+                  I_PARAM     : in  IMAGE_STREAM_PARAM_TYPE;
+                  I_DATA      : in  std_logic_vector;
+        signal    O_DATA      : out std_logic_vector;
+        signal    O_STRB      : out std_logic_vector;
+        signal    O_LAST      : out std_logic
+    ) is
+        variable  valid       :     std_logic_vector(O_DATA'length-1 downto 0);
+        variable  c_atrb      :     IMAGE_STREAM_ATRB_TYPE;
+        constant  VALID_ELEM_1:     std_logic_vector(I_PARAM.ELEM_BITS-1 downto 0) := (others => '1');
+        constant  VALID_ELEM_0:     std_logic_vector(I_PARAM.ELEM_BITS-1 downto 0) := (others => '0');
+        constant  VALID_STRB_1:     std_logic_vector(                8-1 downto 0) := (others => '1');
+        constant  VALID_STRB_0:     std_logic_vector(                8-1 downto 0) := (others => '0');
+    begin
+        for i in OUT_DATA'range loop
+            if (i < I_PARAM.DATA.ELEM_FIELD.SIZE) then
+                O_DATA(i) <= I_DATA(I_PARAM.DATA.ELEM_FIELD.LO + i);
+            else
+                O_DATA(i) <= '0';
+            end if;
+        end loop;
+        valid := (others => '0');
+        for c_pos in I_PARAM.SHAPE.C.LO to I_PARAM.SHAPE.C.HI loop
+            c_atrb := GET_ATRB_C_FROM_IMAGE_STREAM_DATA(I_PARAM, c_pos, I_DATA);
+            if (c_atrb.valid) then
+                valid((c_pos+1)*I_PARAM.ELEM_BITS-1 downto c_pos*I_PARAM.ELEM_BITS) := VALID_ELEM_1;
+            else
+                valid((c_pos+1)*I_PARAM.ELEM_BITS-1 downto c_pos*I_PARAM.ELEM_BITS) := VALID_ELEM_0;
+            end if;
+        end loop;
+        for i in OUT_STRB'range loop
+            if (valid((i+1)*8-1 downto i*8) /= VALID_STRB_0) then
+                O_STRB(i) <= '1';
+            else
+                O_STRB(i) <= '0';
+            end if;
+        end loop;
+        if (IMAGE_STREAM_DATA_IS_LAST_C(I_PARAM, I_DATA) = TRUE) and
+           (IMAGE_STREAM_DATA_IS_LAST_X(I_PARAM, I_DATA) = TRUE) and
+           (IMAGE_STREAM_DATA_IS_LAST_Y(I_PARAM, I_DATA) = TRUE) then
+            O_LAST <= '1';
+        else
+            O_LAST <= '0';
+        end if;
+    end procedure;
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
@@ -495,10 +507,6 @@ architecture RTL of QCONV_STRIP_CORE is
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
-    signal    pass_th_q_data        :  std_logic_vector(PARAM.PASS_TH_Q_STREAM.DATA.SIZE-1 downto 0);
-    signal    pass_th_q_busy        :  std_logic;
-    signal    pass_th_i_valid       :  std_logic;
-    signal    pass_th_i_ready       :  std_logic;
     signal    pass_th_o_data        :  std_logic_vector(OUT_DATA'length-1 downto 0);
     signal    pass_th_o_strb        :  std_logic_vector(OUT_STRB'length-1 downto 0);
     signal    pass_th_o_last        :  std_logic;
@@ -519,27 +527,19 @@ architecture RTL of QCONV_STRIP_CORE is
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
-    signal    apply_th1_q_data      :  std_logic_vector(PARAM.APPLY_TH_1_STREAM.DATA.SIZE-1 downto 0);
     signal    apply_th1_o_data      :  std_logic_vector(OUT_DATA'length-1 downto 0);
     signal    apply_th1_o_strb      :  std_logic_vector(OUT_STRB'length-1 downto 0);
     signal    apply_th1_o_last      :  std_logic;
     signal    apply_th1_o_valid     :  std_logic;
     signal    apply_th1_o_ready     :  std_logic;
-    signal    apply_th1_i_valid     :  std_logic;
-    signal    apply_th1_i_ready     :  std_logic;
-    signal    apply_th1_busy        :  std_logic;
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
-    signal    apply_th2_q_data      :  std_logic_vector(PARAM.APPLY_TH_2_STREAM.DATA.SIZE-1 downto 0);
     signal    apply_th2_o_data      :  std_logic_vector(OUT_DATA'length-1 downto 0);
     signal    apply_th2_o_strb      :  std_logic_vector(OUT_STRB'length-1 downto 0);
     signal    apply_th2_o_last      :  std_logic;
     signal    apply_th2_o_valid     :  std_logic;
     signal    apply_th2_o_ready     :  std_logic;
-    signal    apply_th2_i_valid     :  std_logic;
-    signal    apply_th2_i_ready     :  std_logic;
-    signal    apply_th2_busy        :  std_logic;
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
@@ -842,9 +842,9 @@ begin
             K_DATA          => kernel_data             , -- In  :
             K_VALID         => kernel_valid            , -- In  :
             K_READY         => kernel_ready            , -- Out :
-            O_DATA          => conv_mul_data                , -- Out :
-            O_VALID         => conv_mul_valid               , -- Out :
-            O_READY         => conv_mul_ready                 -- In  :
+            O_DATA          => conv_mul_data           , -- Out :
+            O_VALID         => conv_mul_valid          , -- Out :
+            O_READY         => conv_mul_ready            -- In  :
         );                                               -- 
     -------------------------------------------------------------------------------
     -- 
@@ -900,7 +900,7 @@ begin
                                      IMAGE_STREAM_DATA_IS_LAST_X(PARAM.CONV_OUT_STREAM, conv_out_data) and
                                      IMAGE_STREAM_DATA_IS_LAST_Y(PARAM.CONV_OUT_STREAM, conv_out_data)) else '0';
     conv_out_ready      <= '1' when (req_args.use_th /= 0 and apply_th_i_ready = '1') or
-                                    (req_args.use_th  = 0 and pass_th_i_ready  = '1') else '0';
+                                    (req_args.use_th  = 0 and pass_th_o_ready  = '1') else '0';
     conv_out_c_atrb_vec <= GET_ATRB_C_VECTOR_FROM_IMAGE_STREAM_DATA(PARAM.CONV_OUT_STREAM, conv_out_data);
     conv_out_d_atrb_vec <= GET_ATRB_D_VECTOR_FROM_IMAGE_STREAM_DATA(PARAM.CONV_OUT_STREAM, conv_out_data);
     conv_out_x_atrb_vec <= GET_ATRB_X_VECTOR_FROM_IMAGE_STREAM_DATA(PARAM.CONV_OUT_STREAM, conv_out_data);
@@ -910,46 +910,15 @@ begin
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
-    PASS_TH: IMAGE_STREAM_CHANNEL_REDUCER                -- 
-        generic map (                                    -- 
-            I_PARAM         => PARAM.CONV_OUT_STREAM   , --
-            O_PARAM         => PARAM.PASS_TH_Q_STREAM  , --
-            C_SIZE          => 0                       , --
-            C_DONE          => 0                         --
-        )                                                -- 
-        port map (                                       -- 
-            CLK             => CLK                     , -- In  :
-            RST             => RST                     , -- In  :
-            CLR             => CLR                     , -- In  :
-            BUSY            => pass_th_q_busy          , -- Out :
-            I_DATA          => conv_out_data           , -- In  :
-            I_DONE          => conv_out_done           , -- In  :
-            I_VALID         => pass_th_i_valid         , -- In  :
-            I_READY         => pass_th_i_ready         , -- Out :
-            O_DATA          => pass_th_q_data          , -- Out :
-            O_VALID         => pass_th_o_valid         , -- Out :
-            O_READY         => pass_th_o_ready           -- In  :
-        );                                               -- 
-    pass_th_i_valid  <= '1' when (req_args.use_th = 0 and conv_out_valid = '1') else '0';
-    process (pass_th_q_data)
-        variable c_atrb : IMAGE_STREAM_ATRB_TYPE;
-    begin
-        pass_th_o_data <= pass_th_q_data(PARAM.PASS_TH_Q_STREAM.DATA.ELEM_FIELD.HI downto PARAM.PASS_TH_Q_STREAM.DATA.ELEM_FIELD.LO);
-        for i in pass_th_o_strb'range loop
-            c_atrb := GET_ATRB_C_FROM_IMAGE_STREAM_DATA(PARAM.PASS_TH_Q_STREAM, i/(PARAM.PASS_TH_Q_STREAM.ELEM_BITS/8), pass_th_q_data);
-            if (c_atrb.valid) then
-                pass_th_o_strb(i) <= '1';
-            else
-                pass_th_o_strb(i) <= '0';
-            end if;
-        end loop;
-        if (IMAGE_STREAM_DATA_IS_LAST_C(PARAM.PASS_TH_Q_STREAM, pass_th_q_data) = TRUE) and
-           (IMAGE_STREAM_DATA_IS_LAST_X(PARAM.PASS_TH_Q_STREAM, pass_th_q_data) = TRUE) and
-           (IMAGE_STREAM_DATA_IS_LAST_Y(PARAM.PASS_TH_Q_STREAM, pass_th_q_data) = TRUE) then
-            pass_th_o_last <= '1';
-        else
-            pass_th_o_last <= '0';
-        end if;
+    pass_th_o_valid  <= '1' when (req_args.use_th = 0 and conv_out_valid = '1') else '0';
+    process (conv_out_data) begin
+        GEN_OUT_DATA(
+            I_PARAM   => PARAM.CONV_OUT_STREAM,
+            I_DATA    => conv_out_data        ,
+            O_DATA    => pass_th_o_data       ,
+            O_STRB    => pass_th_o_strb       ,
+            O_LAST    => pass_th_o_last
+        );
     end process;
     -------------------------------------------------------------------------------
     --
@@ -977,11 +946,11 @@ begin
             O_READY         => apply_th_o_ready          -- In  :
         );                                               -- 
     apply_th_i_valid  <= '1' when (req_args.use_th /= 0 and conv_acc_valid = '1') else '0';
-    apply_th_o_ready  <= '1' when (req_args.use_th  = 1 and apply_th1_i_ready = '1') or
-                                  (req_args.use_th  = 2 and apply_th2_i_ready = '1') or
+    apply_th_o_ready  <= '1' when (req_args.use_th  = 1 and apply_th1_o_ready = '1') or
+                                  (req_args.use_th  = 2 and apply_th2_o_ready = '1') or
                                   (req_args.use_th  = 3 and apply_th3_i_ready = '1') else '0';
-    apply_th1_i_valid <= '1' when (req_args.use_th  = 1 and apply_th_o_valid  = '1') else '0';
-    apply_th2_i_valid <= '1' when (req_args.use_th  = 2 and apply_th_o_valid  = '1') else '0';
+    apply_th1_o_valid <= '1' when (req_args.use_th  = 1 and apply_th_o_valid  = '1') else '0';
+    apply_th2_o_valid <= '1' when (req_args.use_th  = 2 and apply_th_o_valid  = '1') else '0';
     apply_th3_i_valid <= '1' when (req_args.use_th  = 3 and apply_th_o_valid  = '1') else '0';
     -------------------------------------------------------------------------------
     --
@@ -992,43 +961,22 @@ begin
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
-    APPLY_Q1: IMAGE_STREAM_CHANNEL_REDUCER               -- 
-        generic map (                                    -- 
-            I_PARAM         => PARAM.APPLY_TH_O_STREAM , --
-            O_PARAM         => PARAM.APPLY_TH_1_STREAM , --
-            C_SIZE          => 0                       , --
-            C_DONE          => 0                         --
-        )                                                -- 
-        port map (                                       -- 
-            CLK             => CLK                     , -- In  :
-            RST             => RST                     , -- In  :
-            CLR             => CLR                     , -- In  :
-            BUSY            => apply_th1_busy          , -- Out :
-            I_DATA          => apply_th_o_data         , -- In  :
-            I_DONE          => apply_th_o_done         , -- In  :
-            I_VALID         => apply_th1_i_valid       , -- In  :
-            I_READY         => apply_th1_i_ready       , -- Out :
-            O_DATA          => apply_th1_q_data        , -- Out :
-            O_VALID         => apply_th1_o_valid       , -- Out :
-            O_READY         => apply_th1_o_ready         -- In  :
-        );                                               --
-    process (apply_th1_q_data)
-        constant  O_PARAM :  IMAGE_STREAM_PARAM_TYPE := NEW_IMAGE_STREAM_PARAM(
-                                 ELEM_BITS => QCONV_PARAM.NBITS_OUT_DATA     , 
-                                 C         => PARAM.APPLY_TH_1_STREAM.SHAPE.C,
-                                 D         => PARAM.APPLY_TH_1_STREAM.SHAPE.D,
-                                 X         => PARAM.APPLY_TH_1_STREAM.SHAPE.X,
-                                 Y         => PARAM.APPLY_TH_1_STREAM.SHAPE.Y
-                                 );
-        variable  elem    :  std_logic_vector(PARAM.APPLY_TH_1_STREAM.ELEM_BITS-1 downto 0);
-        variable  o_data  :  std_logic_vector(O_PARAM.DATA.SIZE                -1 downto 0);
-        variable  c_atrb  :  IMAGE_STREAM_ATRB_TYPE;
+    process (apply_th_o_data)
+        constant  O_PARAM    :  IMAGE_STREAM_PARAM_TYPE := NEW_IMAGE_STREAM_PARAM(
+                                    ELEM_BITS => QCONV_PARAM.NBITS_OUT_DATA     , 
+                                    C         => PARAM.APPLY_TH_O_STREAM.SHAPE.C,
+                                    D         => PARAM.APPLY_TH_O_STREAM.SHAPE.D,
+                                    X         => PARAM.APPLY_TH_O_STREAM.SHAPE.X,
+                                    Y         => PARAM.APPLY_TH_O_STREAM.SHAPE.Y
+                                );
+        variable  elem       :  std_logic_vector(PARAM.APPLY_TH_O_STREAM.ELEM_BITS-1 downto 0);
+        variable  o_data     :  std_logic_vector(O_PARAM.DATA.SIZE                -1 downto 0);
     begin
         for y_pos in O_PARAM.SHAPE.Y.LO to O_PARAM.SHAPE.Y.HI loop
         for x_pos in O_PARAM.SHAPE.X.LO to O_PARAM.SHAPE.X.HI loop
         for d_pos in O_PARAM.SHAPE.D.LO to O_PARAM.SHAPE.D.HI loop
         for c_pos in O_PARAM.SHAPE.C.LO to O_PARAM.SHAPE.C.HI loop
-            elem := GET_ELEMENT_FROM_IMAGE_STREAM_DATA(PARAM.APPLY_TH_1_STREAM, c_pos, d_pos, x_pos, y_pos, apply_th1_q_data);
+            elem := GET_ELEMENT_FROM_IMAGE_STREAM_DATA(PARAM.APPLY_TH_O_STREAM, c_pos, d_pos, x_pos, y_pos, apply_th_o_data);
             SET_ELEMENT_TO_IMAGE_STREAM_DATA(
                 PARAM   => O_PARAM,
                 C       => c_pos,
@@ -1042,63 +990,34 @@ begin
         end loop;
         end loop;
         end loop;
-        for i in apply_th1_o_strb'range loop
-            c_atrb := GET_ATRB_C_FROM_IMAGE_STREAM_DATA(PARAM.APPLY_TH_1_STREAM, i/(O_PARAM.ELEM_BITS/8), apply_th1_q_data);
-            if (c_atrb.valid) then
-                apply_th1_o_strb(i) <= '1';
-            else
-                apply_th1_o_strb(i) <= '0';
-            end if;
-        end loop;
-        apply_th1_o_data <= o_data(O_PARAM.DATA.ELEM_FIELD.HI downto O_PARAM.DATA.ELEM_FIELD.LO);
-        if (IMAGE_STREAM_DATA_IS_LAST_C(PARAM.APPLY_TH_1_STREAM, apply_th1_q_data) = TRUE) and
-           (IMAGE_STREAM_DATA_IS_LAST_X(PARAM.APPLY_TH_1_STREAM, apply_th1_q_data) = TRUE) and
-           (IMAGE_STREAM_DATA_IS_LAST_Y(PARAM.APPLY_TH_1_STREAM, apply_th1_q_data) = TRUE) then
-            apply_th1_o_last <= '1';
-        else
-            apply_th1_o_last <= '0';
-        end if;
+        o_data(O_PARAM.DATA.ATRB_FIELD.HI downto O_PARAM.DATA.ATRB_FIELD.LO) := apply_th_o_data(PARAM.APPLY_TH_O_STREAM.DATA.ATRB_FIELD.HI downto PARAM.APPLY_TH_O_STREAM.DATA.ATRB_FIELD.LO);
+        GEN_OUT_DATA(
+            I_PARAM   => O_PARAM              ,
+            I_DATA    => o_data               ,
+            O_DATA    => apply_th1_o_data     ,
+            O_STRB    => apply_th1_o_strb     ,
+            O_LAST    => apply_th1_o_last
+        );
     end process;
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
-    APPLY_Q2: IMAGE_STREAM_CHANNEL_REDUCER               -- 
-        generic map (                                    -- 
-            I_PARAM         => PARAM.APPLY_TH_O_STREAM , --
-            O_PARAM         => PARAM.APPLY_TH_2_STREAM , --
-            C_SIZE          => 0                       , --
-            C_DONE          => 0                         --
-        )                                                -- 
-        port map (                                       -- 
-            CLK             => CLK                     , -- In  :
-            RST             => RST                     , -- In  :
-            CLR             => CLR                     , -- In  :
-            BUSY            => apply_th2_busy          , -- Out :
-            I_DATA          => apply_th_o_data         , -- In  :
-            I_DONE          => apply_th_o_done         , -- In  :
-            I_VALID         => apply_th2_i_valid       , -- In  :
-            I_READY         => apply_th2_i_ready       , -- Out :
-            O_DATA          => apply_th2_q_data        , -- Out :
-            O_VALID         => apply_th2_o_valid       , -- Out :
-            O_READY         => apply_th2_o_ready         -- In  :
-        );                                               --
-    process (apply_th2_q_data)
-        constant  O_PARAM :  IMAGE_STREAM_PARAM_TYPE := NEW_IMAGE_STREAM_PARAM(
-                                 ELEM_BITS => 8                              , 
-                                 C         => PARAM.APPLY_TH_2_STREAM.SHAPE.C,
-                                 D         => PARAM.APPLY_TH_2_STREAM.SHAPE.D,
-                                 X         => PARAM.APPLY_TH_2_STREAM.SHAPE.X,
-                                 Y         => PARAM.APPLY_TH_2_STREAM.SHAPE.Y
-                                 );
-        variable  elem    :  std_logic_vector(PARAM.APPLY_TH_2_STREAM.ELEM_BITS-1 downto 0);
-        variable  o_data  :  std_logic_vector(O_PARAM.DATA.SIZE                -1 downto 0);
-        variable  c_atrb  :  IMAGE_STREAM_ATRB_TYPE;
+    process (apply_th_o_data)
+        constant  O_PARAM    :  IMAGE_STREAM_PARAM_TYPE := NEW_IMAGE_STREAM_PARAM(
+                                    ELEM_BITS => 8                              ,
+                                    C         => PARAM.APPLY_TH_O_STREAM.SHAPE.C,
+                                    D         => PARAM.APPLY_TH_O_STREAM.SHAPE.D,
+                                    X         => PARAM.APPLY_TH_O_STREAM.SHAPE.X,
+                                    Y         => PARAM.APPLY_TH_O_STREAM.SHAPE.Y
+                                );
+        variable  elem       :  std_logic_vector(PARAM.APPLY_TH_O_STREAM.ELEM_BITS-1 downto 0);
+        variable  o_data     :  std_logic_vector(O_PARAM.DATA.SIZE                -1 downto 0);
     begin
         for y_pos in O_PARAM.SHAPE.Y.LO to O_PARAM.SHAPE.Y.HI loop
         for x_pos in O_PARAM.SHAPE.X.LO to O_PARAM.SHAPE.X.HI loop
         for d_pos in O_PARAM.SHAPE.D.LO to O_PARAM.SHAPE.D.HI loop
         for c_pos in O_PARAM.SHAPE.C.LO to O_PARAM.SHAPE.C.HI loop
-            elem := GET_ELEMENT_FROM_IMAGE_STREAM_DATA(PARAM.APPLY_TH_2_STREAM, c_pos, d_pos, x_pos, y_pos, apply_th2_q_data);
+            elem := GET_ELEMENT_FROM_IMAGE_STREAM_DATA(PARAM.APPLY_TH_O_STREAM, c_pos, d_pos, x_pos, y_pos, apply_th_o_data);
             SET_ELEMENT_TO_IMAGE_STREAM_DATA(
                 PARAM   => O_PARAM,
                 C       => c_pos,
@@ -1112,22 +1031,14 @@ begin
         end loop;
         end loop;
         end loop;
-        apply_th2_o_data <= o_data(O_PARAM.DATA.ELEM_FIELD.HI downto O_PARAM.DATA.ELEM_FIELD.LO);
-        for i in apply_th2_o_strb'range loop
-            c_atrb := GET_ATRB_C_FROM_IMAGE_STREAM_DATA(PARAM.APPLY_TH_2_STREAM, i/(O_PARAM.ELEM_BITS/8), apply_th2_q_data);
-            if (c_atrb.valid) then
-                apply_th2_o_strb(i) <= '1';
-            else
-                apply_th2_o_strb(i) <= '0';
-            end if;
-        end loop;
-        if (IMAGE_STREAM_DATA_IS_LAST_C(PARAM.APPLY_TH_2_STREAM, apply_th2_q_data) = TRUE) and
-           (IMAGE_STREAM_DATA_IS_LAST_X(PARAM.APPLY_TH_2_STREAM, apply_th2_q_data) = TRUE) and
-           (IMAGE_STREAM_DATA_IS_LAST_Y(PARAM.APPLY_TH_2_STREAM, apply_th2_q_data) = TRUE) then
-            apply_th2_o_last <= '1';
-        else
-            apply_th2_o_last <= '0';
-        end if;
+        o_data(O_PARAM.DATA.ATRB_FIELD.HI downto O_PARAM.DATA.ATRB_FIELD.LO) := apply_th_o_data(PARAM.APPLY_TH_O_STREAM.DATA.ATRB_FIELD.HI downto PARAM.APPLY_TH_O_STREAM.DATA.ATRB_FIELD.LO);
+        GEN_OUT_DATA(
+            I_PARAM   => O_PARAM              ,
+            I_DATA    => o_data               ,
+            O_DATA    => apply_th2_o_data     ,
+            O_STRB    => apply_th2_o_strb     ,
+            O_LAST    => apply_th2_o_last
+        );
     end process;
     -------------------------------------------------------------------------------
     --
@@ -1153,61 +1064,169 @@ begin
             O_READY         => apply_th3_o_ready         -- In  :
         );                                               --
     process (apply_th3_q_data)
-        variable  elem_data     :  std_logic_vector(PARAM.APPLY_TH_3_STREAM.DATA.ELEM_FIELD.SIZE-1 downto 0);
-        constant  OUT_WORD_BITS :  integer := QCONV_PARAM.NBITS_IN_DATA * QCONV_PARAM.NBITS_PER_WORD;
-        constant  OUT_WORD_BYTES:  integer := QCONV_PARAM.NBITS_IN_DATA * QCONV_PARAM.NBITS_PER_WORD / 8;
-        constant  OUT_WORDS     :  integer := OUT_DATA_BITS / OUT_WORD_BITS;
-        constant  OUT_STRB_ALL1 :  std_logic_vector(OUT_WORD_BYTES-1 downto 0) := (others => '1');
-        constant  OUT_STRB_ALL0 :  std_logic_vector(OUT_WORD_BYTES-1 downto 0) := (others => '0');
-        variable  c_atrb        :  IMAGE_STREAM_ATRB_TYPE;
+        constant  O_PARAM    :  IMAGE_STREAM_PARAM_TYPE := NEW_IMAGE_STREAM_PARAM(
+                                    ELEM_BITS => QCONV_PARAM.NBITS_IN_DATA*QCONV_PARAM.NBITS_PER_WORD,
+                                    C         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(1, TRUE, TRUE),
+                                    D         => PARAM.APPLY_TH_3_STREAM.SHAPE.D,
+                                    X         => PARAM.APPLY_TH_3_STREAM.SHAPE.X,
+                                    Y         => PARAM.APPLY_TH_3_STREAM.SHAPE.Y
+                                );
+        variable  o_data     :  std_logic_vector(O_PARAM.DATA.SIZE        -1 downto 0);
+        variable  o_elem     :  std_logic_vector(O_PARAM.ELEM_BITS        -1 downto 0);
+        variable  i_elem     :  std_logic_vector(QCONV_PARAM.NBITS_IN_DATA-1 downto 0);
+        variable  i_atrb     :  IMAGE_STREAM_ATRB_TYPE;
+        variable  c_atrb_vec :  IMAGE_STREAM_ATRB_VECTOR(O_PARAM.SHAPE.C.LO to O_PARAM.SHAPE.C.HI);
+        variable  d_atrb_vec :  IMAGE_STREAM_ATRB_VECTOR(O_PARAM.SHAPE.D.LO to O_PARAM.SHAPE.D.HI);
+        variable  x_atrb_vec :  IMAGE_STREAM_ATRB_VECTOR(O_PARAM.SHAPE.X.LO to O_PARAM.SHAPE.X.HI);
+        variable  y_atrb_vec :  IMAGE_STREAM_ATRB_VECTOR(O_PARAM.SHAPE.Y.LO to O_PARAM.SHAPE.Y.HI);
     begin
-        elem_data := apply_th3_q_data(PARAM.APPLY_TH_3_STREAM.DATA.ELEM_FIELD.HI downto PARAM.APPLY_TH_3_STREAM.DATA.ELEM_FIELD.LO);
-        for out_pos  in 0 to OUT_WORDS-1 loop
-        for word_pos in 0 to QCONV_PARAM.NBITS_PER_WORD-1 loop
-        for data_pos in 0 to QCONV_PARAM.NBITS_IN_DATA -1 loop
-            apply_th3_o_data(out_pos*OUT_WORD_BITS + data_pos*QCONV_PARAM.NBITS_PER_WORD + word_pos) <= elem_data(out_pos*OUT_WORD_BITS + word_pos*QCONV_PARAM.NBITS_IN_DATA + data_pos);
-        end loop;
-        end loop;
-        end loop; 
-        for out_pos  in 0 to OUT_WORDS-1 loop
-            c_atrb := GET_ATRB_C_FROM_IMAGE_STREAM_DATA(PARAM.APPLY_TH_3_STREAM, out_pos*QCONV_PARAM.NBITS_PER_WORD, apply_th3_q_data);
-            if (c_atrb.valid) then
-                apply_th3_o_strb((out_pos+1)*OUT_WORD_BYTES-1 downto out_pos*OUT_WORD_BYTES) <= OUT_STRB_ALL1;
+        ---------------------------------------------------------------------------
+        --
+        ---------------------------------------------------------------------------
+        for c_pos in PARAM.APPLY_TH_3_STREAM.SHAPE.C.LO to PARAM.APPLY_TH_3_STREAM.SHAPE.C.HI loop
+            i_atrb := GET_ATRB_C_FROM_IMAGE_STREAM_DATA(PARAM.APPLY_TH_3_STREAM, c_pos, apply_th3_q_data);
+            if (i_atrb.valid) then
+                i_elem := GET_ELEMENT_FROM_IMAGE_STREAM_DATA(PARAM.APPLY_TH_3_STREAM, c_pos, 0, 0, 0, apply_th3_q_data);
             else
-                apply_th3_o_strb((out_pos+1)*OUT_WORD_BYTES-1 downto out_pos*OUT_WORD_BYTES) <= OUT_STRB_ALL0;
+                i_elem := (others => '0');
             end if;
+            for i in 0 to QCONV_PARAM.NBITS_IN_DATA-1 loop
+                o_elem(i*PARAM.APPLY_TH_3_STREAM.SHAPE.C.SIZE + c_pos) := i_elem(i);
+            end loop;
         end loop;
-        if (IMAGE_STREAM_DATA_IS_LAST_C(PARAM.APPLY_TH_3_STREAM, apply_th3_q_data) = TRUE) and
-           (IMAGE_STREAM_DATA_IS_LAST_X(PARAM.APPLY_TH_3_STREAM, apply_th3_q_data) = TRUE) and
-           (IMAGE_STREAM_DATA_IS_LAST_Y(PARAM.APPLY_TH_3_STREAM, apply_th3_q_data) = TRUE) then
-            apply_th3_o_last <= '1';
-        else
-            apply_th3_o_last <= '0';
-        end if;
+        SET_ELEMENT_TO_IMAGE_STREAM_DATA(
+            PARAM   => O_PARAM,
+            C       => 0,
+            D       => 0,
+            X       => 0,
+            Y       => 0,
+            ELEMENT => o_elem,
+            DATA    => o_data
+        );
+        ---------------------------------------------------------------------------
+        --
+        ---------------------------------------------------------------------------
+        c_atrb_vec(0).VALID := TRUE;
+        c_atrb_vec(0).START := IMAGE_STREAM_DATA_IS_START_C   (PARAM.APPLY_TH_3_STREAM, apply_th3_q_data);
+        c_atrb_vec(0).LAST  := IMAGE_STREAM_DATA_IS_LAST_C    (PARAM.APPLY_TH_3_STREAM, apply_th3_q_data);
+        d_atrb_vec := GET_ATRB_D_VECTOR_FROM_IMAGE_STREAM_DATA(PARAM.APPLY_TH_3_STREAM, apply_th3_q_data);
+        x_atrb_vec := GET_ATRB_X_VECTOR_FROM_IMAGE_STREAM_DATA(PARAM.APPLY_TH_3_STREAM, apply_th3_q_data);
+        y_atrb_vec := GET_ATRB_Y_VECTOR_FROM_IMAGE_STREAM_DATA(PARAM.APPLY_TH_3_STREAM, apply_th3_q_data);
+        ---------------------------------------------------------------------------
+        --
+        ---------------------------------------------------------------------------
+        SET_ATRB_C_VECTOR_TO_IMAGE_STREAM_DATA(O_PARAM, c_atrb_vec, o_data);
+        SET_ATRB_D_VECTOR_TO_IMAGE_STREAM_DATA(O_PARAM, d_atrb_vec, o_data);
+        SET_ATRB_X_VECTOR_TO_IMAGE_STREAM_DATA(O_PARAM, x_atrb_vec, o_data);
+        SET_ATRB_Y_VECTOR_TO_IMAGE_STREAM_DATA(O_PARAM, y_atrb_vec, o_data);
+        ---------------------------------------------------------------------------
+        --
+        ---------------------------------------------------------------------------
+        GEN_OUT_DATA(
+            I_PARAM   => O_PARAM              ,
+            I_DATA    => o_data               ,
+            O_DATA    => apply_th3_o_data     ,
+            O_STRB    => apply_th3_o_strb     ,
+            O_LAST    => apply_th3_o_last
+        );
     end process;
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
-    outlet_data  <= apply_th1_o_data when (req_args.use_th = 1) else
-                    apply_th2_o_data when (req_args.use_th = 2) else
-                    apply_th3_o_data when (req_args.use_th = 3) else pass_th_o_data;
-    outlet_strb  <= apply_th1_o_strb when (req_args.use_th = 1) else
-                    apply_th2_o_strb when (req_args.use_th = 2) else
-                    apply_th3_o_strb when (req_args.use_th = 3) else pass_th_o_strb;
-    outlet_valid <= '1' when (req_args.use_th = 3 and apply_th3_o_valid = '1') or
-                             (req_args.use_th = 2 and apply_th2_o_valid = '1') or
-                             (req_args.use_th = 1 and apply_th1_o_valid = '1') or
-                             (req_args.use_th = 1 and apply_th1_o_valid = '1') or
-                             (req_args.use_th = 0 and pass_th_o_valid   = '1') else '0';
-    outlet_last  <= '1' when (req_args.use_th = 3 and apply_th3_o_last  = '1') or
-                             (req_args.use_th = 2 and apply_th2_o_last  = '1') or
-                             (req_args.use_th = 1 and apply_th1_o_last  = '1') or
-                             (req_args.use_th = 1 and apply_th1_o_last  = '1') or
-                             (req_args.use_th = 0 and pass_th_o_last    = '1') else '0';
-    apply_th3_o_ready <= '1' when (req_args.use_th = 3 and outlet_ready = '1') else '0';
-    apply_th2_o_ready <= '1' when (req_args.use_th = 2 and outlet_ready = '1') else '0';
-    apply_th1_o_ready <= '1' when (req_args.use_th = 1 and outlet_ready = '1') else '0';
-    pass_th_o_ready   <= '1' when (req_args.use_th = 0 and outlet_ready = '1') else '0';
+    OUT_QUEUE: block
+        constant  QUEUE_SIZE    :  integer := 2;
+        type      WORD_TYPE     is record
+                      DATA      :  std_logic_vector(OUT_DATA'length-1 downto 0);
+                      STRB      :  std_logic_vector(OUT_STRB'length-1 downto 0);
+                      LAST      :  std_logic;
+        end record;
+        type      WORD_VECTOR   is array(integer range <>) of WORD_TYPE;
+        constant  FIRST_OF_QUEUE:  integer := 1;
+        constant  LAST_OF_QUEUE :  integer := QUEUE_SIZE;
+        signal    queue_word    :  WORD_VECTOR(LAST_OF_QUEUE downto FIRST_OF_QUEUE);
+        signal    queue_load    :  std_logic_vector(QUEUE_SIZE downto 0);
+        signal    queue_shift   :  std_logic_vector(QUEUE_SIZE downto 0);
+        signal    intake_data   :  std_logic_vector(OUT_DATA'length-1 downto 0);
+        signal    intake_strb   :  std_logic_vector(OUT_STRB'length-1 downto 0);
+        signal    intake_last   :  std_logic;
+        signal    intake_valid  :  std_logic;
+        signal    intake_ready  :  std_logic;
+    begin
+        ---------------------------------------------------------------------------
+        --
+        ---------------------------------------------------------------------------
+        intake_data  <= apply_th1_o_data when (req_args.use_th = 1) else
+                        apply_th2_o_data when (req_args.use_th = 2) else
+                        apply_th3_o_data when (req_args.use_th = 3) else pass_th_o_data;
+        intake_strb  <= apply_th1_o_strb when (req_args.use_th = 1) else
+                        apply_th2_o_strb when (req_args.use_th = 2) else
+                        apply_th3_o_strb when (req_args.use_th = 3) else pass_th_o_strb;
+        intake_last  <= '1' when (req_args.use_th = 3 and apply_th3_o_last  = '1') or
+                                 (req_args.use_th = 2 and apply_th2_o_last  = '1') or
+                                 (req_args.use_th = 1 and apply_th1_o_last  = '1') or
+                                 (req_args.use_th = 0 and pass_th_o_last    = '1') else '0';
+        intake_valid <= '1' when (req_args.use_th = 3 and apply_th3_o_valid = '1') or
+                                 (req_args.use_th = 2 and apply_th2_o_valid = '1') or
+                                 (req_args.use_th = 1 and apply_th1_o_valid = '1') or
+                                 (req_args.use_th = 0 and pass_th_o_valid   = '1') else '0';
+        ---------------------------------------------------------------------------
+        --
+        ---------------------------------------------------------------------------
+        apply_th3_o_ready <= '1' when (req_args.use_th = 3 and intake_ready = '1') else '0';
+        apply_th2_o_ready <= '1' when (req_args.use_th = 2 and intake_ready = '1') else '0';
+        apply_th1_o_ready <= '1' when (req_args.use_th = 1 and intake_ready = '1') else '0';
+        pass_th_o_ready   <= '1' when (req_args.use_th = 0 and intake_ready = '1') else '0';
+        ---------------------------------------------------------------------------
+        --
+        ---------------------------------------------------------------------------
+        process (CLK, RST) begin
+            if (RST = '1') then
+                    queue_word <= (others => (DATA => (others => '0'), STRB => (others => '0'), LAST => '0'));
+            elsif (CLK'event and CLK = '1') then
+                if (CLR = '1') then
+                    queue_word <= (others => (DATA => (others => '0'), STRB => (others => '0'), LAST => '0'));
+                else
+                    for i in FIRST_OF_QUEUE to LAST_OF_QUEUE loop
+                        if (queue_load(i) = '1') then
+                            if (i < LAST_OF_QUEUE and queue_shift(i) = '1') then
+                                queue_word(i) <= queue_word(i+1);
+                            else
+                                queue_word(i).data <= intake_data;
+                                queue_word(i).strb <= intake_strb;
+                                queue_word(i).last <= intake_last;
+                            end if;
+                        end if;
+                    end loop;
+                end if;
+            end if;
+        end process;
+        ---------------------------------------------------------------------------
+        --
+        ---------------------------------------------------------------------------
+        CTRL: PIPELINE_REGISTER_CONTROLLER
+            generic map (
+                QUEUE_SIZE  => QUEUE_SIZE
+            )
+            port map (
+                CLK         => CLK         , -- In  :
+                RST         => RST         , -- In  :
+                CLR         => CLR         , -- In  :
+                I_VAL       => intake_valid, -- In  :
+                I_RDY       => intake_ready, -- Out :
+                Q_VAL       => outlet_valid, -- Out :
+                Q_RDY       => outlet_ready, -- In  :
+                LOAD        => queue_load  , -- Out :
+                SHIFT       => queue_shift , -- Out :
+                VALID       => open        , -- Out :
+                BUSY        => open          -- Out :
+            );
+        --------------------------------------------------------------------------
+        --
+        ---------------------------------------------------------------------------
+        outlet_data <= queue_word(FIRST_OF_QUEUE).DATA;
+        outlet_strb <= queue_word(FIRST_OF_QUEUE).STRB;
+        outlet_last <= queue_word(FIRST_OF_QUEUE).LAST;
+    end block;
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
