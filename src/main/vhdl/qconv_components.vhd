@@ -2,7 +2,7 @@
 --!     @file    qconv_components.vhd                                            --
 --!     @brief   Quantized Convolution Component Library                         --
 --!     @version 0.2.0                                                           --
---!     @date    2019/05/10                                                      --
+--!     @date    2019/05/12                                                      --
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>                     --
 -----------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------
@@ -941,7 +941,7 @@ component QCONV_STRIP_TH_DATA_BUFFER
                           --! 出力側の IMAGE STREAM のパラメータを指定する.
                           IMAGE_STREAM_PARAM_TYPE := NEW_IMAGE_STREAM_PARAM(
                               ELEM_BITS => 64,
-                              C         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(3*3),
+                              C         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(1),
                               D         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(1),
                               X         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(1),
                               Y         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(1)

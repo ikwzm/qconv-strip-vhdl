@@ -1,8 +1,8 @@
 -----------------------------------------------------------------------------------
 --!     @file    qconv_strip_th_data_buffer.vhd
 --!     @brief   Quantized Convolution (strip) Thresholds Data Buffer Module
---!     @version 0.1.0
---!     @date    2019/4/25
+--!     @version 0.2.0
+--!     @date    2019/5/12
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>
 -----------------------------------------------------------------------------------
 --
@@ -54,7 +54,7 @@ entity  QCONV_STRIP_TH_DATA_BUFFER is
                           --! 出力側の IMAGE STREAM のパラメータを指定する.
                           IMAGE_STREAM_PARAM_TYPE := NEW_IMAGE_STREAM_PARAM(
                               ELEM_BITS => 64,
-                              C         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(3*3),
+                              C         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(1),
                               D         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(1),
                               X         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(1),
                               Y         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(1)
@@ -146,32 +146,14 @@ use     PIPEWORK.IMAGE_TYPES.all;
 use     PIPEWORK.CONVOLUTION_TYPES.all;
 use     PIPEWORK.CONVOLUTION_COMPONENTS.CONVOLUTION_PARAMETER_BUFFER;
 architecture RTL of QCONV_STRIP_TH_DATA_BUFFER is
-    -------------------------------------------------------------------------------
-    --
-    -------------------------------------------------------------------------------
-    constant  BUF_PARAM         :  IMAGE_STREAM_PARAM_TYPE := NEW_IMAGE_STREAM_PARAM(
-                                       ELEM_BITS => QCONV_PARAM.NBITS_OUT_DATA*QCONV_PARAM.NUM_THRESHOLDS,
-                                       C         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(OUT_C_UNROLL, TRUE , TRUE),
-                                       D         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(1           , FALSE, TRUE),
-                                       X         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(1           , TRUE , TRUE),
-                                       Y         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(1           , TRUE , TRUE)
-                                   );
-    constant  BUF_SHAPE         :  IMAGE_SHAPE_TYPE := NEW_IMAGE_SHAPE(
-                                       ELEM_BITS => QCONV_PARAM.NBITS_OUT_DATA*QCONV_PARAM.NUM_THRESHOLDS,
-                                       C         => O_SHAPE.C,
-                                       D         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(1),
-                                       X         => O_SHAPE.X,
-                                       Y         => O_SHAPE.Y
-                                   );
-    signal    buf_out_data      :  std_logic_vector(BUF_PARAM.DATA.SIZE-1 downto 0);
 begin
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
     BUF: CONVOLUTION_PARAMETER_BUFFER            -- 
         generic map (                            -- 
-            PARAM           => BUF_PARAM       , -- 
-            SHAPE           => BUF_SHAPE       , --   
+            PARAM           => O_PARAM         , -- 
+            SHAPE           => O_SHAPE         , --   
             ELEMENT_SIZE    => ELEMENT_SIZE    , --   
             ID              => ID                --   
         )                                        -- 
@@ -203,12 +185,8 @@ begin
         ---------------------------------------------------------------------------
         -- 出力側 I/F
         ---------------------------------------------------------------------------
-            O_DATA          => buf_out_data    , --   
+            O_DATA          => O_DATA          , --   
             O_VALID         => O_VALID         , --   
             O_READY         => O_READY           --   
         );                                       -- 
-    -------------------------------------------------------------------------------
-    --
-    -------------------------------------------------------------------------------
-    O_DATA <= CONVOLUTION_PIPELINE_FROM_BIAS_STREAM(O_PARAM, BUF_PARAM, buf_out_data);
 end RTL;

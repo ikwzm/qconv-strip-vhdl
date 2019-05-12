@@ -2,7 +2,7 @@
 --!     @file    qconv_strip_core.vhd
 --!     @brief   Quantized Convolution (strip) Core Module
 --!     @version 0.2.0
---!     @date    2019/5/9
+--!     @date    2019/5/12
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>
 -----------------------------------------------------------------------------------
 --
@@ -248,14 +248,12 @@ architecture RTL of QCONV_STRIP_CORE is
               K_DATA_STREAM         :  IMAGE_STREAM_PARAM_TYPE;
               THRESHOLDS_STREAM     :  IMAGE_STREAM_PARAM_TYPE;
               BIAS_STREAM           :  IMAGE_STREAM_PARAM_TYPE;
-              MUL_STREAM            :  IMAGE_STREAM_PARAM_TYPE;
-              ADD_STREAM            :  IMAGE_STREAM_PARAM_TYPE;
-              ACC_STREAM            :  IMAGE_STREAM_PARAM_TYPE;
-              PASS_TH_I_STREAM      :  IMAGE_STREAM_PARAM_TYPE;
+              CONV_MUL_STREAM       :  IMAGE_STREAM_PARAM_TYPE;
+              CONV_ADD_STREAM       :  IMAGE_STREAM_PARAM_TYPE;
+              CONV_ACC_STREAM       :  IMAGE_STREAM_PARAM_TYPE;
+              CONV_OUT_STREAM       :  IMAGE_STREAM_PARAM_TYPE;
               PASS_TH_Q_STREAM      :  IMAGE_STREAM_PARAM_TYPE;
-              APPLY_TH_I_STREAM     :  IMAGE_STREAM_PARAM_TYPE;
               APPLY_TH_O_STREAM     :  IMAGE_STREAM_PARAM_TYPE;
-              APPLY_TH_D_STREAM     :  IMAGE_STREAM_PARAM_TYPE;
               APPLY_TH_1_STREAM     :  IMAGE_STREAM_PARAM_TYPE;
               APPLY_TH_2_STREAM     :  IMAGE_STREAM_PARAM_TYPE;
               APPLY_TH_3_STREAM     :  IMAGE_STREAM_PARAM_TYPE;
@@ -305,8 +303,8 @@ architecture RTL of QCONV_STRIP_CORE is
         ---------------------------------------------------------------------------
         param.THRESHOLDS_STREAM    := NEW_IMAGE_STREAM_PARAM(
                                           ELEM_BITS => QCONV_PARAM.NUM_THRESHOLDS * QCONV_PARAM.NBITS_OUT_DATA,
-                                          C         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(1, TRUE, TRUE),
-                                          D         => stream_shape_out_c,
+                                          C         => stream_shape_out_c,
+                                          D         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(1, TRUE, TRUE),
                                           X         => stream_shape_x,
                                           Y         => stream_shape_y
                                       );
@@ -323,7 +321,7 @@ architecture RTL of QCONV_STRIP_CORE is
         ---------------------------------------------------------------------------
         --
         ---------------------------------------------------------------------------
-        param.MUL_STREAM           := NEW_IMAGE_STREAM_PARAM(
+        param.CONV_MUL_STREAM      := NEW_IMAGE_STREAM_PARAM(
                                           ELEM_BITS => QCONV_PARAM.NBITS_IN_DATA + 1,
                                           C         => stream_shape_in_c,
                                           D         => stream_shape_out_c,
@@ -333,7 +331,7 @@ architecture RTL of QCONV_STRIP_CORE is
         ---------------------------------------------------------------------------
         --
         ---------------------------------------------------------------------------
-        param.ADD_STREAM           := NEW_IMAGE_STREAM_PARAM(
+        param.CONV_ADD_STREAM      := NEW_IMAGE_STREAM_PARAM(
                                           ELEM_BITS => QCONV_PARAM.NBITS_OUT_DATA,
                                           C         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(1, TRUE, TRUE),
                                           D         => stream_shape_out_c,
@@ -343,7 +341,7 @@ architecture RTL of QCONV_STRIP_CORE is
         ---------------------------------------------------------------------------
         --
         ---------------------------------------------------------------------------
-        param.ACC_STREAM           := NEW_IMAGE_STREAM_PARAM(
+        param.CONV_ACC_STREAM      := NEW_IMAGE_STREAM_PARAM(
                                           ELEM_BITS => QCONV_PARAM.NBITS_OUT_DATA,
                                           C         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(1, TRUE, TRUE),
                                           D         => stream_shape_out_c,
@@ -353,10 +351,10 @@ architecture RTL of QCONV_STRIP_CORE is
         ---------------------------------------------------------------------------
         --
         ---------------------------------------------------------------------------
-        param.PASS_TH_I_STREAM     := NEW_IMAGE_STREAM_PARAM(
+        param.CONV_OUT_STREAM      := NEW_IMAGE_STREAM_PARAM(
                                           ELEM_BITS => QCONV_PARAM.NBITS_OUT_DATA,
                                           C         => stream_shape_out_c,
-                                          D         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(1, FALSE, FALSE),
+                                          D         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(1, TRUE, TRUE),
                                           X         => stream_shape_x,
                                           Y         => stream_shape_y
                                       );
@@ -373,30 +371,10 @@ architecture RTL of QCONV_STRIP_CORE is
         ---------------------------------------------------------------------------
         --
         ---------------------------------------------------------------------------
-        param.APPLY_TH_I_STREAM     := NEW_IMAGE_STREAM_PARAM(
-                                          ELEM_BITS => QCONV_PARAM.NBITS_OUT_DATA,
-                                          C         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(1, TRUE, TRUE),
-                                          D         => stream_shape_out_c,
-                                          X         => stream_shape_x,
-                                          Y         => stream_shape_y
-                                      );
-        ---------------------------------------------------------------------------
-        --
-        ---------------------------------------------------------------------------
         param.APPLY_TH_O_STREAM     := NEW_IMAGE_STREAM_PARAM(
                                           ELEM_BITS => QCONV_PARAM.NBITS_IN_DATA,
-                                          C         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(1, TRUE, TRUE),
-                                          D         => stream_shape_out_c,
-                                          X         => stream_shape_x,
-                                          Y         => stream_shape_y
-                                      );
-        ---------------------------------------------------------------------------
-        --
-        ---------------------------------------------------------------------------
-        param.APPLY_TH_D_STREAM     := NEW_IMAGE_STREAM_PARAM(
-                                          ELEM_BITS => QCONV_PARAM.NBITS_IN_DATA,
                                           C         => stream_shape_out_c,
-                                          D         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(1, FALSE, FALSE),
+                                          D         => NEW_IMAGE_SHAPE_SIDE_CONSTANT(1, TRUE, TRUE),
                                           X         => stream_shape_x,
                                           Y         => stream_shape_y
                                       );
@@ -488,38 +466,39 @@ architecture RTL of QCONV_STRIP_CORE is
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
-    signal    mul_data              :  std_logic_vector(PARAM.MUL_STREAM.DATA.SIZE-1 downto 0);
-    signal    mul_valid             :  std_logic;
-    signal    mul_ready             :  std_logic;
+    signal    conv_mul_data         :  std_logic_vector(PARAM.CONV_MUL_STREAM.DATA.SIZE-1 downto 0);
+    signal    conv_mul_valid        :  std_logic;
+    signal    conv_mul_ready        :  std_logic;
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
-    signal    add_data              :  std_logic_vector(PARAM.ADD_STREAM.DATA.SIZE-1 downto 0);
-    signal    add_valid             :  std_logic;
-    signal    add_ready             :  std_logic;
+    signal    conv_add_data         :  std_logic_vector(PARAM.CONV_ADD_STREAM.DATA.SIZE-1 downto 0);
+    signal    conv_add_valid        :  std_logic;
+    signal    conv_add_ready        :  std_logic;
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
-    signal    acc_data              :  std_logic_vector(PARAM.ACC_STREAM.DATA.SIZE-1 downto 0);
-    signal    acc_valid             :  std_logic;
-    signal    acc_ready             :  std_logic;
-    signal    acc_c_atrb_vec        :  IMAGE_STREAM_ATRB_VECTOR(0 to PARAM.ACC_STREAM.SHAPE.C.SIZE-1);
-    signal    acc_d_atrb_vec        :  IMAGE_STREAM_ATRB_VECTOR(0 to PARAM.ACC_STREAM.SHAPE.D.SIZE-1);
-    signal    acc_x_atrb_vec        :  IMAGE_STREAM_ATRB_VECTOR(0 to PARAM.ACC_STREAM.SHAPE.X.SIZE-1);
-    signal    acc_y_atrb_vec        :  IMAGE_STREAM_ATRB_VECTOR(0 to PARAM.ACC_STREAM.SHAPE.Y.SIZE-1);
+    signal    conv_acc_data         :  std_logic_vector(PARAM.CONV_ACC_STREAM.DATA.SIZE-1 downto 0);
+    signal    conv_acc_valid        :  std_logic;
+    signal    conv_acc_ready        :  std_logic;
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
-    signal    pass_th_i_data        :  std_logic_vector(PARAM.PASS_TH_I_STREAM.DATA.SIZE-1 downto 0);
-    signal    pass_th_i_valid       :  std_logic;
-    signal    pass_th_i_ready       :  std_logic;
-    signal    pass_th_i_done        :  std_logic;
-    signal    pass_th_i_c_vec       :  IMAGE_STREAM_ATRB_VECTOR(0 to PARAM.PASS_TH_I_STREAM.SHAPE.C.SIZE-1);
+    signal    conv_out_data         :  std_logic_vector(PARAM.CONV_OUT_STREAM.DATA.SIZE-1 downto 0);
+    signal    conv_out_done         :  std_logic;
+    signal    conv_out_valid        :  std_logic;
+    signal    conv_out_ready        :  std_logic;
+    signal    conv_out_c_atrb_vec   :  IMAGE_STREAM_ATRB_VECTOR(0 to PARAM.CONV_OUT_STREAM.SHAPE.C.SIZE-1);
+    signal    conv_out_d_atrb_vec   :  IMAGE_STREAM_ATRB_VECTOR(0 to PARAM.CONV_OUT_STREAM.SHAPE.D.SIZE-1);
+    signal    conv_out_x_atrb_vec   :  IMAGE_STREAM_ATRB_VECTOR(0 to PARAM.CONV_OUT_STREAM.SHAPE.X.SIZE-1);
+    signal    conv_out_y_atrb_vec   :  IMAGE_STREAM_ATRB_VECTOR(0 to PARAM.CONV_OUT_STREAM.SHAPE.Y.SIZE-1);
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
     signal    pass_th_q_data        :  std_logic_vector(PARAM.PASS_TH_Q_STREAM.DATA.SIZE-1 downto 0);
     signal    pass_th_q_busy        :  std_logic;
+    signal    pass_th_i_valid       :  std_logic;
+    signal    pass_th_i_ready       :  std_logic;
     signal    pass_th_o_data        :  std_logic_vector(OUT_DATA'length-1 downto 0);
     signal    pass_th_o_strb        :  std_logic_vector(OUT_STRB'length-1 downto 0);
     signal    pass_th_o_last        :  std_logic;
@@ -528,20 +507,15 @@ architecture RTL of QCONV_STRIP_CORE is
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
-    signal    apply_th_i_data       :  std_logic_vector(PARAM.APPLY_TH_I_STREAM.DATA.SIZE-1 downto 0);
     signal    apply_th_i_valid      :  std_logic;
     signal    apply_th_i_ready      :  std_logic;
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
     signal    apply_th_o_data       :  std_logic_vector(PARAM.APPLY_TH_O_STREAM.DATA.SIZE-1 downto 0);
+    signal    apply_th_o_done       :  std_logic;
     signal    apply_th_o_valid      :  std_logic;
     signal    apply_th_o_ready      :  std_logic;
-    -------------------------------------------------------------------------------
-    --
-    -------------------------------------------------------------------------------
-    signal    apply_th_d_data       :  std_logic_vector(PARAM.APPLY_TH_D_STREAM.DATA.SIZE-1 downto 0);
-    signal    apply_th_d_done       :  std_logic;
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
@@ -854,7 +828,7 @@ begin
             QCONV_PARAM     => QCONV_PARAM             , --
             I_PARAM         => PARAM.IN_DATA_STREAM    , --
             K_PARAM         => PARAM.K_DATA_STREAM     , --
-            O_PARAM         => PARAM.MUL_STREAM        , --
+            O_PARAM         => PARAM.CONV_MUL_STREAM        , --
             CHECK_K_VALID   => 0                       , -- 
             QUEUE_SIZE      => 1                         --
         )                                                -- 
@@ -868,17 +842,17 @@ begin
             K_DATA          => kernel_data             , -- In  :
             K_VALID         => kernel_valid            , -- In  :
             K_READY         => kernel_ready            , -- Out :
-            O_DATA          => mul_data                , -- Out :
-            O_VALID         => mul_valid               , -- Out :
-            O_READY         => mul_ready                 -- In  :
+            O_DATA          => conv_mul_data                , -- Out :
+            O_VALID         => conv_mul_valid               , -- Out :
+            O_READY         => conv_mul_ready                 -- In  :
         );                                               -- 
     -------------------------------------------------------------------------------
     -- 
     -------------------------------------------------------------------------------
     ADD: CONVOLUTION_INT_ADDER_TREE                      -- 
         generic map (                                    -- 
-            I_PARAM         => PARAM.MUL_STREAM        , --
-            O_PARAM         => PARAM.ADD_STREAM        , --
+            I_PARAM         => PARAM.CONV_MUL_STREAM   , --
+            O_PARAM         => PARAM.CONV_ADD_STREAM   , --
             QUEUE_SIZE      => 1                       , --
             SIGN            => TRUE                      --
         )                                                -- 
@@ -886,20 +860,20 @@ begin
             CLK             => CLK                     , -- In  :
             RST             => RST                     , -- In  :
             CLR             => CLR                     , -- In  :
-            I_DATA          => mul_data                , -- In  :
-            I_VALID         => mul_valid               , -- In  :
-            I_READY         => mul_ready               , -- Out :
-            O_DATA          => add_data                , -- Out :
-            O_VALID         => add_valid               , -- Out :
-            O_READY         => add_ready                 -- In  :
+            I_DATA          => conv_mul_data           , -- In  :
+            I_VALID         => conv_mul_valid          , -- In  :
+            I_READY         => conv_mul_ready          , -- Out :
+            O_DATA          => conv_add_data           , -- Out :
+            O_VALID         => conv_add_valid          , -- Out :
+            O_READY         => conv_add_ready            -- In  :
         );                                               -- 
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
     ACC: CONVOLUTION_INT_ACCUMULATOR                     -- 
         generic map (                                    -- 
-            I_PARAM         => PARAM.ADD_STREAM        , --
-            O_PARAM         => PARAM.ACC_STREAM        , --
+            I_PARAM         => PARAM.CONV_ADD_STREAM        , --
+            O_PARAM         => PARAM.CONV_ACC_STREAM        , --
             B_PARAM         => PARAM.BIAS_STREAM       , --
             QUEUE_SIZE      => 2                       , --
             SIGN            => TRUE                      --
@@ -908,31 +882,37 @@ begin
             CLK             => CLK                     , -- In  :
             RST             => RST                     , -- In  :
             CLR             => CLR                     , -- In  :
-            I_DATA          => add_data                , -- In  :
-            I_VALID         => add_valid               , -- In  :
-            I_READY         => add_ready               , -- Out :
+            I_DATA          => conv_add_data           , -- In  :
+            I_VALID         => conv_add_valid          , -- In  :
+            I_READY         => conv_add_ready          , -- Out :
             B_DATA          => bias_data               , -- In  :
             B_VALID         => bias_valid              , -- In  :
             B_READY         => bias_ready              , -- Out :
-            O_DATA          => acc_data                , -- Out :
-            O_VALID         => acc_valid               , -- Out :
-            O_READY         => acc_ready                 -- In  :
+            O_DATA          => conv_acc_data           , -- Out :
+            O_VALID         => conv_acc_valid          , -- Out :
+            O_READY         => conv_acc_ready            -- In  :
         );                                               --
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
-    acc_c_atrb_vec    <= GET_ATRB_C_VECTOR_FROM_IMAGE_STREAM_DATA(PARAM.ACC_STREAM, acc_data);
-    acc_d_atrb_vec    <= GET_ATRB_D_VECTOR_FROM_IMAGE_STREAM_DATA(PARAM.ACC_STREAM, acc_data);
-    acc_x_atrb_vec    <= GET_ATRB_X_VECTOR_FROM_IMAGE_STREAM_DATA(PARAM.ACC_STREAM, acc_data);
-    acc_y_atrb_vec    <= GET_ATRB_Y_VECTOR_FROM_IMAGE_STREAM_DATA(PARAM.ACC_STREAM, acc_data);
-    acc_ready         <= '1' when (req_args.use_th /= 0 and apply_th_i_ready = '1') or
-                                  (req_args.use_th  = 0 and pass_th_i_ready  = '1') else '0';
+    conv_out_data       <= CONVOLUTION_PIPELINE_TO_IMAGE_STREAM(PARAM.CONV_OUT_STREAM, PARAM.CONV_ACC_STREAM, conv_acc_data);
+    conv_out_done       <= '1' when (IMAGE_STREAM_DATA_IS_LAST_C(PARAM.CONV_OUT_STREAM, conv_out_data) and
+                                     IMAGE_STREAM_DATA_IS_LAST_X(PARAM.CONV_OUT_STREAM, conv_out_data) and
+                                     IMAGE_STREAM_DATA_IS_LAST_Y(PARAM.CONV_OUT_STREAM, conv_out_data)) else '0';
+    conv_out_ready      <= '1' when (req_args.use_th /= 0 and apply_th_i_ready = '1') or
+                                    (req_args.use_th  = 0 and pass_th_i_ready  = '1') else '0';
+    conv_out_c_atrb_vec <= GET_ATRB_C_VECTOR_FROM_IMAGE_STREAM_DATA(PARAM.CONV_OUT_STREAM, conv_out_data);
+    conv_out_d_atrb_vec <= GET_ATRB_D_VECTOR_FROM_IMAGE_STREAM_DATA(PARAM.CONV_OUT_STREAM, conv_out_data);
+    conv_out_x_atrb_vec <= GET_ATRB_X_VECTOR_FROM_IMAGE_STREAM_DATA(PARAM.CONV_OUT_STREAM, conv_out_data);
+    conv_out_y_atrb_vec <= GET_ATRB_Y_VECTOR_FROM_IMAGE_STREAM_DATA(PARAM.CONV_OUT_STREAM, conv_out_data);
+    conv_out_valid      <= conv_acc_valid;
+    conv_acc_ready      <= conv_out_ready;
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
     PASS_TH: IMAGE_STREAM_CHANNEL_REDUCER                -- 
         generic map (                                    -- 
-            I_PARAM         => PARAM.PASS_TH_I_STREAM  , --
+            I_PARAM         => PARAM.CONV_OUT_STREAM   , --
             O_PARAM         => PARAM.PASS_TH_Q_STREAM  , --
             C_SIZE          => 0                       , --
             C_DONE          => 0                         --
@@ -942,20 +922,15 @@ begin
             RST             => RST                     , -- In  :
             CLR             => CLR                     , -- In  :
             BUSY            => pass_th_q_busy          , -- Out :
-            I_DATA          => pass_th_i_data          , -- In  :
-            I_DONE          => pass_th_i_done          , -- In  :
+            I_DATA          => conv_out_data           , -- In  :
+            I_DONE          => conv_out_done           , -- In  :
             I_VALID         => pass_th_i_valid         , -- In  :
             I_READY         => pass_th_i_ready         , -- Out :
             O_DATA          => pass_th_q_data          , -- Out :
             O_VALID         => pass_th_o_valid         , -- Out :
             O_READY         => pass_th_o_ready           -- In  :
         );                                               -- 
-    pass_th_i_data   <= CONVOLUTION_PIPELINE_TO_IMAGE_STREAM(PARAM.PASS_TH_I_STREAM, PARAM.ACC_STREAM, acc_data);
-    pass_th_i_c_vec  <= GET_ATRB_C_VECTOR_FROM_IMAGE_STREAM_DATA(PARAM.PASS_TH_I_STREAM, pass_th_i_data);
-    pass_th_i_done   <= '1' when (IMAGE_STREAM_DATA_IS_LAST_C(PARAM.PASS_TH_I_STREAM, pass_th_i_data) and
-                                  IMAGE_STREAM_DATA_IS_LAST_X(PARAM.PASS_TH_I_STREAM, pass_th_i_data) and
-                                  IMAGE_STREAM_DATA_IS_LAST_Y(PARAM.PASS_TH_I_STREAM, pass_th_i_data)) else '0';
-    pass_th_i_valid  <= '1' when (req_args.use_th = 0 and acc_valid = '1') else '0';
+    pass_th_i_valid  <= '1' when (req_args.use_th = 0 and conv_out_valid = '1') else '0';
     process (pass_th_q_data)
         variable c_atrb : IMAGE_STREAM_ATRB_TYPE;
     begin
@@ -982,7 +957,7 @@ begin
     APPLY_TH: QCONV_APPLY_THRESHOLDS                     -- 
         generic map (                                    --
             QCONV_PARAM     => QCONV_PARAM             , -- 
-            I_PARAM         => PARAM.APPLY_TH_I_STREAM , -- 
+            I_PARAM         => PARAM.CONV_OUT_STREAM   , -- 
             T_PARAM         => PARAM.THRESHOLDS_STREAM , --
             O_PARAM         => PARAM.APPLY_TH_O_STREAM , --
             QUEUE_SIZE      => 2                         --
@@ -991,7 +966,7 @@ begin
             CLK             => CLK                     , -- In  :
             RST             => RST                     , -- In  :
             CLR             => CLR                     , -- In  :
-            I_DATA          => apply_th_i_data         , -- In  :
+            I_DATA          => conv_out_data           , -- In  :
             I_VALID         => apply_th_i_valid        , -- In  :
             I_READY         => apply_th_i_ready        , -- Out :
             T_DATA          => thresholds_data         , -- In  :
@@ -1001,8 +976,7 @@ begin
             O_VALID         => apply_th_o_valid        , -- Out :
             O_READY         => apply_th_o_ready          -- In  :
         );                                               -- 
-    apply_th_i_data   <= acc_data;
-    apply_th_i_valid  <= '1' when (req_args.use_th /= 0 and acc_valid = '1') else '0';
+    apply_th_i_valid  <= '1' when (req_args.use_th /= 0 and conv_acc_valid = '1') else '0';
     apply_th_o_ready  <= '1' when (req_args.use_th  = 1 and apply_th1_i_ready = '1') or
                                   (req_args.use_th  = 2 and apply_th2_i_ready = '1') or
                                   (req_args.use_th  = 3 and apply_th3_i_ready = '1') else '0';
@@ -1012,16 +986,15 @@ begin
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
-    apply_th_d_data  <= CONVOLUTION_PIPELINE_TO_IMAGE_STREAM(PARAM.APPLY_TH_D_STREAM, PARAM.APPLY_TH_O_STREAM, apply_th_o_data);
-    apply_th_d_done  <= '1' when (IMAGE_STREAM_DATA_IS_LAST_C(PARAM.APPLY_TH_D_STREAM, apply_th_d_data) and
-                                  IMAGE_STREAM_DATA_IS_LAST_X(PARAM.APPLY_TH_D_STREAM, apply_th_d_data) and
-                                  IMAGE_STREAM_DATA_IS_LAST_Y(PARAM.APPLY_TH_D_STREAM, apply_th_d_data)) else '0';
+    apply_th_o_done  <= '1' when (IMAGE_STREAM_DATA_IS_LAST_C(PARAM.APPLY_TH_O_STREAM, apply_th_o_data) and
+                                  IMAGE_STREAM_DATA_IS_LAST_X(PARAM.APPLY_TH_O_STREAM, apply_th_o_data) and
+                                  IMAGE_STREAM_DATA_IS_LAST_Y(PARAM.APPLY_TH_O_STREAM, apply_th_o_data)) else '0';
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
     APPLY_Q1: IMAGE_STREAM_CHANNEL_REDUCER               -- 
         generic map (                                    -- 
-            I_PARAM         => PARAM.APPLY_TH_D_STREAM , --
+            I_PARAM         => PARAM.APPLY_TH_O_STREAM , --
             O_PARAM         => PARAM.APPLY_TH_1_STREAM , --
             C_SIZE          => 0                       , --
             C_DONE          => 0                         --
@@ -1031,8 +1004,8 @@ begin
             RST             => RST                     , -- In  :
             CLR             => CLR                     , -- In  :
             BUSY            => apply_th1_busy          , -- Out :
-            I_DATA          => apply_th_d_data         , -- In  :
-            I_DONE          => apply_th_d_done         , -- In  :
+            I_DATA          => apply_th_o_data         , -- In  :
+            I_DONE          => apply_th_o_done         , -- In  :
             I_VALID         => apply_th1_i_valid       , -- In  :
             I_READY         => apply_th1_i_ready       , -- Out :
             O_DATA          => apply_th1_q_data        , -- Out :
@@ -1091,7 +1064,7 @@ begin
     -------------------------------------------------------------------------------
     APPLY_Q2: IMAGE_STREAM_CHANNEL_REDUCER               -- 
         generic map (                                    -- 
-            I_PARAM         => PARAM.APPLY_TH_D_STREAM , --
+            I_PARAM         => PARAM.APPLY_TH_O_STREAM , --
             O_PARAM         => PARAM.APPLY_TH_2_STREAM , --
             C_SIZE          => 0                       , --
             C_DONE          => 0                         --
@@ -1101,8 +1074,8 @@ begin
             RST             => RST                     , -- In  :
             CLR             => CLR                     , -- In  :
             BUSY            => apply_th2_busy          , -- Out :
-            I_DATA          => apply_th_d_data         , -- In  :
-            I_DONE          => apply_th_d_done         , -- In  :
+            I_DATA          => apply_th_o_data         , -- In  :
+            I_DONE          => apply_th_o_done         , -- In  :
             I_VALID         => apply_th2_i_valid       , -- In  :
             I_READY         => apply_th2_i_ready       , -- Out :
             O_DATA          => apply_th2_q_data        , -- Out :
@@ -1161,7 +1134,7 @@ begin
     -------------------------------------------------------------------------------
     APPLY_Q3: IMAGE_STREAM_CHANNEL_REDUCER               -- 
         generic map (                                    -- 
-            I_PARAM         => PARAM.APPLY_TH_D_STREAM , --
+            I_PARAM         => PARAM.APPLY_TH_O_STREAM , --
             O_PARAM         => PARAM.APPLY_TH_3_STREAM , --
             C_SIZE          => 0                       , --
             C_DONE          => 0                         --
@@ -1171,8 +1144,8 @@ begin
             RST             => RST                     , -- In  :
             CLR             => CLR                     , -- In  :
             BUSY            => apply_th3_busy          , -- Out :
-            I_DATA          => apply_th_d_data         , -- In  :
-            I_DONE          => apply_th_d_done         , -- In  :
+            I_DATA          => apply_th_o_data         , -- In  :
+            I_DONE          => apply_th_o_done         , -- In  :
             I_VALID         => apply_th3_i_valid       , -- In  :
             I_READY         => apply_th3_i_ready       , -- Out :
             O_DATA          => apply_th3_q_data        , -- Out :

@@ -1,8 +1,8 @@
 -----------------------------------------------------------------------------------
 --!     @file    qconv_apply_thresholds.vhd
 --!     @brief   Quantized Convolution Apply Thresholds Module
---!     @version 0.1.0
---!     @date    2019/3/20
+--!     @version 0.2.0
+--!     @date    2019/5/12
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>
 -----------------------------------------------------------------------------------
 --
@@ -154,7 +154,7 @@ architecture RTL of QCONV_APPLY_THRESHOLDS is
                                        0 to I_PARAM.SHAPE.D.SIZE-1,
                                        0 to I_PARAM.SHAPE.C.SIZE-1) of I_ELEM_TYPE;
     signal    i_element       :  I_ELEM_VECTOR;
-    signal    i_d_atrb        :  IMAGE_STREAM_ATRB_VECTOR(0 to I_PARAM.SHAPE.D.SIZE-1);
+    signal    i_c_atrb        :  IMAGE_STREAM_ATRB_VECTOR(0 to I_PARAM.SHAPE.C.SIZE-1);
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
@@ -164,7 +164,7 @@ architecture RTL of QCONV_APPLY_THRESHOLDS is
                                        0 to T_PARAM.SHAPE.D.SIZE-1,
                                        0 to T_PARAM.SHAPE.C.SIZE-1) of T_ELEM_TYPE;
     signal    t_element       :  T_ELEM_VECTOR;
-    signal    t_d_atrb        :  IMAGE_STREAM_ATRB_VECTOR(0 to T_PARAM.SHAPE.D.SIZE-1);
+    signal    t_c_atrb        :  IMAGE_STREAM_ATRB_VECTOR(0 to T_PARAM.SHAPE.C.SIZE-1);
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
@@ -195,7 +195,7 @@ begin
         end loop;
         end loop;
         end loop;
-        i_d_atrb <= GET_ATRB_D_VECTOR_FROM_IMAGE_STREAM_DATA(I_PARAM, I_DATA);
+        i_c_atrb <= GET_ATRB_C_VECTOR_FROM_IMAGE_STREAM_DATA(I_PARAM, I_DATA);
     end process;
     -------------------------------------------------------------------------------
     -- t_element : 入力パイプライン THRESHOLD データを要素ごとの配列に変換
@@ -211,7 +211,7 @@ begin
         end loop;
         end loop;
         end loop;
-        t_d_atrb <= GET_ATRB_D_VECTOR_FROM_IMAGE_STREAM_DATA(T_PARAM, T_DATA);
+        t_c_atrb <= GET_ATRB_C_VECTOR_FROM_IMAGE_STREAM_DATA(T_PARAM, T_DATA);
     end process;
     -------------------------------------------------------------------------------
     -- o_element : 演算結果

@@ -1,8 +1,8 @@
 -----------------------------------------------------------------------------------
 --!     @file    qconv_strip_core_test_bench.vhd
 --!     @brief   Test Bench for Quantized Convolution (strip) Core Module
---!     @version 0.1.0
---!     @date    2019/4/19
+--!     @version 0.2.0
+--!     @date    2019/5/12
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>
 -----------------------------------------------------------------------------------
 --
@@ -164,7 +164,7 @@ architecture MODEL of QCONV_STRIP_CORE_TEST_BENCH is
     signal    K_W               :  std_logic_vector(QCONV_PARAM.K_W_BITS         -1 downto 0);
     signal    K_H               :  std_logic_vector(QCONV_PARAM.K_H_BITS         -1 downto 0);
     signal    PAD_SIZE          :  std_logic_vector(QCONV_PARAM.PAD_SIZE_BITS    -1 downto 0);
-    signal    USE_TH            :  std_logic;
+    signal    USE_TH            :  std_logic_vector(1 downto 0);
     constant  PARAM_IN          :  std_logic := '1';
     signal    REQ_VALID         :  std_logic;
     signal    REQ_READY         :  std_logic;
