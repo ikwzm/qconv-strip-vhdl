@@ -295,7 +295,7 @@ architecture RTL of QCONV_STRIP_AXI_ULTRASCALE is
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
-    constant  ID                    : string(1 to 8) := "QCONV-S1";
+    constant  ID                    : string(1 to 8) := "QCONV-S2";
     constant  BUF_DEPTH             : integer := 512;
     constant  IN_BUF_SIZE           : integer := BUF_DEPTH*4*IN_C_UNROLL;
     constant  K_BUF_SIZE            : integer := BUF_DEPTH*3*3*OUT_C_UNROLL*IN_C_UNROLL;

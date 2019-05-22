@@ -2,7 +2,7 @@
 --!     @file    qconv_strip_axi3.vhd
 --!     @brief   Quantized Convolution (strip) AXI3 I/F Module
 --!     @version 0.2.0
---!     @date    2019/5/12
+--!     @date    2019/5/22
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>
 -----------------------------------------------------------------------------------
 --
@@ -47,7 +47,7 @@ entity  QCONV_STRIP_AXI3 is
     -------------------------------------------------------------------------------
     generic (
         ID                  : --! @brief QCONV ID STRING :
-                              string(1 to 8) := "QCONV-S1";
+                              string(1 to 8) := "QCONV-S2";
         IN_C_UNROLL         : --! @brief INPUT  CHANNEL UNROLL SIZE :
                               integer := 1;
         OUT_C_UNROLL        : --! @brief OUTPUT CHANNEL UNROLL SIZE :
