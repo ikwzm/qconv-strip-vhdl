@@ -20,7 +20,8 @@ SCENARIOS = [{:test => "1", :seq => 1, :kw => 1, :kh => 1, :ic => 1, :iw => 1, :
              {:test => "2", :seq => 8, :kw => 1, :kh => 1, :ic => 1, :iw =>10, :ih => 4, :oc =>  3, :use_th => 2},
              {:test => "2", :seq => 9, :kw => 3, :kh => 3, :ic => 1, :iw => 8, :ih => 8, :oc => 32, :use_th => 2},
              {:test => "2", :seq =>10, :kw => 1, :kh => 1, :ic => 1, :iw => 1, :ih => 1, :oc => 32, :use_th => 3},
-             {:test => "2", :seq =>11, :kw => 3, :kh => 3, :ic => 1, :iw => 8, :ih => 8, :oc => 32, :use_th => 3}]
+             {:test => "2", :seq =>11, :kw => 3, :kh => 3, :ic => 1, :iw => 8, :ih => 8, :oc => 32, :use_th => 3},
+             {:test => "2", :seq =>12, :kw => 3, :kh => 3, :ic => 1, :iw => 8, :ih => 8, :oc =>  8, :use_th => 1}]
 
 scenario_file_list = ["test_mem_all.snr"]
 CLOBBER.include("test_mem_all.snr")
@@ -29,6 +30,7 @@ SCENARIOS.each do |test_info|
   scenario_file_name = sprintf("test_mem_%s_%03d.snr", test_info[:test], test_info[:seq])
   scenario_file_list.push(scenario_file_name)
   CLOBBER.include(scenario_file_name)
+  desc "type=#{test_info[:test]} iw=#{test_info[:iw]} ih=#{test_info[:ih]} ic=#{test_info[:ic]} oc=#{test_info[:oc]} kw=#{test_info[:kw]} kh=#{test_info[:kh]} use_th=#{test_info.fetch(:use_th, 0)}"
   file scenario_file_name do
     puts "generate #{scenario_file_name}"
     File.open(scenario_file_name, "w") do |file|

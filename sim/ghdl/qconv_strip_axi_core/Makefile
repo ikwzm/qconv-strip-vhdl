@@ -35,6 +35,7 @@ TEST_BENCH            := qconv_strip_axi_core_test_bench_slv_1_1_064 \
                          qconv_strip_axi_core_test_bench_mem_2_009   \
                          qconv_strip_axi_core_test_bench_mem_2_010   \
                          qconv_strip_axi_core_test_bench_mem_2_011   \
+                         qconv_strip_axi_core_test_bench_mem_2_012   \
                          qconv_strip_axi_core_test_bench_mem_all     \
                          $(END_LIST)
 
@@ -155,6 +156,11 @@ qconv_strip_axi_core_test_bench_mem_2_010   : qconv_strip_axi_core_test_bench.o 
 
 qconv_strip_axi_core_test_bench_mem_2_011   : qconv_strip_axi_core_test_bench.o $(SCENARIO_PATH)/test_mem_2_011.snr
 	cp      $(SCENARIO_PATH)/test_mem_2_011.snr test_mem_1_8_512.snr 
+	$(GHDL) -e $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+	$(GHDL) -r $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
+
+qconv_strip_axi_core_test_bench_mem_2_012   : qconv_strip_axi_core_test_bench.o $(SCENARIO_PATH)/test_mem_2_012.snr
+	cp      $(SCENARIO_PATH)/test_mem_2_012.snr test_mem_1_8_512.snr 
 	$(GHDL) -e $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
 	$(GHDL) -r $(GHDLFLAGS) --work=WORK qconv_strip_axi_core_test_bench_mem_1_8_512
 
