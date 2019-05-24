@@ -276,7 +276,7 @@ entity  QCONV_STRIP_AXI3 is
         T_AXI_ARLOCK        : out std_logic_vector(1 downto 0);
         T_AXI_ARCACHE       : out std_logic_vector(3 downto 0);
         T_AXI_ARPROT        : out std_logic_vector(2 downto 0);
-        T_AXI_ARUSER        : out std_logic_vector(K_AXI_USER_WIDTH  -1 downto 0);
+        T_AXI_ARUSER        : out std_logic_vector(T_AXI_USER_WIDTH  -1 downto 0);
         T_AXI_ARVALID       : out std_logic;
         T_AXI_ARREADY       : in  std_logic;
     -------------------------------------------------------------------------------

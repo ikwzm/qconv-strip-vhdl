@@ -1,8 +1,8 @@
 -----------------------------------------------------------------------------------
 --!     @file    qconv_strip_axi_ultrascale.vhd
 --!     @brief   Quantized Convolution (strip) AXI I/F UltraScale Wrapper Module
---!     @version 0.1.0
---!     @date    2019/4/9
+--!     @version 0.2.0
+--!     @date    2019/5/24
 --!     @author  Ichiro Kawazome <ichiro_k@ca2.so-net.ne.jp>
 -----------------------------------------------------------------------------------
 --
@@ -45,28 +45,80 @@ entity  QCONV_STRIP_AXI_ULTRASCALE is
     -- 
     -------------------------------------------------------------------------------
     generic (
-        IN_C_UNROLL         : integer := 1;
-        OUT_C_UNROLL        : integer := 8;
-        S_AXI_ADDR_WIDTH    : integer := 12;
-        S_AXI_DATA_WIDTH    : integer := 32;
-        M_AXI_ADDR_WIDTH    : integer := 32;
-        M_AXI_DATA_WIDTH    : integer := 64;
-        I_AXI_PROT          : integer := 1;
-        I_AXI_QOS           : integer := 0;
-        I_AXI_REGION        : integer := 0;
-        I_AXI_CACHE         : integer := 15;
-        O_AXI_PROT          : integer := 1;
-        O_AXI_QOS           : integer := 0;
-        O_AXI_REGION        : integer := 0;
-        O_AXI_CACHE         : integer := 15;
-        K_AXI_PROT          : integer := 1;
-        K_AXI_QOS           : integer := 0;
-        K_AXI_REGION        : integer := 0;
-        K_AXI_CACHE         : integer := 15;
-        T_AXI_PROT          : integer := 1;
-        T_AXI_QOS           : integer := 0;
-        T_AXI_REGION        : integer := 0;
-        T_AXI_CACHE         : integer := 15
+        ID                  : --! @brief QCONV ID STRING :
+                              string(1 to 8) := "QCONV-S2";
+        IN_C_UNROLL         : --! @brief INPUT  CHANNEL UNROLL SIZE :
+                              integer := 1;
+        OUT_C_UNROLL        : --! @brief OUTPUT CHANNEL UNROLL SIZE :
+                              integer := 8;
+        S_AXI_ADDR_WIDTH    : --! @brief CSR I/F AXI ADDRRESS WIDTH :
+                              integer := 12;
+        S_AXI_DATA_WIDTH    : --! @brief CSR I/F AXI DATA WIDTH :
+                              integer := 32;
+        IO_AXI_ADDR_WIDTH   : --! @brief IN/OUT DATA AXI ADDRESS WIDTH :
+                              integer := 32;
+        IO_AXI_DATA_WIDTH   : --! @brief IN/OUT DATA AXI DATA WIDTH :
+                              integer := 64;
+        IO_AXI_ID_WIDTH     : --! @brief IN/OUT DATA AXI ID WIDTH :
+                              integer := 1;
+        IO_AXI_USER_WIDTH   : --! @brief IN/OUT DATA AXI ADDRESS USER WIDTH :
+                              integer := 1;
+        I_AXI_ID            : --! @brief IN  DATA AXI ID :
+                              integer := 0;
+        I_AXI_PROT          : --! @brief IN  DATA AXI PROT :
+                              integer := 1;
+        I_AXI_CACHE         : --! @brief IN  DATA AXI REGION :
+                              integer := 15;
+        I_AXI_AUSER         : --! @brief IN  DATA AXI ADDRESS USER VALUE:
+                              integer := 0;
+        I_AXI_REQ_QUEUE     : --! @brief IN  DATA AXI REQUEST QUEUE SIZE :
+                              integer := 4;
+        O_AXI_ID            : --! @brief OUT DATA AXI ID :
+                              integer := 0;
+        O_AXI_PROT          : --! @brief OUT DATA AXI PROT :
+                              integer := 1;
+        O_AXI_CACHE         : --! @brief OUT DATA AXI REGION :
+                              integer := 15;
+        O_AXI_AUSER         : --! @brief OUT DATA AXI ADDRESS USER VALUE :
+                              integer := 0;
+        O_AXI_REQ_QUEUE     : --! @brief OUT DATA AXI REQUEST QUEUE SIZE :
+                              integer := 4;
+        K_AXI_ADDR_WIDTH    : --! @brief K   DATA AXI ADDRESS WIDTH :
+                              integer := 32;
+        K_AXI_DATA_WIDTH    : --! @brief K   DATA AXI DATA WIDTH :
+                              integer := 64;
+        K_AXI_ID_WIDTH      : --! @brief K   DATA AXI ID WIDTH :
+                              integer := 1;
+        K_AXI_USER_WIDTH    : --! @brief K   DATA AXI ADDRESS USER WIDTH :
+                              integer := 1;
+        K_AXI_ID            : --! @brief K   DATA AXI ID :
+                              integer := 0;
+        K_AXI_PROT          : --! @brief K   DATA AXI PROT :
+                              integer := 1;
+        K_AXI_CACHE         : --! @brief K   DATA AXI REGION :
+                              integer := 15;
+        K_AXI_AUSER         : --! @brief K   DATA AXI ADDRESS USER VALUE :
+                              integer := 0;
+        K_AXI_REQ_QUEUE     : --! @brief K   DATA AXI REQUEST QUEUE SIZE :
+                              integer := 4;
+        T_AXI_ADDR_WIDTH    : --! @brief TH  DATA AXI ADDRESS WIDTH :
+                              integer := 32;
+        T_AXI_DATA_WIDTH    : --! @brief TH  DATA AXI DATA WIDTH :
+                              integer := 64;
+        T_AXI_ID_WIDTH      : --! @brief TH  DATA AXI ID WIDTH :
+                              integer := 1;
+        T_AXI_USER_WIDTH    : --! @brief TH  DATA AXI ADDRESS USER WIDTH :
+                              integer := 1;
+        T_AXI_ID            : --! @brief TH  DATA AXI ID :
+                              integer := 0;
+        T_AXI_PROT          : --! @brief TH  DATA AXI PROT :
+                              integer := 1;
+        T_AXI_CACHE         : --! @brief TH  DATA AXI REGION :
+                              integer := 15;
+        T_AXI_USER          : --! @brief TH  DATA AXI ADDRESS USER VALUE :
+                              integer := 0;
+        T_AXI_REQ_QUEUE     : --! @brief TH  DATA AXI REQUEST QUEUE SIZE :
+                              integer := 1
     );
     port(
     -------------------------------------------------------------------------------
@@ -77,27 +129,27 @@ entity  QCONV_STRIP_AXI_ULTRASCALE is
     -------------------------------------------------------------------------------
     -- Control Status Register I/F AXI4 Read Address Channel Signals.
     -------------------------------------------------------------------------------
-        S_AXI_ARADDR        : in  std_logic_vector(S_AXI_ADDR_WIDTH  -1 downto 0);
+        S_AXI_ARADDR        : in  std_logic_vector(S_AXI_ADDR_WIDTH   -1 downto 0);
         S_AXI_ARVALID       : in  std_logic;
         S_AXI_ARREADY       : out std_logic;
     ------------------------------------------------------------------------------
     -- Control Status Register I/F AXI4 Read Data Channel Signals.
     ------------------------------------------------------------------------------
-        S_AXI_RDATA         : out std_logic_vector(S_AXI_DATA_WIDTH  -1 downto 0);
+        S_AXI_RDATA         : out std_logic_vector(S_AXI_DATA_WIDTH   -1 downto 0);
         S_AXI_RRESP         : out std_logic_vector(1 downto 0);  
         S_AXI_RVALID        : out std_logic;
         S_AXI_RREADY        : in  std_logic;
     ------------------------------------------------------------------------------
     -- Control Status Register I/F AXI4 Write Address Channel Signals.
     ------------------------------------------------------------------------------
-        S_AXI_AWADDR        : in  std_logic_vector(S_AXI_ADDR_WIDTH  -1 downto 0);
+        S_AXI_AWADDR        : in  std_logic_vector(S_AXI_ADDR_WIDTH   -1 downto 0);
         S_AXI_AWVALID       : in  std_logic;
         S_AXI_AWREADY       : out std_logic;
     ------------------------------------------------------------------------------
     -- Control Status Register I/F AXI4 Write Data Channel Signals.
     ------------------------------------------------------------------------------
-        S_AXI_WDATA         : in  std_logic_vector(S_AXI_DATA_WIDTH  -1 downto 0);
-        S_AXI_WSTRB         : in  std_logic_vector(S_AXI_DATA_WIDTH/8-1 downto 0);
+        S_AXI_WDATA         : in  std_logic_vector(S_AXI_DATA_WIDTH   -1 downto 0);
+        S_AXI_WSTRB         : in  std_logic_vector(S_AXI_DATA_WIDTH/8 -1 downto 0);
         S_AXI_WVALID        : in  std_logic;
         S_AXI_WREADY        : out std_logic;
     ------------------------------------------------------------------------------
@@ -109,7 +161,8 @@ entity  QCONV_STRIP_AXI_ULTRASCALE is
     -------------------------------------------------------------------------------
     -- IN/OUT DATA AXI4 Read Address Channel Signals.
     -------------------------------------------------------------------------------
-        IO_AXI_ARADDR       : out std_logic_vector(M_AXI_ADDR_WIDTH  -1 downto 0);
+        IO_AXI_ARID         : out std_logic_vector(IO_AXI_ID_WIDTH    -1 downto 0);
+        IO_AXI_ARADDR       : out std_logic_vector(IO_AXI_ADDR_WIDTH  -1 downto 0);
         IO_AXI_ARLEN        : out std_logic_vector(7 downto 0);
         IO_AXI_ARSIZE       : out std_logic_vector(2 downto 0);
         IO_AXI_ARBURST      : out std_logic_vector(1 downto 0);
@@ -118,12 +171,14 @@ entity  QCONV_STRIP_AXI_ULTRASCALE is
         IO_AXI_ARPROT       : out std_logic_vector(2 downto 0);
         IO_AXI_ARQOS        : out std_logic_vector(3 downto 0);
         IO_AXI_ARREGION     : out std_logic_vector(3 downto 0);
+        IO_AXI_ARUSER       : out std_logic_vector(IO_AXI_USER_WIDTH  -1 downto 0);
         IO_AXI_ARVALID      : out std_logic;
         IO_AXI_ARREADY      : in  std_logic;
     -------------------------------------------------------------------------------
     -- IN/OUT DATA AXI4 Read Data Channel Signals.
     -------------------------------------------------------------------------------
-        IO_AXI_RDATA        : in  std_logic_vector(M_AXI_DATA_WIDTH  -1 downto 0);
+        IO_AXI_RID          : in  std_logic_vector(IO_AXI_ID_WIDTH    -1 downto 0);
+        IO_AXI_RDATA        : in  std_logic_vector(IO_AXI_DATA_WIDTH  -1 downto 0);
         IO_AXI_RRESP        : in  std_logic_vector(1 downto 0);
         IO_AXI_RLAST        : in  std_logic;
         IO_AXI_RVALID       : in  std_logic;
@@ -131,7 +186,8 @@ entity  QCONV_STRIP_AXI_ULTRASCALE is
     -------------------------------------------------------------------------------
     -- IN/OUT DATA AXI4 Write Address Channel Signals.
     -------------------------------------------------------------------------------
-        IO_AXI_AWADDR       : out std_logic_vector(M_AXI_ADDR_WIDTH  -1 downto 0);
+        IO_AXI_AWID         : out std_logic_vector(IO_AXI_ID_WIDTH    -1 downto 0);
+        IO_AXI_AWADDR       : out std_logic_vector(IO_AXI_ADDR_WIDTH  -1 downto 0);
         IO_AXI_AWLEN        : out std_logic_vector(7 downto 0);
         IO_AXI_AWSIZE       : out std_logic_vector(2 downto 0);
         IO_AXI_AWBURST      : out std_logic_vector(1 downto 0);
@@ -140,26 +196,29 @@ entity  QCONV_STRIP_AXI_ULTRASCALE is
         IO_AXI_AWPROT       : out std_logic_vector(2 downto 0);
         IO_AXI_AWQOS        : out std_logic_vector(3 downto 0);
         IO_AXI_AWREGION     : out std_logic_vector(3 downto 0);
+        IO_AXI_AWUSER       : out std_logic_vector(IO_AXI_USER_WIDTH  -1 downto 0);
         IO_AXI_AWVALID      : out std_logic;
         IO_AXI_AWREADY      : in  std_logic;
     -------------------------------------------------------------------------------
     -- IN/OUT DATA AXI4 Write Data Channel Signals.
     -------------------------------------------------------------------------------
-        IO_AXI_WDATA        : out std_logic_vector(M_AXI_DATA_WIDTH  -1 downto 0);
-        IO_AXI_WSTRB        : out std_logic_vector(M_AXI_DATA_WIDTH/8-1 downto 0);
+        IO_AXI_WDATA        : out std_logic_vector(IO_AXI_DATA_WIDTH  -1 downto 0);
+        IO_AXI_WSTRB        : out std_logic_vector(IO_AXI_DATA_WIDTH/8-1 downto 0);
         IO_AXI_WLAST        : out std_logic;
         IO_AXI_WVALID       : out std_logic;
         IO_AXI_WREADY       : in  std_logic;
     -------------------------------------------------------------------------------
     -- IN/OUT DATA AXI4 Write Response Channel Signals.
     -------------------------------------------------------------------------------
+        IO_AXI_BID          : in  std_logic_vector(IO_AXI_ID_WIDTH    -1 downto 0);
         IO_AXI_BRESP        : in  std_logic_vector(1 downto 0);
         IO_AXI_BVALID       : in  std_logic;
         IO_AXI_BREADY       : out std_logic;
     -------------------------------------------------------------------------------
     -- K DATA AXI4 Read Address Channel Signals.
     -------------------------------------------------------------------------------
-        K_AXI_ARADDR        : out std_logic_vector(M_AXI_ADDR_WIDTH  -1 downto 0);
+        K_AXI_ARID          : out std_logic_vector(K_AXI_ID_WIDTH     -1 downto 0);
+        K_AXI_ARADDR        : out std_logic_vector(K_AXI_ADDR_WIDTH   -1 downto 0);
         K_AXI_ARLEN         : out std_logic_vector(7 downto 0);
         K_AXI_ARSIZE        : out std_logic_vector(2 downto 0);
         K_AXI_ARBURST       : out std_logic_vector(1 downto 0);
@@ -168,12 +227,14 @@ entity  QCONV_STRIP_AXI_ULTRASCALE is
         K_AXI_ARPROT        : out std_logic_vector(2 downto 0);
         K_AXI_ARQOS         : out std_logic_vector(3 downto 0);
         K_AXI_ARREGION      : out std_logic_vector(3 downto 0);
+        K_AXI_ARUSER        : out std_logic_vector(K_AXI_USER_WIDTH   -1 downto 0);
         K_AXI_ARVALID       : out std_logic;
         K_AXI_ARREADY       : in  std_logic;
     -------------------------------------------------------------------------------
     -- K DATA AXI4 Read Data Channel Signals.
     -------------------------------------------------------------------------------
-        K_AXI_RDATA         : in  std_logic_vector(M_AXI_DATA_WIDTH  -1 downto 0);
+        K_AXI_RID           : in  std_logic_vector(K_AXI_ID_WIDTH     -1 downto 0);
+        K_AXI_RDATA         : in  std_logic_vector(K_AXI_DATA_WIDTH   -1 downto 0);
         K_AXI_RRESP         : in  std_logic_vector(1 downto 0);
         K_AXI_RLAST         : in  std_logic;
         K_AXI_RVALID        : in  std_logic;
@@ -181,7 +242,8 @@ entity  QCONV_STRIP_AXI_ULTRASCALE is
     -------------------------------------------------------------------------------
     -- K DATA AXI4 Write Address Channel Signals.
     -------------------------------------------------------------------------------
-        K_AXI_AWADDR        : out std_logic_vector(M_AXI_ADDR_WIDTH  -1 downto 0);
+        K_AXI_AWID          : out std_logic_vector(K_AXI_ID_WIDTH     -1 downto 0);
+        K_AXI_AWADDR        : out std_logic_vector(K_AXI_ADDR_WIDTH   -1 downto 0);
         K_AXI_AWLEN         : out std_logic_vector(7 downto 0);
         K_AXI_AWSIZE        : out std_logic_vector(2 downto 0);
         K_AXI_AWBURST       : out std_logic_vector(1 downto 0);
@@ -190,26 +252,29 @@ entity  QCONV_STRIP_AXI_ULTRASCALE is
         K_AXI_AWPROT        : out std_logic_vector(2 downto 0);
         K_AXI_AWQOS         : out std_logic_vector(3 downto 0);
         K_AXI_AWREGION      : out std_logic_vector(3 downto 0);
+        K_AXI_AWUSER        : out std_logic_vector(K_AXI_USER_WIDTH   -1 downto 0);
         K_AXI_AWVALID       : out std_logic;
         K_AXI_AWREADY       : in  std_logic;
     -------------------------------------------------------------------------------
     -- K DATA AXI4 Write Data Channel Signals.
     -------------------------------------------------------------------------------
-        K_AXI_WDATA         : out std_logic_vector(M_AXI_DATA_WIDTH  -1 downto 0);
-        K_AXI_WSTRB         : out std_logic_vector(M_AXI_DATA_WIDTH/8-1 downto 0);
+        K_AXI_WDATA         : out std_logic_vector(K_AXI_DATA_WIDTH   -1 downto 0);
+        K_AXI_WSTRB         : out std_logic_vector(K_AXI_DATA_WIDTH/8 -1 downto 0);
         K_AXI_WLAST         : out std_logic;
         K_AXI_WVALID        : out std_logic;
         K_AXI_WREADY        : in  std_logic;
     -------------------------------------------------------------------------------
     -- K DATA AXI4 Write Response Channel Signals.
     -------------------------------------------------------------------------------
+        K_AXI_BID           : in  std_logic_vector(K_AXI_ID_WIDTH     -1 downto 0);
         K_AXI_BRESP         : in  std_logic_vector(1 downto 0);
         K_AXI_BVALID        : in  std_logic;
         K_AXI_BREADY        : out std_logic;
     -------------------------------------------------------------------------------
     -- TH DATA AXI4 Read Address Channel Signals.
     -------------------------------------------------------------------------------
-        T_AXI_ARADDR        : out std_logic_vector(M_AXI_ADDR_WIDTH  -1 downto 0);
+        T_AXI_ARID          : out std_logic_vector(T_AXI_ID_WIDTH     -1 downto 0);
+        T_AXI_ARADDR        : out std_logic_vector(T_AXI_ADDR_WIDTH   -1 downto 0);
         T_AXI_ARLEN         : out std_logic_vector(7 downto 0);
         T_AXI_ARSIZE        : out std_logic_vector(2 downto 0);
         T_AXI_ARBURST       : out std_logic_vector(1 downto 0);
@@ -218,12 +283,14 @@ entity  QCONV_STRIP_AXI_ULTRASCALE is
         T_AXI_ARPROT        : out std_logic_vector(2 downto 0);
         T_AXI_ARQOS         : out std_logic_vector(3 downto 0);
         T_AXI_ARREGION      : out std_logic_vector(3 downto 0);
+        T_AXI_ARUSER        : out std_logic_vector(T_AXI_USER_WIDTH   -1 downto 0);
         T_AXI_ARVALID       : out std_logic;
         T_AXI_ARREADY       : in  std_logic;
     -------------------------------------------------------------------------------
     -- TH DATA AXI4 Read Data Channel Signals.
     -------------------------------------------------------------------------------
-        T_AXI_RDATA         : in  std_logic_vector(M_AXI_DATA_WIDTH  -1 downto 0);
+        T_AXI_RID           : in  std_logic_vector(T_AXI_ID_WIDTH     -1 downto 0);
+        T_AXI_RDATA         : in  std_logic_vector(T_AXI_DATA_WIDTH   -1 downto 0);
         T_AXI_RRESP         : in  std_logic_vector(1 downto 0);
         T_AXI_RLAST         : in  std_logic;
         T_AXI_RVALID        : in  std_logic;
@@ -231,7 +298,8 @@ entity  QCONV_STRIP_AXI_ULTRASCALE is
     -------------------------------------------------------------------------------
     -- TH DATA AXI4 Write Address Channel Signals.
     -------------------------------------------------------------------------------
-        T_AXI_AWADDR        : out std_logic_vector(M_AXI_ADDR_WIDTH  -1 downto 0);
+        T_AXI_AWID          : out std_logic_vector(T_AXI_ID_WIDTH     -1 downto 0);
+        T_AXI_AWADDR        : out std_logic_vector(T_AXI_ADDR_WIDTH   -1 downto 0);
         T_AXI_AWLEN         : out std_logic_vector(7 downto 0);
         T_AXI_AWSIZE        : out std_logic_vector(2 downto 0);
         T_AXI_AWBURST       : out std_logic_vector(1 downto 0);
@@ -240,19 +308,21 @@ entity  QCONV_STRIP_AXI_ULTRASCALE is
         T_AXI_AWPROT        : out std_logic_vector(2 downto 0);
         T_AXI_AWQOS         : out std_logic_vector(3 downto 0);
         T_AXI_AWREGION      : out std_logic_vector(3 downto 0);
+        T_AXI_AWUSER        : out std_logic_vector(T_AXI_USER_WIDTH   -1 downto 0);
         T_AXI_AWVALID       : out std_logic;
         T_AXI_AWREADY       : in  std_logic;
     -------------------------------------------------------------------------------
     -- TH DATA AXI4 Write Data Channel Signals.
     -------------------------------------------------------------------------------
-        T_AXI_WDATA         : out std_logic_vector(M_AXI_DATA_WIDTH  -1 downto 0);
-        T_AXI_WSTRB         : out std_logic_vector(M_AXI_DATA_WIDTH/8-1 downto 0);
+        T_AXI_WDATA         : out std_logic_vector(T_AXI_DATA_WIDTH   -1 downto 0);
+        T_AXI_WSTRB         : out std_logic_vector(T_AXI_DATA_WIDTH/8 -1 downto 0);
         T_AXI_WLAST         : out std_logic;
         T_AXI_WVALID        : out std_logic;
         T_AXI_WREADY        : in  std_logic;
     -------------------------------------------------------------------------------
     -- TH DATA AXI4 Write Response Channel Signals.
     -------------------------------------------------------------------------------
+        T_AXI_BID           : in  std_logic_vector(T_AXI_ID_WIDTH     -1 downto 0);
         T_AXI_BRESP         : in  std_logic_vector(1 downto 0);
         T_AXI_BVALID        : in  std_logic;
         T_AXI_BREADY        : out std_logic;
@@ -295,7 +365,6 @@ architecture RTL of QCONV_STRIP_AXI_ULTRASCALE is
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
-    constant  ID                    : string(1 to 8) := "QCONV-S2";
     constant  BUF_DEPTH             : integer := 512;
     constant  IN_BUF_SIZE           : integer := BUF_DEPTH*4*IN_C_UNROLL;
     constant  K_BUF_SIZE            : integer := BUF_DEPTH*3*3*OUT_C_UNROLL*IN_C_UNROLL;
@@ -307,35 +376,24 @@ architecture RTL of QCONV_STRIP_AXI_ULTRASCALE is
     constant  O_AXI_XFER_SIZE       : integer := CALC_BITS(MIN(4096, ((IO_AXI_WDATA'length/8) * (2**IO_AXI_ARLEN'length))));
     constant  K_AXI_XFER_SIZE       : integer := CALC_BITS(MIN(4096, (( K_AXI_RDATA'length/8) * (2** K_AXI_ARLEN'length))));
     constant  T_AXI_XFER_SIZE       : integer := CALC_BITS(MIN(4096, (( T_AXI_RDATA'length/8) * (2** T_AXI_ARLEN'length))));
-
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
-    constant  I_AXI_REQ_QUEUE       : integer := 4;
-    constant  O_AXI_REQ_QUEUE       : integer := 4;
-    constant  K_AXI_REQ_QUEUE       : integer := 4;
-    constant  T_AXI_REQ_QUEUE       : integer := 1;
+    constant  I_AXI_QOS             : integer := 0;
+    constant  O_AXI_QOS             : integer := 0;
+    constant  K_AXI_QOS             : integer := 0;
+    constant  T_AXI_QOS             : integer := 0;
     -------------------------------------------------------------------------------
     --
     -------------------------------------------------------------------------------
-    constant  I_AXI_USER_WIDTH      : integer := 8;
-    constant  O_AXI_USER_WIDTH      : integer := 8;
-    constant  K_AXI_USER_WIDTH      : integer := 8;
-    constant  T_AXI_USER_WIDTH      : integer := 8;
-
+    constant  I_AXI_REGION          : integer := 0;
+    constant  O_AXI_REGION          : integer := 0;
+    constant  K_AXI_REGION          : integer := 0;
+    constant  T_AXI_REGION          : integer := 0;
+    -------------------------------------------------------------------------------
+    --
+    -------------------------------------------------------------------------------
     constant  S_AXI_ID_WIDTH        : integer := 4;
-    constant  I_AXI_ID_WIDTH        : integer := 4;
-    constant  O_AXI_ID_WIDTH        : integer := 4;
-    constant  K_AXI_ID_WIDTH        : integer := 4;
-    constant  T_AXI_ID_WIDTH        : integer := 4;
-
-    constant  I_AXI_ID              : integer := 0;
-    constant  O_AXI_ID              : integer := 0;
-    constant  K_AXI_ID              : integer := 0;
-    constant  T_AXI_ID              : integer := 0;
-    -------------------------------------------------------------------------------
-    --
-    -------------------------------------------------------------------------------
     constant  S_AXI_ARID            : std_logic_vector(S_AXI_ID_WIDTH-1 downto 0) := (others => '0');
     constant  S_AXI_AWID            : std_logic_vector(S_AXI_ID_WIDTH-1 downto 0) := (others => '0');
     signal    S_AXI_RID             : std_logic_vector(S_AXI_ID_WIDTH-1 downto 0);
@@ -348,36 +406,6 @@ architecture RTL of QCONV_STRIP_AXI_ULTRASCALE is
     constant  S_AXI_AWSIZE          : std_logic_vector(2 downto 0) := "010";
     constant  S_AXI_AWBURST         : std_logic_vector(1 downto 0) := "01";
     constant  S_AXI_WLAST           : std_logic := '1';
-    -------------------------------------------------------------------------------
-    --
-    -------------------------------------------------------------------------------
-    signal    IO_AXI_ARID           : std_logic_vector(I_AXI_ID_WIDTH-1 downto 0);
-    signal    IO_AXI_AWID           : std_logic_vector(O_AXI_ID_WIDTH-1 downto 0);
-    signal    IO_AXI_WID            : std_logic_vector(O_AXI_ID_WIDTH-1 downto 0);
-    constant  IO_AXI_RID            : std_logic_vector(I_AXI_ID_WIDTH-1 downto 0) := std_logic_vector(to_unsigned(I_AXI_ID, I_AXI_ID_WIDTH));
-    constant  IO_AXI_BID            : std_logic_vector(O_AXI_ID_WIDTH-1 downto 0) := std_logic_vector(to_unsigned(O_AXI_ID, O_AXI_ID_WIDTH));
-    signal    IO_AXI_ARUSER         : std_logic_vector(I_AXI_USER_WIDTH-1 downto 0);
-    signal    IO_AXI_AWUSER         : std_logic_vector(O_AXI_USER_WIDTH-1 downto 0);
-    -------------------------------------------------------------------------------
-    --
-    -------------------------------------------------------------------------------
-    signal    K_AXI_ARID            : std_logic_vector(K_AXI_ID_WIDTH-1 downto 0);
-    signal    K_AXI_AWID            : std_logic_vector(K_AXI_ID_WIDTH-1 downto 0);
-    signal    K_AXI_WID             : std_logic_vector(K_AXI_ID_WIDTH-1 downto 0);
-    constant  K_AXI_RID             : std_logic_vector(K_AXI_ID_WIDTH-1 downto 0) := std_logic_vector(to_unsigned(K_AXI_ID, K_AXI_ID_WIDTH));
-    constant  K_AXI_BID             : std_logic_vector(K_AXI_ID_WIDTH-1 downto 0) := std_logic_vector(to_unsigned(K_AXI_ID, K_AXI_ID_WIDTH));
-    signal    K_AXI_ARUSER          : std_logic_vector(K_AXI_USER_WIDTH-1 downto 0);
-    signal    K_AXI_AWUSER          : std_logic_vector(K_AXI_USER_WIDTH-1 downto 0);
-    -------------------------------------------------------------------------------
-    --
-    -------------------------------------------------------------------------------
-    signal    T_AXI_ARID            : std_logic_vector(T_AXI_ID_WIDTH-1 downto 0);
-    signal    T_AXI_AWID            : std_logic_vector(T_AXI_ID_WIDTH-1 downto 0);
-    signal    T_AXI_WID             : std_logic_vector(T_AXI_ID_WIDTH-1 downto 0);
-    constant  T_AXI_RID             : std_logic_vector(T_AXI_ID_WIDTH-1 downto 0) := std_logic_vector(to_unsigned(T_AXI_ID, T_AXI_ID_WIDTH));
-    constant  T_AXI_BID             : std_logic_vector(T_AXI_ID_WIDTH-1 downto 0) := std_logic_vector(to_unsigned(T_AXI_ID, T_AXI_ID_WIDTH));
-    signal    T_AXI_ARUSER          : std_logic_vector(T_AXI_USER_WIDTH-1 downto 0);
-    signal    T_AXI_AWUSER          : std_logic_vector(T_AXI_USER_WIDTH-1 downto 0);
 begin
 
 CORE: QCONV_STRIP_AXI_CORE 
@@ -388,14 +416,14 @@ CORE: QCONV_STRIP_AXI_CORE
         TH_BUF_SIZE         => TH_BUF_SIZE         , --   
         IN_C_UNROLL         => IN_C_UNROLL         , --   
         OUT_C_UNROLL        => OUT_C_UNROLL        , --   
-        DATA_ADDR_WIDTH     => M_AXI_ADDR_WIDTH    , --   
+        DATA_ADDR_WIDTH     => IO_AXI_ADDR_WIDTH   , --   
         S_AXI_ADDR_WIDTH    => S_AXI_ADDR_WIDTH    , --   
         S_AXI_DATA_WIDTH    => S_AXI_DATA_WIDTH    , --   
         S_AXI_ID_WIDTH      => S_AXI_ID_WIDTH      , --   
-        I_AXI_ADDR_WIDTH    => M_AXI_ADDR_WIDTH    , --   
-        I_AXI_DATA_WIDTH    => M_AXI_DATA_WIDTH    , --   
-        I_AXI_ID_WIDTH      => I_AXI_ID_WIDTH      , --   
-        I_AXI_USER_WIDTH    => I_AXI_USER_WIDTH    , --   
+        I_AXI_ADDR_WIDTH    => IO_AXI_ADDR_WIDTH   , --   
+        I_AXI_DATA_WIDTH    => IO_AXI_DATA_WIDTH   , --   
+        I_AXI_ID_WIDTH      => IO_AXI_ID_WIDTH     , --   
+        I_AXI_USER_WIDTH    => IO_AXI_USER_WIDTH   , --   
         I_AXI_XFER_SIZE     => I_AXI_XFER_SIZE     , --   
         I_AXI_ID            => I_AXI_ID            , --   
         I_AXI_PROT          => I_AXI_PROT          , --   
@@ -403,10 +431,10 @@ CORE: QCONV_STRIP_AXI_CORE
         I_AXI_REGION        => I_AXI_REGION        , --   
         I_AXI_CACHE         => I_AXI_CACHE         , --   
         I_AXI_REQ_QUEUE     => I_AXI_REQ_QUEUE     , --   
-        O_AXI_ADDR_WIDTH    => M_AXI_ADDR_WIDTH    , --   
-        O_AXI_DATA_WIDTH    => M_AXI_DATA_WIDTH    , --   
-        O_AXI_ID_WIDTH      => O_AXI_ID_WIDTH      , --   
-        O_AXI_USER_WIDTH    => O_AXI_USER_WIDTH    , --   
+        O_AXI_ADDR_WIDTH    => IO_AXI_ADDR_WIDTH   , --   
+        O_AXI_DATA_WIDTH    => IO_AXI_DATA_WIDTH   , --   
+        O_AXI_ID_WIDTH      => IO_AXI_ID_WIDTH     , --   
+        O_AXI_USER_WIDTH    => IO_AXI_USER_WIDTH   , --   
         O_AXI_XFER_SIZE     => O_AXI_XFER_SIZE     , --   
         O_AXI_ID            => O_AXI_ID            , --   
         O_AXI_PROT          => O_AXI_PROT          , --   
@@ -414,8 +442,8 @@ CORE: QCONV_STRIP_AXI_CORE
         O_AXI_REGION        => O_AXI_REGION        , --   
         O_AXI_CACHE         => O_AXI_CACHE         , --   
         O_AXI_REQ_QUEUE     => O_AXI_REQ_QUEUE     , --   
-        K_AXI_ADDR_WIDTH    => M_AXI_ADDR_WIDTH    , --   
-        K_AXI_DATA_WIDTH    => M_AXI_DATA_WIDTH    , --   
+        K_AXI_ADDR_WIDTH    => K_AXI_ADDR_WIDTH    , --   
+        K_AXI_DATA_WIDTH    => K_AXI_DATA_WIDTH    , --   
         K_AXI_ID_WIDTH      => K_AXI_ID_WIDTH      , --   
         K_AXI_USER_WIDTH    => K_AXI_USER_WIDTH    , --   
         K_AXI_XFER_SIZE     => K_AXI_XFER_SIZE     , --   
@@ -425,8 +453,8 @@ CORE: QCONV_STRIP_AXI_CORE
         K_AXI_REGION        => K_AXI_REGION        , --   
         K_AXI_CACHE         => K_AXI_CACHE         , --   
         K_AXI_REQ_QUEUE     => K_AXI_REQ_QUEUE     , --   
-        T_AXI_ADDR_WIDTH    => M_AXI_ADDR_WIDTH    , --   
-        T_AXI_DATA_WIDTH    => M_AXI_DATA_WIDTH    , --   
+        T_AXI_ADDR_WIDTH    => T_AXI_ADDR_WIDTH    , --   
+        T_AXI_DATA_WIDTH    => T_AXI_DATA_WIDTH    , --   
         T_AXI_ID_WIDTH      => T_AXI_ID_WIDTH      , --   
         T_AXI_USER_WIDTH    => T_AXI_USER_WIDTH    , --   
         T_AXI_XFER_SIZE     => T_AXI_XFER_SIZE     , --   
@@ -531,7 +559,7 @@ CORE: QCONV_STRIP_AXI_CORE
     -------------------------------------------------------------------------------
     -- IN/OUT DATA AXI4 Write Data Channel Signals.
     -------------------------------------------------------------------------------
-        IO_AXI_WID          => IO_AXI_WID          , --   
+        IO_AXI_WID          => open                , --   
         IO_AXI_WDATA        => IO_AXI_WDATA        , --   
         IO_AXI_WSTRB        => IO_AXI_WSTRB        , --   
         IO_AXI_WLAST        => IO_AXI_WLAST        , --   
@@ -588,7 +616,7 @@ CORE: QCONV_STRIP_AXI_CORE
     -------------------------------------------------------------------------------
     -- K DATA AXI4 Write Data Channel Signals.
     -------------------------------------------------------------------------------
-        K_AXI_WID           => K_AXI_WID           , --   
+        K_AXI_WID           => open                , --   
         K_AXI_WDATA         => K_AXI_WDATA         , --   
         K_AXI_WSTRB         => K_AXI_WSTRB         , --   
         K_AXI_WLAST         => K_AXI_WLAST         , --   
@@ -645,7 +673,7 @@ CORE: QCONV_STRIP_AXI_CORE
     -------------------------------------------------------------------------------
     -- TH DATA AXI4 Write Data Channel Signals.
     -------------------------------------------------------------------------------
-        T_AXI_WID           => T_AXI_WID           , --   
+        T_AXI_WID           => open                , --   
         T_AXI_WDATA         => T_AXI_WDATA         , --   
         T_AXI_WSTRB         => T_AXI_WSTRB         , --   
         T_AXI_WLAST         => T_AXI_WLAST         , --   
