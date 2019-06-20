@@ -36,7 +36,6 @@ TEST_BENCH            := qconv_strip_axi_core_test_bench_slv_1_1_064 \
                          qconv_strip_axi_core_test_bench_mem_2_010   \
                          qconv_strip_axi_core_test_bench_mem_2_011   \
                          qconv_strip_axi_core_test_bench_mem_2_012   \
-                         qconv_strip_axi_core_test_bench_mem_all     \
                          $(END_LIST)
 
 DUMMY_PLUG            := $(DUMMY_PLUG_WORK_PATH)/dummy_plug-obj93.cf
